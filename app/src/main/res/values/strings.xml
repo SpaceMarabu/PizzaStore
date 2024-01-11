@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">PizzaStore</string>
+    <string name="menu">menu</string>
+    <string name="profile">profile</string>
+    <string name="contacts">Contacts</string>
+    <string name="shopping_bag">shopping_bag</string>
+</resources>
