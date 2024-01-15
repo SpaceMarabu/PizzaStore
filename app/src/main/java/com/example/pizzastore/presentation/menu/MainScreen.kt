@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation
+package com.example.pizzastore.presentation.menu
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import com.example.pizzastore.domain.City
+import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.navigation.NavigationItem
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedMaterialScaffoldPaddingParameter")

@@ -1,10 +1,8 @@
-package com.example.pizzastore
+package com.example.pizzastore.di
 
 import android.app.Application
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.example.pizzastore.di.ApplicationComponent
-import com.example.pizzastore.di.DaggerApplicationComponent
 
 class PizzaStoreApplication : Application() {
 

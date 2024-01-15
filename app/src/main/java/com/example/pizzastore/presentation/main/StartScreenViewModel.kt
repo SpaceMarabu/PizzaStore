@@ -1,20 +1,18 @@
-package com.example.pizzastore.presentation
+package com.example.pizzastore.presentation.main
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(): ViewModel() {
+class StartScreenViewModel @Inject constructor(): ViewModel() {
 
-    private val _state = MutableStateFlow<CityScreenState>(CityScreenState.Initial)
+    private val _state = MutableStateFlow<StartScreenState>(StartScreenState.Initial)
     val state = _state.asStateFlow()
 
-    fun changeState(state: CityScreenState) {
+    fun changeState(state: StartScreenState) {
         viewModelScope.launch {
             _state.emit(state)
         }

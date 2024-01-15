@@ -4,4 +4,5 @@
     <string name="profile">profile</string>
     <string name="contacts">Contacts</string>
     <string name="shopping_bag">shopping_bag</string>
+    <string name="delivery_question">Как будете\nзаказывать?</string>
 </resources>

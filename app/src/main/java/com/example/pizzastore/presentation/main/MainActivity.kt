@@ -1,11 +1,13 @@
-package com.example.pizzastore.presentation
+package com.example.pizzastore.presentation.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.pizzastore.getApplicationComponent
+import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.presentation.city.ChoseCityScreen
+import com.example.pizzastore.presentation.menu.MenuScreen
 import com.example.pizzastore.ui.theme.PizzaStoreTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
 
             val component = getApplicationComponent()
-            val viewModel: MainViewModel = viewModel(factory = component.getViewModelFactory())
+            val viewModel: StartScreenViewModel = viewModel(factory = component.getViewModelFactory())
 
             val cityState = viewModel.state.collectAsState()
 
@@ -24,13 +26,13 @@ class MainActivity : ComponentActivity() {
 
                 when (cityState.value) {
 
-                    is CityScreenState.CityContent -> {
-                        MenuScreen((cityState.value as CityScreenState.CityContent).city)
+                    is StartScreenState.StartScreenContent -> {
+                        MenuScreen((cityState.value as StartScreenState.StartScreenContent).city)
                     }
 
-                    CityScreenState.Initial -> {
+                    StartScreenState.Initial -> {
                         ChoseCityScreen {
-                            viewModel.changeState(CityScreenState.CityContent(it))
+                            viewModel.changeState(StartScreenState.StartScreenContent(it))
                         }
                     }
                 }
