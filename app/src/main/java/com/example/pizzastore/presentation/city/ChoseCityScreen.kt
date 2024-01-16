@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -39,6 +41,7 @@ import com.example.pizzastore.R
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.ui.theme.DarkBlue
 
 @Composable
 fun ChoseCityScreen(
@@ -51,6 +54,8 @@ fun ChoseCityScreen(
     val screenState = viewModel.state.collectAsState()
 
     when (screenState.value) {
+
+
 
         is CityDeliveryScreenState.Initial -> {}
 
@@ -74,6 +79,20 @@ fun ChoseCityScreen(
         is CityDeliveryScreenState.DeliveryChecked -> {
             val city = (screenState.value as CityDeliveryScreenState.DeliveryChecked).city
             onCityAndDeliveryChosen(city)
+        }
+
+        CityDeliveryScreenState.Loading -> {
+            Column (
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(100.dp),
+                    color = DarkBlue)
+            }
         }
     }
 

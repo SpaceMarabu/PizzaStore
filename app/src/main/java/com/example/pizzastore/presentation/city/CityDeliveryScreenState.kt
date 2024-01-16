@@ -5,6 +5,7 @@ import com.example.pizzastore.domain.entity.City
 sealed class CityDeliveryScreenState() {
 
     object Initial : CityDeliveryScreenState()
+    object Loading : CityDeliveryScreenState()
 
     data class ListCities(
         val cities: List<City>

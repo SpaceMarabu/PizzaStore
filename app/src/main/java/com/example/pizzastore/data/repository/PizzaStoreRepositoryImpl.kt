@@ -8,25 +8,21 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.getValue
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
-class PizzaStoreRepositoryImpl @Inject constructor(): PizzaStoreRepository {
+class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
 
+    private val listCities = mutableListOf<City>()
 
-    private val scope = CoroutineScope(Dispatchers.Main)
+    init {
+        loadCities()
+    }
 
-
-
-    private val citiesFlow = flow {
+    private fun loadCities() {
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         val dRef = database.getReference("cities")
 
-        val listCities = mutableListOf<City>()
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -35,21 +31,18 @@ class PizzaStoreRepositoryImpl @Inject constructor(): PizzaStoreRepository {
                     val value = data.getValue<String>() ?: continue
                     listCities.add(City(key.toInt(), value))
                 }
-                scope.launch {
-                    emit(listCities)
-                }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
                 Log.w("TEST_TEST", "loadPost:onCancelled", databaseError.toException())
             }
         }
+
         dRef.addValueEventListener(postListener)
     }
 
 
-
-    override suspend fun getCitiesUseCase(): Flow<List<City>> {
-        return citiesFlow
+    override fun getCitiesUseCase(): List<City> {
+        return listCities
     }
 }
