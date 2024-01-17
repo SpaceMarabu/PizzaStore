@@ -7,7 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.presentation.city.ChoseCityScreen
-import com.example.pizzastore.presentation.menu.MenuScreen
+import com.example.pizzastore.presentation.menu.MainScreen
 import com.example.pizzastore.ui.theme.PizzaStoreTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                 when (cityState.value) {
 
                     is StartScreenState.StartScreenContent -> {
-                        MenuScreen((cityState.value as StartScreenState.StartScreenContent).city)
+                        MainScreen((cityState.value as StartScreenState.StartScreenContent).city)
                     }
 
                     StartScreenState.Initial -> {

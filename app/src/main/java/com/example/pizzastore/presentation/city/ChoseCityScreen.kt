@@ -1,5 +1,6 @@
 package com.example.pizzastore.presentation.city
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -73,6 +74,10 @@ fun ChoseCityScreen(
             ChoseDeliveryType {
                 val newCity = currentState.copy(deliveryType = it)
                 viewModel.changeState(CityDeliveryScreenState.DeliveryChecked(newCity))
+            }
+            BackHandler {
+                val previousState = viewModel.previousState
+                viewModel.changeState(previousState)
             }
         }
 

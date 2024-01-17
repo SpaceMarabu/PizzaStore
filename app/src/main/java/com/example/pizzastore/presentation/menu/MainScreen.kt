@@ -9,23 +9,30 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.navigation.AppNavGraph
 import com.example.pizzastore.navigation.NavigationItem
+import com.example.pizzastore.navigation.Screen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
-fun MenuScreen(city: City) {
+fun MainScreen(city: City) {
 
 
+    val navHostController = rememberNavController()
 
     Scaffold(
         bottomBar = {
             BottomNavigation {
-//                val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+                val navBackStackEntry by navHostController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
 
                 val items = listOf(
                     NavigationItem.Menu,
@@ -40,11 +47,19 @@ fun MenuScreen(city: City) {
 //                    } ?: false
 
                     BottomNavigationItem(
-                        selected = false,
+                        selected = currentRoute == item.screen.route,
                         onClick = {
-//                            if (!selected) {
-//                                navigationState.navigateTo(item.screen.route)
-//                            }
+                            navHostController.navigate(item.screen.route) {
+                                popUpTo(Screen.ROUTE_MENU) {
+                                    saveState = true
+                                }
+//                                anim {
+//                                    enter = android.R.animator.fade_in
+//                                    exit = android.R.animator.fade_out
+//                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
                         },
                         icon = {
                             Icon(
@@ -64,6 +79,13 @@ fun MenuScreen(city: City) {
             }
         }
     ) {
-        Text(text = city.name)
+
+        AppNavGraph(
+            navHostController = navHostController,
+            menuScreenContent = { Text(text = city.name) },
+            profileScreenContent = { Text(text = "profile") },
+            contactsScreenContent = { Text(text = "contacts") },
+            shoppingBagScreenContent = { Text(text = "shoppingBag") }
+            )
     }
 }

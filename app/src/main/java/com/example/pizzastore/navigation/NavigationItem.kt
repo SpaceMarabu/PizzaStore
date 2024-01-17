@@ -15,19 +15,19 @@ sealed class NavigationItem(
     )
 
     object Profile : NavigationItem(
-        screen = Screen.Menu,
+        screen = Screen.Profile,
         titleResId = R.string.profile,
         icon = R.drawable.ic_profile
     )
 
     object Contacts : NavigationItem(
-        screen = Screen.Menu,
+        screen = Screen.Contacts,
         titleResId = R.string.contacts,
         icon = R.drawable.ic_contacts
     )
 
     object ShoppingBag : NavigationItem(
-        screen = Screen.Menu,
+        screen = Screen.ShoppingBag,
         titleResId = R.string.shopping_bag,
         icon = R.drawable.ic_shopping_bag
     )

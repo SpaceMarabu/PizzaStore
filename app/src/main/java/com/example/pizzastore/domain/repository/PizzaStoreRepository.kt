@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface PizzaStoreRepository {
 
-    fun getCitiesUseCase(): List<City>
+    fun getCitiesUseCase(): Flow<List<City>>
 }

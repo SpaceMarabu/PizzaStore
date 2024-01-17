@@ -10,7 +10,7 @@ class GetCitiesUseCase  @Inject constructor(
     private val repository: PizzaStoreRepository
 ) {
 
-    fun getCities(): List<City> {
+    fun getCitiesFlow(): Flow<List<City>> {
         return repository.getCitiesUseCase()
     }
 }
