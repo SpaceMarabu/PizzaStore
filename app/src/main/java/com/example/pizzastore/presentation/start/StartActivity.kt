@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.main
+package com.example.pizzastore.presentation.start
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -6,11 +6,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.di.getApplicationComponent
-import com.example.pizzastore.presentation.city.ChoseCityScreen
-import com.example.pizzastore.presentation.menu.MainScreen
+import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
+import com.example.pizzastore.presentation.main.MainScreen
 import com.example.pizzastore.ui.theme.PizzaStoreTheme
 
-class MainActivity : ComponentActivity() {
+class StartActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -27,13 +27,15 @@ class MainActivity : ComponentActivity() {
                 when (cityState.value) {
 
                     is StartScreenState.StartScreenContent -> {
-                        MainScreen((cityState.value as StartScreenState.StartScreenContent).city)
+//                        MainScreen((cityState.value as StartScreenState.StartScreenContent).city)
+                        MainScreen()
                     }
 
                     StartScreenState.Initial -> {
-                        ChoseCityScreen {
-                            viewModel.changeState(StartScreenState.StartScreenContent(it))
-                        }
+                        viewModel.changeState(StartScreenState.StartScreenContent)
+//                        ChoseCityScreen {
+//                            viewModel.changeState(StartScreenState.StartScreenContent(it))
+//                        }
                     }
                 }
             }

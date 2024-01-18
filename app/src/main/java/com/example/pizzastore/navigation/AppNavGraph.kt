@@ -11,7 +11,8 @@ fun AppNavGraph(
     menuScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
     contactsScreenContent: @Composable () -> Unit,
-    shoppingBagScreenContent: @Composable () -> Unit
+    shoppingBagScreenContent: @Composable () -> Unit,
+    choseCityScreenContent: @Composable () -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -32,6 +33,9 @@ fun AppNavGraph(
         }
         composable(Screen.ShoppingBag.route) {
             shoppingBagScreenContent()
+        }
+        composable(Screen.ChoseCity.route) {
+            choseCityScreenContent()
         }
     }
 }

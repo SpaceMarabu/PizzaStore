@@ -1,8 +1,8 @@
 package com.example.pizzastore.di
 
 import androidx.lifecycle.ViewModel
-import com.example.pizzastore.presentation.city.CityDeliveryViewModel
-import com.example.pizzastore.presentation.main.StartScreenViewModel
+import com.example.pizzastore.presentation.chosecity.CityDeliveryViewModel
+import com.example.pizzastore.presentation.start.StartScreenViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

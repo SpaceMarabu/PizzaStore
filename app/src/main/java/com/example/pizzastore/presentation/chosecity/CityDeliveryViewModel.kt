@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.city
+package com.example.pizzastore.presentation.chosecity
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

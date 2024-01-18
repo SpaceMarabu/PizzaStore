@@ -9,7 +9,6 @@ sealed class Screen(
     object Profile : Screen(ROUTE_PROFILE)
     object ShoppingBag : Screen(ROUTE_SHOPPING_BAG)
     object ChoseCity : Screen(ROUTE_CHOSE_CITY)
-    object ChoseDelivery : Screen(ROUTE_CHOSE_DELIVERY)
 
 
     companion object {

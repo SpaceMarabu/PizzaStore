@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.city
+package com.example.pizzastore.presentation.chosecity
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -233,7 +232,7 @@ fun RowDelivery(iconId: Int, text1: String, text2: String, onDeliveryClicked: ()
             modifier = Modifier
                 .padding(8.dp)
                 .size(25.dp),
-            imageVector = ImageVector.vectorResource(R.drawable.ic_angle),
+            imageVector = ImageVector.vectorResource(R.drawable.ic_angle_right),
             contentDescription = null,
             tint = LocalContentColor.current.copy(alpha = 0.2f)
         )

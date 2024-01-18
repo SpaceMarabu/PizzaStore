@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.city
+package com.example.pizzastore.presentation.chosecity
 
 import com.example.pizzastore.domain.entity.City
 
