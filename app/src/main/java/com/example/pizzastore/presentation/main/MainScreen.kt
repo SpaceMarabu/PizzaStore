@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -126,6 +128,13 @@ fun MainScreen() {
                     },
                     onDeliveryClick = {
                         cityState = cityState.copy(deliveryType = it)
+                    },
+                    onAddressClick = {
+                        navHostController.navigate(Screen.ROUTE_MAP)
+//                        when (cityState.deliveryType) {
+//                            DeliveryType.TAKE_OUT -> TODO()
+//                            DeliveryType.DELIVERY_TO -> TODO()
+//                        }
                     }
                 )
             },
@@ -137,7 +146,8 @@ fun MainScreen() {
                     cityState = it
                     navHostController.popBackStack()
                 }
-            }
+            },
+            mapScreenContent = { MapScreen() }
         )
     }
 }
@@ -148,7 +158,8 @@ fun MenuScreenContent(
     paddingStart: Dp,
     paddingTop: Dp,
     onCityClick: () -> Unit,
-    onDeliveryClick: (DeliveryType) -> Unit
+    onDeliveryClick: (DeliveryType) -> Unit,
+    onAddressClick: () -> Unit
 ) {
     Column {
         ChoseCity(
@@ -157,16 +168,41 @@ fun MenuScreenContent(
             paddingTop,
             onCityClick
         )
+        ChoseDeliveryType(
+            city = city,
+            onDeliveryClick = {
+                onDeliveryClick(it)
+            },
+            onAddressClick = {
+                onAddressClick()
+            }
+        )
+    }
+
+}
+
+@Composable
+fun ChoseDeliveryType(
+    city: City,
+    onDeliveryClick: (DeliveryType) -> Unit,
+    onAddressClick: () -> Unit
+) {
+    Column (
+        modifier = Modifier
+            .padding(16.dp)
+            .clip(RoundedCornerShape(10))
+            .background(Color.LightGray.copy(alpha = 0.2f))
+    ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 32.dp, top = 8.dp, end = 32.dp)
+                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
                 .clip(RoundedCornerShape(20))
                 .border(
-                    BorderStroke(1.dp, Color.LightGray),
+                    BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f)),
                     RoundedCornerShape(20)
                 )
-                .background(Color.LightGray),
+                .background(Color.LightGray.copy(alpha = 0.3f)),
             horizontalArrangement = Arrangement.SpaceEvenly
         )
         {
@@ -180,11 +216,13 @@ fun MenuScreenContent(
                 DeliveryType.DELIVERY_TO -> false
             }
 
+            val lightGray30 = Color.LightGray.copy(alpha = 0.3f)
+
             val deliveryColor by animateColorAsState(
-                if (isTakeout) Color.LightGray else Color.White
+                if (isTakeout) lightGray30 else Color.White, label = "deliveryColor"
             )
             val takeoutColor by animateColorAsState(
-                if (isTakeout) Color.White else Color.LightGray
+                if (isTakeout) Color.White else lightGray30, label = "takeoutColor"
             )
 
             when (city.deliveryType) {
@@ -211,6 +249,35 @@ fun MenuScreenContent(
                 }
             }
         }
+        Divider(
+            modifier = Modifier
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp),
+            color = Color.LightGray,
+            thickness = 1.dp
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 16.dp)
+                .clickable {
+                    onAddressClick()
+                },
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Выбрать адрес доставки",
+                color = colorResource(R.color.orange),
+                fontSize = 14.sp
+            )
+            Icon(
+                modifier = Modifier
+                    .size(20.dp),
+                imageVector = ImageVector.vectorResource(R.drawable.ic_angle_right),
+                contentDescription = null,
+                tint = colorResource(R.color.orange)
+            )
+        }
     }
 
 }
@@ -231,7 +298,7 @@ fun TextButton(
             .height(32.dp)
             .wrapContentHeight(align = Alignment.CenterVertically)
             .clickable {
-                       onClick()
+                onClick()
             },
         textAlign = TextAlign.Center,
         fontSize = 12.sp,

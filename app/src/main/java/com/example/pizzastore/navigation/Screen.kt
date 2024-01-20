@@ -9,6 +9,7 @@ sealed class Screen(
     object Profile : Screen(ROUTE_PROFILE)
     object ShoppingBag : Screen(ROUTE_SHOPPING_BAG)
     object ChoseCity : Screen(ROUTE_CHOSE_CITY)
+    object Map : Screen(ROUTE_MAP)
 
 
     companion object {
@@ -18,6 +19,6 @@ sealed class Screen(
         const val ROUTE_CONTACTS = "contacts"
         const val ROUTE_SHOPPING_BAG = "shopping_bag"
         const val ROUTE_CHOSE_CITY = "city"
-        const val ROUTE_CHOSE_DELIVERY = "delivery"
+        const val ROUTE_MAP = "map"
     }
 }

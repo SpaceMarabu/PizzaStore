@@ -12,7 +12,8 @@ fun AppNavGraph(
     profileScreenContent: @Composable () -> Unit,
     contactsScreenContent: @Composable () -> Unit,
     shoppingBagScreenContent: @Composable () -> Unit,
-    choseCityScreenContent: @Composable () -> Unit
+    choseCityScreenContent: @Composable () -> Unit,
+    mapScreenContent: @Composable () -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -36,6 +37,9 @@ fun AppNavGraph(
         }
         composable(Screen.ChoseCity.route) {
             choseCityScreenContent()
+        }
+        composable(Screen.Map.route) {
+            mapScreenContent()
         }
     }
 }
