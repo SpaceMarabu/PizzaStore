@@ -20,8 +20,6 @@ import javax.inject.Inject
 class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
 
 
-
-
     private val citiesFlow = callbackFlow {
         val database: FirebaseDatabase = FirebaseDatabase.getInstance()
         val dRef = database.getReference("cities")
@@ -31,8 +29,14 @@ class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
                 val listCities = mutableListOf<City>()
                 for (data in dataSnapshot.children) {
                     val key: String = data.key ?: continue
-                    val value = data.getValue<String>() ?: continue
-                    listCities.add(City(key.toInt(), value))
+                    val value = data.getValue(City::class.java) ?: continue
+                    listCities.add(
+                        City(
+                            id = key.toInt(),
+                            name = value.name,
+                            points = value.points
+                        )
+                    )
                 }
                 val returnList = listCities.toList()
                 trySend(returnList)

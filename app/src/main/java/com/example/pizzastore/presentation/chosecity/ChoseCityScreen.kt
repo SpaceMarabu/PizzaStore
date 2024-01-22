@@ -41,6 +41,7 @@ import com.example.pizzastore.R
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.ui.theme.DarkBlue
 
 @Composable
@@ -86,17 +87,7 @@ fun ChoseCityScreen(
         }
 
         CityDeliveryScreenState.Loading -> {
-            Column (
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ){
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(100.dp),
-                    color = DarkBlue)
-            }
+            CircularLoading()
         }
     }
 

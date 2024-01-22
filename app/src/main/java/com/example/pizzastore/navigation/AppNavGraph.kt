@@ -4,11 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.presentation.main.MainScreenState
 
 @Composable
 fun AppNavGraph(
     navHostController: NavHostController,
-    menuScreenContent: @Composable () -> Unit,
+    menuScreenContent: @Composable (String?) -> Unit,
     profileScreenContent: @Composable () -> Unit,
     contactsScreenContent: @Composable () -> Unit,
     shoppingBagScreenContent: @Composable () -> Unit,
@@ -17,15 +19,13 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.Menu.route
+        startDestination = Screen.Home.route
     ) {
-//        homeScreenNavGraph(
-//            newsFeedScreenContent = newsFeedScreenContent,
-//            commentsScreenContent = commentsScreenContent
-//        )
-        composable(Screen.Menu.route) {
-            menuScreenContent()
-        }
+        homeScreenNavGraph(
+            menuScreenContent = menuScreenContent,
+            choseCityScreenContent = choseCityScreenContent,
+            mapScreenContent = mapScreenContent
+        )
         composable(Screen.Profile.route) {
             profileScreenContent()
         }
@@ -34,12 +34,6 @@ fun AppNavGraph(
         }
         composable(Screen.ShoppingBag.route) {
             shoppingBagScreenContent()
-        }
-        composable(Screen.ChoseCity.route) {
-            choseCityScreenContent()
-        }
-        composable(Screen.Map.route) {
-            mapScreenContent()
         }
     }
 }

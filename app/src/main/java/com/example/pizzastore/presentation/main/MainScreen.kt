@@ -25,6 +25,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,15 +45,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pizzastore.R
+import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.navigation.AppNavGraph
 import com.example.pizzastore.navigation.NavigationItem
 import com.example.pizzastore.navigation.Screen
+import com.example.pizzastore.navigation.rememberNavigationState
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
+import com.example.pizzastore.presentation.chosecity.CityDeliveryViewModel
+import com.example.pizzastore.presentation.funs.CircularLoading
+import com.google.gson.Gson
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedMaterialScaffoldPaddingParameter")
@@ -59,12 +67,26 @@ import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
 fun MainScreen() {
 
 
-    val navHostController = rememberNavController()
+    val navigationState = rememberNavigationState()
+
+    val navBackStackEntry by navigationState.navHostController.currentBackStackEntryAsState()
+
+//    val screenState: State<MainScreenState> = viewModel.state.collectAsState()
+
+
+
+//    when (screenState.value) {
+//        is MainScreenState.Initial -> {}
+//
+//        is MainScreenState.City -> {
+//            cityState = viewModel.defaultCity
+//        }
+//        is MainScreenState.Loading -> { CircularLoading() }
+//    }
 
     Scaffold(
         bottomBar = {
             BottomNavigation {
-                val navBackStackEntry by navHostController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val items = listOf(
@@ -82,17 +104,7 @@ fun MainScreen() {
                     BottomNavigationItem(
                         selected = currentRoute == item.screen.route,
                         onClick = {
-                            navHostController.navigate(item.screen.route) {
-                                popUpTo(Screen.ROUTE_MENU) {
-                                    saveState = true
-                                }
-//                                anim {
-//                                    enter = android.R.animator.fade_in
-//                                    exit = android.R.animator.fade_out
-//                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
+                            navigationState.navigateTo(item.screen.route)
                         },
                         icon = {
                             Icon(
@@ -109,33 +121,24 @@ fun MainScreen() {
             }
         }
     ) {
-        val paddingStart = 16.dp
-        val paddingTop = 16.dp
 
-        var cityState by rememberSaveable {
-            mutableStateOf(City())
-        }
+
 
         AppNavGraph(
-            navHostController = navHostController,
+            navHostController = navigationState.navHostController,
             menuScreenContent = {
                 MenuScreenContent(
-                    paddingStart = paddingStart,
-                    paddingTop = paddingTop,
-                    city = cityState,
                     onCityClick = {
-                        navHostController.navigate(Screen.ROUTE_CHOSE_CITY)
-                    },
-                    onDeliveryClick = {
-                        cityState = cityState.copy(deliveryType = it)
+                        navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
                     },
                     onAddressClick = {
-                        navHostController.navigate(Screen.ROUTE_MAP)
+                        navigationState.navigateTo(Screen.ROUTE_MAP)
 //                        when (cityState.deliveryType) {
 //                            DeliveryType.TAKE_OUT -> TODO()
 //                            DeliveryType.DELIVERY_TO -> TODO()
 //                        }
-                    }
+                    },
+                    cityId = it
                 )
             },
             profileScreenContent = { Text(text = "profile") },
@@ -143,35 +146,47 @@ fun MainScreen() {
             shoppingBagScreenContent = { Text(text = "shoppingBag") },
             choseCityScreenContent = {
                 ChoseCityScreen {
-                    cityState = it
-                    navHostController.popBackStack()
+                    navigationState.navigateToMenu(it.id.toString())
                 }
             },
-            mapScreenContent = { MapScreen() }
+            mapScreenContent = {
+//                val currentCityState: City? = null
+//                if (currentCityState.points != null) {
+//                    MapScreen(currentCityState.points)
+//                }
+            }
         )
     }
 }
 
+
 @Composable
 fun MenuScreenContent(
-    city: City,
-    paddingStart: Dp,
-    paddingTop: Dp,
     onCityClick: () -> Unit,
-    onDeliveryClick: (DeliveryType) -> Unit,
-    onAddressClick: () -> Unit
+    onAddressClick: () -> Unit,
+    cityId: String?
 ) {
+
+    val component = getApplicationComponent()
+    val viewModel: MainViewModel = viewModel(factory = component.getViewModelFactory())
+    var cityState by rememberSaveable {
+        mutableStateOf(City())
+    }
+    if (city != null) {
+        cityState = city
+    }
+
     Column {
         ChoseCity(
-            city.name,
-            paddingStart,
-            paddingTop,
+            cityState.name,
+            16.dp,
+            16.dp,
             onCityClick
         )
         ChoseDeliveryType(
-            city = city,
+            city = cityState,
             onDeliveryClick = {
-                onDeliveryClick(it)
+                cityState = cityState.copy(deliveryType = it)
             },
             onAddressClick = {
                 onAddressClick()
@@ -187,12 +202,12 @@ fun ChoseDeliveryType(
     onDeliveryClick: (DeliveryType) -> Unit,
     onAddressClick: () -> Unit
 ) {
-    Column (
+    Column(
         modifier = Modifier
             .padding(16.dp)
             .clip(RoundedCornerShape(10))
             .background(Color.LightGray.copy(alpha = 0.2f))
-    ){
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

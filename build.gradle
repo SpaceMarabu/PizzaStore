@@ -14,6 +14,6 @@ private String getMapkitApiKey() {
     def properties = new Properties()
     project.file("app/local.properties")
             .withInputStream { properties.load(it) }
-    return properties.getProperty("MAPKIT_API_KEY", "")
+    return properties.getProperty("MAP_API_KEY", "")
 
 }
