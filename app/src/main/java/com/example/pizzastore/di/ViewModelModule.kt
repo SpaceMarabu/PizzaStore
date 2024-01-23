@@ -3,6 +3,7 @@ package com.example.pizzastore.di
 import androidx.lifecycle.ViewModel
 import com.example.pizzastore.presentation.chosecity.CityDeliveryViewModel
 import com.example.pizzastore.presentation.main.MainViewModel
+import com.example.pizzastore.presentation.menu.MenuScreenViewModel
 import com.example.pizzastore.presentation.start.StartScreenViewModel
 import dagger.Binds
 import dagger.Module
@@ -25,4 +26,9 @@ interface ViewModelModule {
     @ViewModelKey(CityDeliveryViewModel::class)
     @Binds
     fun bindCityDeliveryViewModel(viewModel: CityDeliveryViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(MenuScreenViewModel::class)
+    @Binds
+    fun bindMenuScreenViewModel(viewModel: MenuScreenViewModel): ViewModel
 }

@@ -20,12 +20,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.pizzastore.R
+import com.example.pizzastore.presentation.funs.getBitmapDescriptorFromVector
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -33,13 +36,13 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 
 
 @Composable
-fun MapScreen(points: List<String>) {
+fun MapScreen(points: String) {
+
 
     val permissions = arrayOf(
         Manifest.permission.ACCESS_COARSE_LOCATION,
@@ -63,7 +66,7 @@ fun MapScreen(points: List<String>) {
     }
 
     val pointsToLatLng: MutableList<LatLng> = mutableListOf()
-    points.forEach {
+    points.split(";").forEach {
         val point = it.split(",").toTypedArray()
         pointsToLatLng.add(
             LatLng(
@@ -74,7 +77,7 @@ fun MapScreen(points: List<String>) {
     }
 
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(pointsToLatLng[0], 17f)
+        position = CameraPosition.fromLatLngZoom(pointsToLatLng[0], 30f)
     }
 
     Column(
@@ -97,16 +100,15 @@ fun MapScreen(points: List<String>) {
                 properties = MapProperties(isMyLocationEnabled = true),
                 uiSettings = MapUiSettings(compassEnabled = true)
             ) {
-                GoogleMarkers()
-                Polyline(
-                    points = listOf(
-                        LatLng(44.811058, 20.4617586),
-                        LatLng(44.811058, 20.4627586),
-                        LatLng(44.810058, 20.4627586),
-                        LatLng(44.809058, 20.4627586),
-                        LatLng(44.809058, 20.4617586)
+                pointsToLatLng.forEach {
+                    Marker(
+                        state = rememberMarkerState(position = it),
+                        title = "Marker",
+                        icon =  getBitmapDescriptorFromVector(
+                            LocalContext.current, R.drawable.ic_contacts_orange
+                        )
                     )
-                )
+                }
             }
         }
     }

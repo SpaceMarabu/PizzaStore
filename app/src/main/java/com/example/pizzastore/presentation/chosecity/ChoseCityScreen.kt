@@ -56,8 +56,6 @@ fun ChoseCityScreen(
 
     when (screenState.value) {
 
-
-
         is CityDeliveryScreenState.Initial -> {}
 
         is CityDeliveryScreenState.ListCities -> {
@@ -73,6 +71,7 @@ fun ChoseCityScreen(
             val currentState = (screenState.value as CityDeliveryScreenState.CityChecked).city
             ChoseDeliveryType {
                 val newCity = currentState.copy(deliveryType = it)
+                viewModel.sendCity(newCity)
                 viewModel.changeState(CityDeliveryScreenState.DeliveryChecked(newCity))
             }
             BackHandler {

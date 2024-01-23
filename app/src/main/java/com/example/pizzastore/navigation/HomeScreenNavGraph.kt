@@ -8,30 +8,23 @@ import androidx.navigation.navigation
 import com.example.pizzastore.domain.entity.City
 
 fun NavGraphBuilder.homeScreenNavGraph(
-    menuScreenContent: @Composable (cityId: String?) -> Unit,
+    menuScreenContent: @Composable () -> Unit,
     choseCityScreenContent: @Composable () -> Unit,
-    mapScreenContent: @Composable () -> Unit
+    mapScreenContent: @Composable (points: String) -> Unit
 ) {
     navigation(
-        startDestination = Screen.Menu.route,
+        startDestination = Screen.ChoseCity.route,
         route = Screen.Home.route
     ) {
-        composable(
-            route = Screen.Menu.route,
-            arguments = listOf(
-                navArgument(Screen.KEY_CITY) {
-                    type = City.NavigationType
-                }
-            )
-        ) {
-            val cityId = it.arguments?.getString(Screen.KEY_CITY)
-            menuScreenContent(cityId)
+        composable(Screen.Menu.route) {
+            menuScreenContent()
         }
         composable(Screen.ChoseCity.route) {
             choseCityScreenContent()
         }
         composable(Screen.Map.route) {
-            mapScreenContent()
+            val points = it.arguments?.getString(Screen.KEY_MAP) ?: ""
+            mapScreenContent(points)
         }
     }
 }

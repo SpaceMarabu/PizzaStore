@@ -9,8 +9,9 @@ class NavigationState(
     val navHostController: NavHostController
 ) {
 
-    fun navigateToMenu(cityId: String) {
-        navHostController.navigate(Screen.Menu.getRouteWithArgs(cityId))
+    fun navigateToMap(points: List<String>) {
+        val arg = points.joinToString(";")
+        navHostController.navigate(Screen.Map.getRouteWithArgs(arg))
     }
 
     fun navigateTo(route: String) {

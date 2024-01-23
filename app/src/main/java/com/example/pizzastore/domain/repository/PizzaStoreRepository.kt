@@ -8,4 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 interface PizzaStoreRepository {
 
     fun getCitiesUseCase(): Flow<List<City>>
+
+    fun getCurrentCityUseCase(): Flow<City?>
+
+    suspend fun setCitySettings(city: City)
 }

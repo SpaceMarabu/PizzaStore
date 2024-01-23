@@ -7,21 +7,22 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
 
 
-    private val citiesFlow = callbackFlow {
-        val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+    private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
+
+    private val currentCityFlow: MutableStateFlow<City?> = MutableStateFlow(null)
+
+
+    private val listCitiesFlow = callbackFlow {
         val dRef = database.getReference("cities")
 
         val postListener = object : ValueEventListener {
@@ -30,11 +31,12 @@ class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
                 for (data in dataSnapshot.children) {
                     val key: String = data.key ?: continue
                     val value = data.getValue(City::class.java) ?: continue
+                    value.points
                     listCities.add(
                         City(
                             id = key.toInt(),
                             name = value.name,
-                            points = value.points
+                            points = value.points.filterNotNull()
                         )
                     )
                 }
@@ -43,7 +45,11 @@ class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.w("TEST_TEST", "loadPost:onCancelled", databaseError.toException())
+                Log.w(
+                    "PizzaStoreRepositoryImpl",
+                    "loadCities:onCancelled",
+                    databaseError.toException()
+                )
             }
         }
         dRef.addValueEventListener(postListener)
@@ -53,8 +59,15 @@ class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
         }
     }
 
+    override suspend fun setCitySettings(city: City) {
+        currentCityFlow.emit(city)
+    }
+
+    override fun getCurrentCityUseCase(): Flow<City?> {
+        return currentCityFlow
+    }
 
     override fun getCitiesUseCase(): Flow<List<City>> {
-        return citiesFlow
+        return listCitiesFlow
     }
 }

@@ -2,7 +2,9 @@ package com.example.pizzastore.presentation.chosecity
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.usecases.GetCitiesUseCase
+import com.example.pizzastore.domain.usecases.SetCitySettingsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
@@ -10,7 +12,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class CityDeliveryViewModel @Inject constructor(
-    private val getCitiesUseCase: GetCitiesUseCase
+    private val getCitiesUseCase: GetCitiesUseCase,
+    private val setCitySettingsUseCase: SetCitySettingsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<CityDeliveryScreenState>(CityDeliveryScreenState.Initial)
@@ -23,6 +26,12 @@ class CityDeliveryViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             loadCities()
+        }
+    }
+
+    fun sendCity(city: City) {
+        viewModelScope.launch {
+            setCitySettingsUseCase.setCity(city)
         }
     }
 

@@ -11,25 +11,5 @@ data class City(
     val id: Int = 1,
     val name: String = "Москва",
     val deliveryType: DeliveryType = DeliveryType.TAKE_OUT,
-    val points: List<String>? = null
-) : Parcelable {
-
-    companion object {
-
-        val NavigationType: NavType<String> = object : NavType<String>(true) {
-
-            override fun get(bundle: Bundle, key: String): String? {
-                return bundle.getString(key)
-            }
-
-            override fun parseValue(value: String): String {
-                return value
-            }
-
-            override fun put(bundle: Bundle, key: String, value: String) {
-                bundle.putString(key, value)
-            }
-        }
-    }
-
-}
+    val points: List<String> = listOf("")
+) : Parcelable { }

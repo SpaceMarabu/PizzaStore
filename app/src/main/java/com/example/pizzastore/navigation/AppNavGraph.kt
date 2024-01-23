@@ -10,12 +10,12 @@ import com.example.pizzastore.presentation.main.MainScreenState
 @Composable
 fun AppNavGraph(
     navHostController: NavHostController,
-    menuScreenContent: @Composable (String?) -> Unit,
+    menuScreenContent: @Composable () -> Unit,
     profileScreenContent: @Composable () -> Unit,
     contactsScreenContent: @Composable () -> Unit,
     shoppingBagScreenContent: @Composable () -> Unit,
     choseCityScreenContent: @Composable () -> Unit,
-    mapScreenContent: @Composable () -> Unit
+    mapScreenContent: @Composable (String) -> Unit
 ) {
     NavHost(
         navController = navHostController,
