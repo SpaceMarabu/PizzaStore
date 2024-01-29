@@ -10,10 +10,10 @@ import com.example.pizzastore.domain.entity.City
 fun NavGraphBuilder.homeScreenNavGraph(
     menuScreenContent: @Composable () -> Unit,
     choseCityScreenContent: @Composable () -> Unit,
-    mapScreenContent: @Composable (points: String) -> Unit
+    mapScreenContent: @Composable () -> Unit
 ) {
     navigation(
-        startDestination = Screen.ChoseCity.route,
+        startDestination = Screen.Menu.route,
         route = Screen.Home.route
     ) {
         composable(Screen.Menu.route) {
@@ -23,8 +23,7 @@ fun NavGraphBuilder.homeScreenNavGraph(
             choseCityScreenContent()
         }
         composable(Screen.Map.route) {
-            val points = it.arguments?.getString(Screen.KEY_MAP) ?: ""
-            mapScreenContent(points)
+            mapScreenContent()
         }
     }
 }

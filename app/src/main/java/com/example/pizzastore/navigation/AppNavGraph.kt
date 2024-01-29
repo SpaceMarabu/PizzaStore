@@ -15,7 +15,7 @@ fun AppNavGraph(
     contactsScreenContent: @Composable () -> Unit,
     shoppingBagScreenContent: @Composable () -> Unit,
     choseCityScreenContent: @Composable () -> Unit,
-    mapScreenContent: @Composable (String) -> Unit
+    mapScreenContent: @Composable () -> Unit
 ) {
     NavHost(
         navController = navHostController,

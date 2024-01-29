@@ -46,7 +46,7 @@ import com.example.pizzastore.ui.theme.DarkBlue
 
 @Composable
 fun ChoseCityScreen(
-    onCityAndDeliveryChosen: (city: City) -> Unit
+    onCityAndDeliveryChosen: () -> Unit
 ) {
 
     val component = getApplicationComponent()
@@ -82,7 +82,7 @@ fun ChoseCityScreen(
 
         is CityDeliveryScreenState.DeliveryChecked -> {
             val city = (screenState.value as CityDeliveryScreenState.DeliveryChecked).city
-            onCityAndDeliveryChosen(city)
+            onCityAndDeliveryChosen()
         }
 
         CityDeliveryScreenState.Loading -> {

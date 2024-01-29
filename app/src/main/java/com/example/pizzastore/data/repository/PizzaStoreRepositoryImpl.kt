@@ -1,8 +1,12 @@
 package com.example.pizzastore.data.repository
 
 import android.util.Log
+import androidx.room.RoomDatabase
+import com.example.pizzastore.data.database.CityDao
+import com.example.pizzastore.data.database.CityMapper
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
+import com.example.pizzastore.presentation.funs.mergeWith
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -11,19 +15,22 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
+class PizzaStoreRepositoryImpl @Inject constructor(
+    private val cityDao: CityDao,
+    private val mapper: CityMapper
+) : PizzaStoreRepository {
 
+    private val firebaseDatabase = FirebaseDatabase.getInstance()
 
-    private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
-
-    private val currentCityFlow: MutableStateFlow<City?> = MutableStateFlow(null)
-
+    private var currentCityFlow = MutableStateFlow(null)
 
     private val listCitiesFlow = callbackFlow {
-        val dRef = database.getReference("cities")
+        val dRef = firebaseDatabase.getReference("cities")
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -59,12 +66,16 @@ class PizzaStoreRepositoryImpl @Inject constructor() : PizzaStoreRepository {
         }
     }
 
-    override suspend fun setCitySettings(city: City) {
-        currentCityFlow.emit(city)
+    override suspend fun setCitySettingsUseCase(city: City) {
+        currentCityFlow
+        val dbModel = mapper.mapEntityToDbModel(city)
+        cityDao.addCity(dbModel)
     }
 
     override fun getCurrentCityUseCase(): Flow<City?> {
-        return currentCityFlow
+        return cityDao.get().map {
+            mapper.mapDbModelToEntity(it)
+        }.mergeWith(currentCityFlow)
     }
 
     override fun getCitiesUseCase(): Flow<List<City>> {

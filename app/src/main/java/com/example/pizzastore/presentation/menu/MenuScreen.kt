@@ -49,7 +49,8 @@ import com.example.pizzastore.presentation.funs.CircularLoading
 @Composable
 fun MenuScreen(
     onCityClick: () -> Unit,
-    onAddressClick: (List<String>) -> Unit
+    onAddressClick: () -> Unit,
+    onCityIsEmpty: () -> Unit
 ) {
 
     val component = getApplicationComponent()
@@ -71,13 +72,16 @@ fun MenuScreen(
         }
 
         MenuScreenState.Initial -> {}
+        MenuScreenState.EmptyCity -> {
+            onCityIsEmpty()
+        }
     }
 }
 
 @Composable
 fun MenuScreenContent(
     onCityClick: () -> Unit,
-    onAddressClick: (List<String>) -> Unit,
+    onAddressClick: () -> Unit,
     viewModel: MenuScreenViewModel
 ) {
 
@@ -97,7 +101,9 @@ fun MenuScreenContent(
                     newDeliveryType
                 )
             },
-            onAddressClick = { onAddressClick(cityState.value.points) }
+            onAddressClick = {
+                onAddressClick()
+            }
         )
     }
 

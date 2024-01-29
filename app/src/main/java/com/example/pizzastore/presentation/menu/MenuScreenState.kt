@@ -7,6 +7,8 @@ sealed class MenuScreenState() {
     object Initial : MenuScreenState()
     object Loading : MenuScreenState()
 
+    object EmptyCity : MenuScreenState()
+
     object Content : MenuScreenState()
 
 }

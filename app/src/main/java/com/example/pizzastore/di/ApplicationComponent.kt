@@ -1,5 +1,6 @@
 package com.example.pizzastore.di
 
+import android.app.Application
 import android.content.Context
 import dagger.BindsInstance
 import dagger.Component
@@ -15,12 +16,15 @@ interface ApplicationComponent {
 
     fun getViewModelFactory(): ViewModelFactory
 
+    fun inject(application: PizzaStoreApplication)
+
 
     @Component.Factory
     interface Factory {
 
         fun create(
-            @BindsInstance context: Context
+            @BindsInstance application: Application
+//            @BindsInstance context: Context
         ): ApplicationComponent
     }
 }

@@ -1,9 +1,7 @@
 package com.example.pizzastore.domain.repository
 
 import com.example.pizzastore.domain.entity.City
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 interface PizzaStoreRepository {
 
@@ -11,5 +9,5 @@ interface PizzaStoreRepository {
 
     fun getCurrentCityUseCase(): Flow<City?>
 
-    suspend fun setCitySettings(city: City)
+    suspend fun setCitySettingsUseCase(city: City)
 }

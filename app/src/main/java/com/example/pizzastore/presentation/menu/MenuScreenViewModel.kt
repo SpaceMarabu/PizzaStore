@@ -26,16 +26,17 @@ class MenuScreenViewModel @Inject constructor(
     }
 
 
-
     private suspend fun loadCity() {
         screenState.value = MenuScreenState.Loading
         getCurrentCityUseCase
             .getCurrentCityFlow()
-            .filter { it != null }
             .collect {
-                if (it == null) return@collect
-                screenState.emit(MenuScreenState.Content)
-                cityState.emit(it)
+                if (it == null) {
+                    screenState.emit(MenuScreenState.EmptyCity)
+                } else {
+                    screenState.emit(MenuScreenState.Content)
+                    cityState.emit(it)
+                }
             }
     }
 
