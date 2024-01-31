@@ -7,6 +7,7 @@ import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.usecases.GetCurrentCityUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,11 +17,11 @@ class MenuScreenViewModel @Inject constructor(
 
     val screenState = MutableStateFlow<MenuScreenState>(MenuScreenState.Initial)
 
-    val cityState = MutableStateFlow(City())
+    private val scope = viewModelScope
 
 
     init {
-        viewModelScope.launch {
+        scope.launch {
             loadCity()
         }
     }
@@ -30,25 +31,31 @@ class MenuScreenViewModel @Inject constructor(
         screenState.value = MenuScreenState.Loading
         getCurrentCityUseCase
             .getCurrentCityFlow()
+            .stateIn(scope)
             .collect {
+                it
                 if (it == null) {
                     screenState.emit(MenuScreenState.EmptyCity)
                 } else {
-                    screenState.emit(MenuScreenState.Content)
-                    cityState.emit(it)
+                    screenState.emit(MenuScreenState.Content(it))
+//                    cityState.emit(it)
                 }
             }
     }
 
 
     fun changeCityFeature(type: DeliveryType) {
-        val currentCityState = cityState.value
-        viewModelScope.launch {
-            cityState.emit(
-                currentCityState.copy(
-                    deliveryType = type
+        scope.launch {
+            if (screenState.value is MenuScreenState.Content) {
+                val currentState = screenState.value as MenuScreenState.Content
+                val currentCity = currentState.city
+                screenState.emit(
+                    currentState.copy(
+                        city = currentCity.copy(deliveryType = type)
+                    )
                 )
-            )
+            }
+
         }
     }
 }

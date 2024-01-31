@@ -15,7 +15,7 @@ sealed class CityDeliveryScreenState() {
         val city: City
     ) : CityDeliveryScreenState()
 
-    data class DeliveryChecked(
-        val city: City
-    ) : CityDeliveryScreenState()
+//    data class DeliveryChecked(
+//        val city: City
+//    ) : CityDeliveryScreenState()
 }

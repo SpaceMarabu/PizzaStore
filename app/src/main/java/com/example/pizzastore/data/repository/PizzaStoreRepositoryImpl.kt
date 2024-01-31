@@ -11,8 +11,10 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collect
@@ -27,7 +29,11 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     private val firebaseDatabase = FirebaseDatabase.getInstance()
 
-    private var currentCityFlow = MutableStateFlow(null)
+    private var currentCityFlow = MutableSharedFlow<City>(
+        replay = 1,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
     private val listCitiesFlow = callbackFlow {
         val dRef = firebaseDatabase.getReference("cities")
@@ -38,7 +44,6 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                 for (data in dataSnapshot.children) {
                     val key: String = data.key ?: continue
                     val value = data.getValue(City::class.java) ?: continue
-                    value.points
                     listCities.add(
                         City(
                             id = key.toInt(),
@@ -67,7 +72,8 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun setCitySettingsUseCase(city: City) {
-        currentCityFlow
+        city
+        currentCityFlow.emit(city)
         val dbModel = mapper.mapEntityToDbModel(city)
         cityDao.addCity(dbModel)
     }

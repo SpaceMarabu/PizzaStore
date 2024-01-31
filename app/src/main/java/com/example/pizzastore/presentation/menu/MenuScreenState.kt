@@ -9,6 +9,8 @@ sealed class MenuScreenState() {
 
     object EmptyCity : MenuScreenState()
 
-    object Content : MenuScreenState()
+    data class Content(
+        val city: City
+    ) : MenuScreenState()
 
 }

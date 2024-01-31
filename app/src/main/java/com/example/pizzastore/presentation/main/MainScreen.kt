@@ -1,5 +1,6 @@
 package com.example.pizzastore.presentation.main
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -78,7 +79,6 @@ fun MainScreen() {
         }
     ) {paddingValues ->
 
-
         AppNavGraph(
             navHostController = navigationState.navHostController,
             menuScreenContent = {
@@ -103,7 +103,7 @@ fun MainScreen() {
             shoppingBagScreenContent = { Text(text = "shoppingBag") },
             choseCityScreenContent = {
                 ChoseCityScreen {
-                    navigationState.navigateTo(Screen.ROUTE_MENU)
+                    navigationState.navigateWithDestroy(Screen.ROUTE_MENU)
                 }
             },
             mapScreenContent = {

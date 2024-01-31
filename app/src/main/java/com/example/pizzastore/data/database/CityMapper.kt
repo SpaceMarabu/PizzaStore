@@ -6,7 +6,6 @@ import javax.inject.Inject
 class CityMapper @Inject constructor() {
 
     fun mapEntityToDbModel(city: City) = CityDbModel(
-        id = city.id,
         name = city.name,
         deliveryType = city.deliveryType,
         points = city.points
@@ -17,6 +16,7 @@ class CityMapper @Inject constructor() {
             null
         } else {
             City(
+                id = cityDbModel.id,
                 name = cityDbModel.name,
                 deliveryType = cityDbModel.deliveryType,
                 points = cityDbModel.points

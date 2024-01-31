@@ -54,35 +54,33 @@ fun ChoseCityScreen(
 
     val screenState = viewModel.state.collectAsState()
 
+
     when (screenState.value) {
 
         is CityDeliveryScreenState.Initial -> {}
 
         is CityDeliveryScreenState.ListCities -> {
-            val currentState = (screenState.value as CityDeliveryScreenState.ListCities).cities
+            val currentState = screenState.value as CityDeliveryScreenState.ListCities
+            val currentCities = currentState.cities
             ChoseCity(
-                listCities = currentState
+                listCities = currentCities
             ) {
                 viewModel.changeState(CityDeliveryScreenState.CityChecked(it))
             }
         }
 
         is CityDeliveryScreenState.CityChecked -> {
-            val currentState = (screenState.value as CityDeliveryScreenState.CityChecked).city
+            val currentState = screenState.value as CityDeliveryScreenState.CityChecked
+            val currentCity = currentState.city
             ChoseDeliveryType {
-                val newCity = currentState.copy(deliveryType = it)
+                val newCity = currentCity.copy(deliveryType = it)
                 viewModel.sendCity(newCity)
-                viewModel.changeState(CityDeliveryScreenState.DeliveryChecked(newCity))
+                onCityAndDeliveryChosen()
             }
             BackHandler {
                 val previousState = viewModel.previousState
                 viewModel.changeState(previousState)
             }
-        }
-
-        is CityDeliveryScreenState.DeliveryChecked -> {
-            val city = (screenState.value as CityDeliveryScreenState.DeliveryChecked).city
-            onCityAndDeliveryChosen()
         }
 
         CityDeliveryScreenState.Loading -> {

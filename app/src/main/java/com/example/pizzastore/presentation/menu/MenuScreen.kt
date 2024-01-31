@@ -60,10 +60,12 @@ fun MenuScreen(
 
     when (screenState.value) {
         is MenuScreenState.Content -> {
+            val currentState = screenState.value as MenuScreenState.Content
             MenuScreenContent(
                 onCityClick = onCityClick,
                 onAddressClick = onAddressClick,
-                viewModel = viewModel
+                viewModel = viewModel,
+                cityState = currentState.city
             )
         }
 
@@ -82,20 +84,20 @@ fun MenuScreen(
 fun MenuScreenContent(
     onCityClick: () -> Unit,
     onAddressClick: () -> Unit,
-    viewModel: MenuScreenViewModel
+    viewModel: MenuScreenViewModel,
+    cityState: City
 ) {
 
-    val cityState = viewModel.cityState.collectAsState()
 
     Column {
         ChoseCity(
-            cityState.value.name,
+            cityState.name,
             16.dp,
             16.dp,
             onCityClick
         )
         ChoseDeliveryType(
-            city = cityState.value,
+            city = cityState,
             onDeliveryClick = { newDeliveryType ->
                 viewModel.changeCityFeature(
                     newDeliveryType

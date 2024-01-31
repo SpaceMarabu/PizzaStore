@@ -23,6 +23,7 @@ interface ViewModelModule {
     @Binds
     fun bindMainViewModel(viewModel: MainViewModel): ViewModel
 
+
     @IntoMap
     @ViewModelKey(CityDeliveryViewModel::class)
     @Binds

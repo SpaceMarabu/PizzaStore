@@ -1,5 +1,6 @@
 package com.example.pizzastore.presentation.chosecity
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.City
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import java.io.Closeable
 import javax.inject.Inject
 
 class CityDeliveryViewModel @Inject constructor(
@@ -22,6 +24,7 @@ class CityDeliveryViewModel @Inject constructor(
     private var _previousState: CityDeliveryScreenState = CityDeliveryScreenState.Initial
     val previousState
         get() = _previousState
+
 
     init {
         viewModelScope.launch {

@@ -18,6 +18,14 @@ class NavigationState(
             restoreState = true
         }
     }
+
+    fun navigateWithDestroy(route: String) {
+        navHostController.popBackStack()
+        navHostController.navigate(route) {
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 }
 
 @Composable
