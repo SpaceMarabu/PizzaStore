@@ -1,26 +1,16 @@
 package com.example.pizzastore.presentation.mapscreen
 
-import android.Manifest
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Point
-import com.example.pizzastore.domain.usecases.GetCitiesUseCase
 import com.example.pizzastore.domain.usecases.GetCurrentCityUseCase
-import com.example.pizzastore.presentation.menu.MenuScreenState
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,15 +30,22 @@ class MapScreenViewModel @Inject constructor(
     val currentPointState
         get() = _currentPointState.asSharedFlow()
 
-    fun getStartCoords():LatLng {
-        val currentScreenState = screenState.value as MapScreenState.Content
-        val coords = currentScreenState.city.points[0].coords
-        return getLatLngCoords(coords)
+    init {
+        viewModelScope.launch {
+            loadCity()
+        }
     }
 
     fun getStartPoint(): Point {
         val currentScreenState = screenState.value as MapScreenState.Content
         return currentScreenState.city.points[0]
+    }
+
+    fun getCameraPosition(point: Point): CameraPosition {
+        return CameraPosition.fromLatLngZoom(
+            getLatLngCoords(point.coords),
+            14f
+        )
     }
 
     fun getLatLngCoords(coords: String):LatLng {
@@ -58,29 +55,28 @@ class MapScreenViewModel @Inject constructor(
             splitedCoords[1].toDouble()
         )
     }
-
-
-    init {
-        viewModelScope.launch {
-            loadCity()
-        }
-    }
-
     private suspend fun loadCity() {
         _screenState.emit(MapScreenState.Loading)
         getCurrentCityUseCase
             .getCurrentCityFlow()
             .collect {
                 if (it == null) return@collect
-                _screenState.emit(MapScreenState.Content(it))
+                _screenState.emit(MapScreenState.Content(it, it.points[0]))
             }
     }
 
 
 
-    fun changeState(point: Point) {
+    fun changeScreenState(state: MapScreenState) {
+        viewModelScope.launch {
+            _screenState.emit(state)
+        }
+    }
+
+    fun changePointState(point: Point) {
         viewModelScope.launch {
             _currentPointState.emit(point)
         }
     }
+
 }
