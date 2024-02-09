@@ -6,10 +6,7 @@ import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.usecases.GetCurrentCityUseCase
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,13 +19,19 @@ class MapScreenViewModel @Inject constructor(
     val screenState
         get() = _screenState.asStateFlow()
 
-    private val _currentPointState = MutableSharedFlow<Point>(
-        replay = 1,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
-    val currentPointState
-        get() = _currentPointState.asSharedFlow()
+
+    private lateinit var currentPoint: Point
+    private var currentZoom = 14f
+    private lateinit var currentCameraPosition: CameraPosition
+
+
+//    private val _currentPoint = MutableSharedFlow<Point>(
+//        replay = 1,
+//        extraBufferCapacity = 1,
+//        onBufferOverflow = BufferOverflow.DROP_OLDEST
+//    )
+//    val currentPoint
+//        get() = _currentPoint.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -41,31 +44,41 @@ class MapScreenViewModel @Inject constructor(
         return currentScreenState.city.points[0]
     }
 
-    fun getCameraPosition(point: Point): CameraPosition {
-        return CameraPosition.fromLatLngZoom(
+    fun getCameraPosition(point: Point, zoom: ZoomDirection = ZoomDirection.Nothing): CameraPosition {
+        when (zoom) {
+            is ZoomDirection.Plus -> currentZoom += 1
+            is ZoomDirection.Minus -> currentZoom -= 1
+            is ZoomDirection.Nothing -> {}
+        }
+        currentCameraPosition = CameraPosition.fromLatLngZoom(
             getLatLngCoords(point.coords),
-            14f
+            currentZoom
         )
+        return currentCameraPosition
     }
 
-    fun getLatLngCoords(coords: String):LatLng {
+    fun getNewCameraPosition(zoom: ZoomDirection = ZoomDirection.Nothing): CameraPosition {
+        return getCameraPosition(currentPoint, zoom)
+    }
+
+    fun getLatLngCoords(coords: String): LatLng {
         val splitedCoords = coords.split(",")
         return LatLng(
             splitedCoords[0].toDouble(),
             splitedCoords[1].toDouble()
         )
     }
+
     private suspend fun loadCity() {
         _screenState.emit(MapScreenState.Loading)
         getCurrentCityUseCase
             .getCurrentCityFlow()
             .collect {
                 if (it == null) return@collect
-                _screenState.emit(MapScreenState.Content(it, it.points[0]))
+                currentPoint = it.points[0]
+                _screenState.emit(MapScreenState.Content(it, currentPoint))
             }
     }
-
-
 
     fun changeScreenState(state: MapScreenState) {
         viewModelScope.launch {
@@ -73,10 +86,8 @@ class MapScreenViewModel @Inject constructor(
         }
     }
 
-    fun changePointState(point: Point) {
-        viewModelScope.launch {
-            _currentPointState.emit(point)
-        }
+    fun changePoint(point: Point) {
+        currentPoint = point
     }
 
 }
