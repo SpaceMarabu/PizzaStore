@@ -1,6 +1,5 @@
 package com.example.pizzastore.presentation.main
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -20,7 +19,8 @@ import com.example.pizzastore.navigation.NavigationItem
 import com.example.pizzastore.navigation.Screen
 import com.example.pizzastore.navigation.rememberNavigationState
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
-import com.example.pizzastore.presentation.mapscreen.MapScreen
+import com.example.pizzastore.presentation.mapscreen.DeliveryMapScreen
+import com.example.pizzastore.presentation.mapscreen.TakeOutMapScreen
 import com.example.pizzastore.presentation.menu.MenuScreen
 
 
@@ -51,7 +51,7 @@ fun MainScreen() {
                         NavigationItem.Profile,
                         NavigationItem.Contacts,
                         NavigationItem.ShoppingBag,
-                        )
+                    )
                     val currentRoute = navBackStackEntry?.destination?.route
 
                     items.forEach { item ->
@@ -77,26 +77,26 @@ fun MainScreen() {
             }
 
         }
-    ) {paddingValues ->
+    ) { paddingValues ->
 
         AppNavGraph(
             navHostController = navigationState.navHostController,
             menuScreenContent = {
-                    MenuScreen(
-                        onCityClick = {
-                            navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
-                        },
-                        onAddressClick = {
-                            navigationState.navigateTo(Screen.ROUTE_MAP)
-            //                        when (cityState.deliveryType) {
-            //                            DeliveryType.TAKE_OUT -> TODO()
-            //                            DeliveryType.DELIVERY_TO -> TODO()
-            //                        }
-                        },
-                        onCityIsEmpty = {
-                            navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
+                MenuScreen(
+                    onCityClick = {
+                        navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
+                    },
+                    onAddressClick = { isTakeout ->
+                        if (isTakeout) {
+                            navigationState.navigateTo(Screen.ROUTE_MAP_TAKEOUT)
+                        } else {
+                            navigationState.navigateTo(Screen.ROUTE_MAP_DELIVERY)
                         }
-                    )
+                    },
+                    onCityIsEmpty = {
+                        navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
+                    }
+                )
             },
             profileScreenContent = { Text(text = "profile") },
             contactsScreenContent = { Text(text = "contacts") },
@@ -106,8 +106,11 @@ fun MainScreen() {
                     navigationState.navigateWithDestroy(Screen.ROUTE_MENU)
                 }
             },
-            mapScreenContent = {
-                    MapScreen(paddingValues = paddingValues)
+            takeOutMapScreenContent = {
+                TakeOutMapScreen(paddingValues = paddingValues)
+            },
+            deliveryMapScreenContent = {
+                DeliveryMapScreen(paddingValues = paddingValues)
             }
         )
     }

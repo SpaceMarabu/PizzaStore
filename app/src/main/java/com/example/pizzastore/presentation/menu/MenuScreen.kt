@@ -49,7 +49,7 @@ import com.example.pizzastore.presentation.funs.CircularLoading
 @Composable
 fun MenuScreen(
     onCityClick: () -> Unit,
-    onAddressClick: () -> Unit,
+    onAddressClick: (isTakeout: Boolean) -> Unit,
     onCityIsEmpty: () -> Unit
 ) {
 
@@ -83,7 +83,7 @@ fun MenuScreen(
 @Composable
 fun MenuScreenContent(
     onCityClick: () -> Unit,
-    onAddressClick: () -> Unit,
+    onAddressClick: (isTakeout: Boolean) -> Unit,
     viewModel: MenuScreenViewModel,
     cityState: City
 ) {
@@ -103,8 +103,8 @@ fun MenuScreenContent(
                     newDeliveryType
                 )
             },
-            onAddressClick = {
-                onAddressClick()
+            onAddressClick = { isTakeout ->
+                onAddressClick(isTakeout)
             }
         )
     }
@@ -115,7 +115,7 @@ fun MenuScreenContent(
 fun ChoseDeliveryType(
     city: City,
     onDeliveryClick: (DeliveryType) -> Unit,
-    onAddressClick: () -> Unit
+    onAddressClick: (isTakeout: Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -123,6 +123,11 @@ fun ChoseDeliveryType(
             .clip(RoundedCornerShape(10))
             .background(Color.LightGray.copy(alpha = 0.2f))
     ) {
+
+        var isTakeout by remember {
+            mutableStateOf(true)
+        }
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -136,10 +141,6 @@ fun ChoseDeliveryType(
             horizontalArrangement = Arrangement.SpaceEvenly
         )
         {
-
-            var isTakeout by remember {
-                mutableStateOf(true)
-            }
 
             isTakeout = when (city.deliveryType) {
                 DeliveryType.TAKE_OUT -> true
@@ -190,7 +191,8 @@ fun ChoseDeliveryType(
                 .fillMaxWidth()
                 .padding(top = 16.dp, bottom = 16.dp)
                 .clickable {
-                    onAddressClick()
+                    val currentDeliveryIsTakeOut = isTakeout
+                    onAddressClick(currentDeliveryIsTakeOut)
                 },
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically

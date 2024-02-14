@@ -73,14 +73,11 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun MapScreen(paddingValues: PaddingValues) {
+fun TakeOutMapScreen(paddingValues: PaddingValues) {
 
     val component = getApplicationComponent()
     val viewModel: MapScreenViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.screenState.collectAsState()
-
-//    val currentPoint =
-//        viewModel.currentPointState.collectAsState(initial = viewModel.getStartPoint())
 
     when (screenState.value) {
         is MapScreenState.Initial -> {}
@@ -90,7 +87,7 @@ fun MapScreen(paddingValues: PaddingValues) {
 
         is MapScreenState.Content -> {
             val currentScreenState = screenState.value as MapScreenState.Content
-            MapScreenContent(
+            TakeOutMapScreenContent(
                 paddingValues = paddingValues,
                 currentScreenState.city,
                 viewModel,
@@ -106,7 +103,7 @@ fun MapScreen(paddingValues: PaddingValues) {
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MapScreenContent(
+fun TakeOutMapScreenContent(
     paddingValues: PaddingValues,
     city: City,
     viewModel: MapScreenViewModel,
@@ -168,6 +165,7 @@ fun MapScreenContent(
                 zoomState = zoomChangeState
             )
         }
+
         ZoomDirection.Nothing -> {}
         ZoomDirection.Plus -> {
             ChangeMapZoom(
@@ -278,97 +276,25 @@ fun MapScreenContent(
         if (isButtonShown) {
             Column {
                 Spacer(modifier = Modifier.weight(1f))
-                Row(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .background(Color.White)
+                        .height(height = 80.dp)
+                        .background(Color.White),
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Column (
+                    Row(
                         modifier = Modifier
-                            .height(height = 60.dp),
-                        verticalArrangement = Arrangement.Center
+                            .fillMaxSize()
+                            .padding(16.dp)
+                            .clip(RoundedCornerShape(30.dp))
+                            .background(colorResource(R.color.orange)),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    start = 16.dp,
-                                    bottom = 16.dp,
-                                    end = 16.dp
-                                )
-                                .clip(RoundedCornerShape(30.dp))
-                                .background(colorResource(R.color.orange)),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(text = "Заказать здесь", color = Color.White)
-                        }
+                        Text(text = "Заказать здесь", color = Color.White)
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun ChangeMapZoom(
-    viewModel: MapScreenViewModel,
-    cameraPositionState: CameraPositionState,
-    scope: CoroutineScope,
-    zoomState: MutableState<ZoomDirection>
-) {
-    val zoom = zoomState.value
-    val newCameraPosition = viewModel.getNewCameraPosition(zoom)
-    ChangeMapPosition(
-        cameraPositionState = cameraPositionState,
-        newCameraPosition = newCameraPosition,
-        scope = scope
-    )
-    zoomState.value = ZoomDirection.Nothing
-}
-
-@Composable
-fun ChangeMapPosition(
-    cameraPositionState: CameraPositionState,
-    newCameraPosition: CameraPosition,
-    scope: CoroutineScope
-) {
-    LaunchedEffect(key1 = true) {
-        scope.launch {
-            cameraPositionState.animate(
-                update = CameraUpdateFactory.newCameraPosition(
-                    newCameraPosition
-                ),
-                durationMs = 500
-            )
-            cameraPositionState.position = newCameraPosition
-        }
-    }
-}
-
-@Composable
-fun RowWithIcon(id: Int, onClick: () -> Unit) {
-    Row {
-        Spacer(modifier = Modifier.weight(1f))
-        Box(
-            modifier = Modifier
-                .padding(end = 12.dp)
-                .size(40.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .background(Color.White)
-                .border(
-                    border = BorderStroke(1.dp, Color.Black),
-                    shape = RoundedCornerShape(10.dp)
-                )
-        ) {
-            Icon(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clickable { onClick() },
-                imageVector = ImageVector.vectorResource(id = id),
-                contentDescription = null
-            )
         }
     }
 }

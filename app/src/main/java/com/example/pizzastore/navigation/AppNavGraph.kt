@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.pizzastore.domain.entity.City
-import com.example.pizzastore.presentation.main.MainScreenState
 
 @Composable
 fun AppNavGraph(
@@ -15,7 +13,8 @@ fun AppNavGraph(
     contactsScreenContent: @Composable () -> Unit,
     shoppingBagScreenContent: @Composable () -> Unit,
     choseCityScreenContent: @Composable () -> Unit,
-    mapScreenContent: @Composable () -> Unit
+    takeOutMapScreenContent: @Composable () -> Unit,
+    deliveryMapScreenContent: @Composable () -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -24,7 +23,8 @@ fun AppNavGraph(
         homeScreenNavGraph(
             menuScreenContent = menuScreenContent,
             choseCityScreenContent = choseCityScreenContent,
-            mapScreenContent = mapScreenContent
+            takeOutMapScreenContent = takeOutMapScreenContent,
+            deliveryMapScreenContent = deliveryMapScreenContent
         )
         composable(Screen.Profile.route) {
             profileScreenContent()
