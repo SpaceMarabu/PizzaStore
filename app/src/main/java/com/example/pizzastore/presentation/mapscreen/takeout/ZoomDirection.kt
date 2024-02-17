@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.mapscreen
+package com.example.pizzastore.presentation.mapscreen.takeout
 
 sealed class ZoomDirection {
 

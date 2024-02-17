@@ -1,12 +1,10 @@
-package com.example.pizzastore.presentation.mapscreen
+package com.example.pizzastore.presentation.mapscreen.takeout
 
 import android.Manifest
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +28,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
@@ -58,35 +55,33 @@ import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.getBitmapDescriptorFromVector
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
+import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
+import com.example.pizzastore.presentation.mapscreen.ChangeMapZoom
+import com.example.pizzastore.presentation.mapscreen.RowWithIcon
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 
 @Composable
 fun TakeOutMapScreen(paddingValues: PaddingValues) {
 
     val component = getApplicationComponent()
-    val viewModel: MapScreenViewModel = viewModel(factory = component.getViewModelFactory())
+    val viewModel: TakeoutMapScreenViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.screenState.collectAsState()
 
     when (screenState.value) {
-        is MapScreenState.Initial -> {}
-        is MapScreenState.Loading -> {
+        is TakeoutMapScreenState.Initial -> {}
+        is TakeoutMapScreenState.Loading -> {
             CircularLoading()
         }
 
-        is MapScreenState.Content -> {
-            val currentScreenState = screenState.value as MapScreenState.Content
+        is TakeoutMapScreenState.Content -> {
+            val currentScreenState = screenState.value as TakeoutMapScreenState.Content
             TakeOutMapScreenContent(
                 paddingValues = paddingValues,
                 currentScreenState.city,
@@ -106,7 +101,7 @@ fun TakeOutMapScreen(paddingValues: PaddingValues) {
 fun TakeOutMapScreenContent(
     paddingValues: PaddingValues,
     city: City,
-    viewModel: MapScreenViewModel,
+    viewModel: TakeoutMapScreenViewModel,
     currentPoint: Point,
     onPointItemClicked: (Point) -> Unit
 ) {

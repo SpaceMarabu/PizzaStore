@@ -19,8 +19,8 @@ import com.example.pizzastore.navigation.NavigationItem
 import com.example.pizzastore.navigation.Screen
 import com.example.pizzastore.navigation.rememberNavigationState
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
-import com.example.pizzastore.presentation.mapscreen.DeliveryMapScreen
-import com.example.pizzastore.presentation.mapscreen.TakeOutMapScreen
+import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreen
+import com.example.pizzastore.presentation.mapscreen.takeout.TakeOutMapScreen
 import com.example.pizzastore.presentation.menu.MenuScreen
 
 

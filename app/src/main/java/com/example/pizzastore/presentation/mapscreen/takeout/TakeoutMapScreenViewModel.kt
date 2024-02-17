@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.mapscreen
+package com.example.pizzastore.presentation.mapscreen.takeout
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MapScreenViewModel @Inject constructor(
+class TakeoutMapScreenViewModel @Inject constructor(
     private val getCurrentCityUseCase: GetCurrentCityUseCase
 ) : ViewModel() {
 
-    private val _screenState = MutableStateFlow<MapScreenState>(MapScreenState.Initial)
+    private val _screenState = MutableStateFlow<TakeoutMapScreenState>(TakeoutMapScreenState.Initial)
     val screenState
         get() = _screenState.asStateFlow()
 
@@ -40,7 +40,7 @@ class MapScreenViewModel @Inject constructor(
     }
 
     fun getStartPoint(): Point {
-        val currentScreenState = screenState.value as MapScreenState.Content
+        val currentScreenState = screenState.value as TakeoutMapScreenState.Content
         return currentScreenState.city.points[0]
     }
 
@@ -70,17 +70,17 @@ class MapScreenViewModel @Inject constructor(
     }
 
     private suspend fun loadCity() {
-        _screenState.emit(MapScreenState.Loading)
+        _screenState.emit(TakeoutMapScreenState.Loading)
         getCurrentCityUseCase
             .getCurrentCityFlow()
             .collect {
                 if (it == null) return@collect
                 currentPoint = it.points[0]
-                _screenState.emit(MapScreenState.Content(it, currentPoint))
+                _screenState.emit(TakeoutMapScreenState.Content(it, currentPoint))
             }
     }
 
-    fun changeScreenState(state: MapScreenState) {
+    fun changeScreenState(state: TakeoutMapScreenState) {
         viewModelScope.launch {
             _screenState.emit(state)
         }
