@@ -33,8 +33,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +53,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
@@ -65,15 +66,11 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority.PRIORITY_HIGH_ACCURACY
 import com.google.android.gms.maps.model.MapStyleOptions
-import com.google.maps.GeoApiContext
-import com.google.maps.GeocodingApi
 import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.model.GeocodingResult
-import com.google.maps.model.LatLng
 
 
 @Composable
@@ -90,7 +87,6 @@ fun DeliveryMapScreen(paddingValues: PaddingValues) {
         }
 
         is DeliveryMapScreenState.Content -> {
-            val currentScreenState = screenState.value as DeliveryMapScreenState.Content
             DeliveryMapScreenContent(
                 paddingValues = paddingValues,
                 viewModel
@@ -140,6 +136,8 @@ fun DeliveryMapScreenContent(
 
 
     val scope = rememberCoroutineScope()
+    val currentAddress = viewModel.addressFlow.collectAsState()
+    Log.d("TEST_API", currentAddress.value.toString())
 
     var isLocationClicked by remember {
         mutableStateOf(true)
@@ -167,7 +165,9 @@ fun DeliveryMapScreenContent(
             ) {
                 if (permissionGranted) {
                     Location() {
-                        currentLocation.value = "${it.latitude}, ${it.longitude}"
+                        val latLngString = "${it.latitude}, ${it.longitude}"
+                        currentLocation.value = latLngString
+                        viewModel.postLatlang(latLngString)
                     }
                     MapWithPin(cameraPositionState = cameraPositionState)
                     EnterFrom() {
