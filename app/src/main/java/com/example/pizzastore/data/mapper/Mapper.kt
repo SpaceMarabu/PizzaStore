@@ -1,8 +1,11 @@
-package com.example.pizzastore.data.database
+package com.example.pizzastore.data.mapper
 
+import com.example.pizzastore.data.database.CityDbModel
 import com.example.pizzastore.data.network.model.AddressDto
+import com.example.pizzastore.data.network.model.PathDto
 import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.domain.entity.Path
 import javax.inject.Inject
 
 class Mapper @Inject constructor() {
@@ -33,4 +36,12 @@ class Mapper @Inject constructor() {
             houseNumber = dto.houseNumber
         )
     }
+
+    fun mapPathDtoToEntity(dto: PathDto): Path {
+        return Path(
+            distance = dto.distance,
+            time = dto.time
+        )
+    }
+
 }

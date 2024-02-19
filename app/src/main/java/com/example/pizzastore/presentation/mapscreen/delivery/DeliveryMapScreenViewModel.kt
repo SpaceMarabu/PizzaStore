@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.usecases.GetAddressUseCase
+import com.example.pizzastore.domain.usecases.GetPathUseCase
+import com.example.pizzastore.presentation.mapscreen.MapConsts
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +14,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DeliveryMapScreenViewModel @Inject constructor(
-    private val getAddressUseCase: GetAddressUseCase
+    private val getAddressUseCase: GetAddressUseCase,
+    private val getPathUseCase: GetPathUseCase
 ) : ViewModel() {
 
     private val _screenState =
@@ -57,11 +60,13 @@ class DeliveryMapScreenViewModel @Inject constructor(
 
     fun postLatlang(latlng: String) {
         viewModelScope.launch {
-            _addressFlow.emit(
-                getAddressUseCase.getAddress(latlng)
-            )
+            val address = getAddressUseCase.getAddress(latlng)
+            val path = getPathUseCase.getPath(MapConsts.PIZZA_STORE_LOCATION, latlng)
+            _addressFlow.emit(address.copy(path = path))
         }
     }
+
+
 
 
     fun changeScreenState(state: DeliveryMapScreenState) {

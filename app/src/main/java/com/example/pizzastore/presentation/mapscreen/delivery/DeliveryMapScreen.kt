@@ -33,7 +33,6 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,12 +47,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
-import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
@@ -151,54 +150,55 @@ fun DeliveryMapScreenContent(
         )
         isLocationClicked = false
     }
-    Box {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        ) {
-            Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colors.background)
+    ) {
+        if (permissionGranted) {
+            Location() {
+                val latLngString = "${it.latitude},${it.longitude}"
+                currentLocation.value = latLngString
+                viewModel.postLatlang(latLngString)
+            }
+
+            val displayMetrics: DisplayMetrics =
+                LocalContext.current.resources.displayMetrics
+            val displayWithoutBottomContent =
+                displayMetrics.heightPixels.toFloat().pxToDp() - 350.dp
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = paddingValues.calculateBottomPadding())
-                    .background(MaterialTheme.colors.background)
+                    .height(displayWithoutBottomContent)
             ) {
-                if (permissionGranted) {
-                    Location() {
-                        val latLngString = "${it.latitude}, ${it.longitude}"
-                        currentLocation.value = latLngString
-                        viewModel.postLatlang(latLngString)
-                    }
-                    MapWithPin(cameraPositionState = cameraPositionState)
-                    EnterFrom() {
-                        TODO()
-                    }
-                    LocationButton(
-                        currentLocation = currentLocation.value,
-                        baseLocation = BASE_LOCATION
-                    ) {
-                        isLocationClicked = true
-                    }
+                MapWithPin(
+                    cameraPositionState = cameraPositionState,
+                    height = displayWithoutBottomContent
+                )
+                LocationButton(
+                    currentLocation = currentLocation.value,
+                    baseLocation = BASE_LOCATION
+                ) {
+                    isLocationClicked = true
                 }
             }
+            EnterForm() {
+                TODO()
+            }
+
         }
     }
 }
 
 @Composable
-fun MapWithPin(cameraPositionState: CameraPositionState) {
+fun MapWithPin(cameraPositionState: CameraPositionState, height: Dp) {
     Column {
-        val displayMetrics: DisplayMetrics =
-            LocalContext.current.resources.displayMetrics
-        val displayWithoutBottomContent =
-            displayMetrics.heightPixels.toFloat().pxToDp() - 350.dp
-
         Box(
             modifier = Modifier.weight(1f)
         ) {
             GoogleMap(
                 modifier = Modifier
-                    .height(displayWithoutBottomContent),
+                    .height(height),
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(
                     mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
@@ -215,7 +215,8 @@ fun MapWithPin(cameraPositionState: CameraPositionState) {
 
             }
             Column(
-                modifier = Modifier.height(displayWithoutBottomContent),
+                modifier = Modifier
+                    .height(height),
                 verticalArrangement = Arrangement.Center
             ) {
                 Row(
@@ -236,7 +237,7 @@ fun MapWithPin(cameraPositionState: CameraPositionState) {
 }
 
 @Composable
-fun EnterFrom(onSaveClicked: () -> Unit) {
+fun EnterForm(onSaveClicked: () -> Unit) {
 
     LazyColumn(
         modifier = Modifier
@@ -311,8 +312,9 @@ fun LocationButton(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
+            .padding(bottom = 32.dp),
+        verticalArrangement = Arrangement.Bottom
     ) {
 
         val isLocationNotBase = currentLocation != baseLocation
@@ -344,7 +346,6 @@ fun LocationButton(
                 )
             }
         }
-
     }
 }
 
@@ -378,11 +379,12 @@ fun startLocationUpdates(
     context: Context
 ) {
     locationCallBack?.let {
-        val locationRequest = LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, timeInterval).apply {
-            setMinUpdateDistanceMeters(10.0f)
-            setGranularity(GRANULARITY_PERMISSION_LEVEL)
-            setWaitForAccurateLocation(true)
-        }.build()
+        val locationRequest =
+            LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, timeInterval).apply {
+                setMinUpdateDistanceMeters(10.0f)
+                setGranularity(GRANULARITY_PERMISSION_LEVEL)
+                setWaitForAccurateLocation(true)
+            }.build()
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION

@@ -3,24 +3,22 @@ package com.example.pizzastore.data.repository
 import android.util.Log
 import com.example.cryptoapp.data.network.ApiFactory
 import com.example.pizzastore.data.database.CityDao
-import com.example.pizzastore.data.database.Mapper
+import com.example.pizzastore.data.mapper.Mapper
 import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
 import com.example.pizzastore.presentation.funs.mergeWith
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class PizzaStoreRepositoryImpl @Inject constructor(
@@ -72,10 +70,13 @@ class PizzaStoreRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getPathUseCase(point1: String, point2: String): Path {
+        val pathDto = ApiFactory.apiService.getPath(point1, point2).paths
+        return mapper.mapPathDtoToEntity(pathDto[0])
+    }
 
     override suspend fun getAddressUseCase(pointLatLng: String): Address {
         val addressDto = ApiFactory.apiService.getAddress(pointLatLng)
-        addressDto
         var result = mapper.mapAddressDtoToEntity(
             addressDto.addressList[0]
         )
