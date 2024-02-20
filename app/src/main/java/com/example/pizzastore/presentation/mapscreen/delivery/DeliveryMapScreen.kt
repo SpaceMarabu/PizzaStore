@@ -191,7 +191,10 @@ fun DeliveryMapScreenContent(
 }
 
 @Composable
-fun MapWithPin(cameraPositionState: CameraPositionState, height: Dp) {
+fun MapWithPin(
+    cameraPositionState: CameraPositionState,
+    height: Dp
+) {
     Column {
         Box(
             modifier = Modifier.weight(1f)
@@ -367,7 +370,11 @@ fun Location(onChange: (LatandLong) -> Unit) {
 
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        startLocationUpdates(locationCallBack, fusedLocationClient, context = context)
+        startLocationUpdates(
+            locationCallBack,
+            fusedLocationClient,
+            context = context
+        )
     }
 }
 

@@ -2,6 +2,8 @@ package com.example.cryptoapp.data.network
 
 import com.example.pizzastore.data.network.model.AddressResponseDto
 import com.example.pizzastore.data.network.model.PathResponseDto
+import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -16,7 +18,7 @@ interface ApiService {
     suspend fun getPath(
         @Query(QUERY_PARAM_API_POINTS) point1: String,
         @Query(QUERY_PARAM_API_POINTS) point2: String
-    ): PathResponseDto
+    ): Response<PathResponseDto>
 
     companion object {
         private const val QUERY_PARAM_API_POINT = "point"

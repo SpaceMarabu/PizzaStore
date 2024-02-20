@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class PathDto(
     @SerializedName("distance")
-    val distance: Long,
+    val distance: Float,
     @SerializedName("time")
     val time: Long
 )

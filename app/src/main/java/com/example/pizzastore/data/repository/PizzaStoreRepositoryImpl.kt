@@ -1,9 +1,11 @@
 package com.example.pizzastore.data.repository
 
 import android.util.Log
+import android.widget.Toast
 import com.example.cryptoapp.data.network.ApiFactory
 import com.example.pizzastore.data.database.CityDao
 import com.example.pizzastore.data.mapper.Mapper
+import com.example.pizzastore.data.network.model.PathResponseDto
 import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
@@ -13,13 +15,20 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.HttpException
+import retrofit2.Response
+import java.io.IOException
 import javax.inject.Inject
+
 
 class PizzaStoreRepositoryImpl @Inject constructor(
     private val cityDao: CityDao,
@@ -71,8 +80,17 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPathUseCase(point1: String, point2: String): Path {
-        val pathDto = ApiFactory.apiService.getPath(point1, point2).paths
-        return mapper.mapPathDtoToEntity(pathDto[0])
+        var call: Response<PathResponseDto>? = null
+        var result = Path.EMPTY_PATH
+        try {
+            call = ApiFactory.apiService.getPath(point1, point2)
+            val pathResponseDto = call.body() as PathResponseDto
+            val pathDto = pathResponseDto.paths
+            result = mapper.mapPathDtoToEntity(pathDto[0])
+        } catch (e: HttpException) {
+            Log.d("HTTP_ERROR", e.code().toString())
+        }
+        return result
     }
 
     override suspend fun getAddressUseCase(pointLatLng: String): Address {
