@@ -110,7 +110,9 @@ fun MainScreen() {
                 TakeOutMapScreen(paddingValues = paddingValues)
             },
             deliveryMapScreenContent = {
-                DeliveryMapScreen(paddingValues = paddingValues)
+                DeliveryMapScreen(paddingValues = paddingValues) {
+
+                }
             }
         )
     }

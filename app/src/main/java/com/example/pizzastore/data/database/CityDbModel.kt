@@ -16,4 +16,4 @@ data class CityDbModel(
     val name: String = "Москва",
     val deliveryType: DeliveryType = DeliveryType.TAKE_OUT,
     val points: List<Point> = listOf()
-) : Parcelable { }
+) : Parcelable

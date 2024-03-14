@@ -84,9 +84,12 @@ class PizzaStoreRepositoryImpl @Inject constructor(
         var result = Path.EMPTY_PATH
         try {
             call = ApiFactory.apiService.getPath(point1, point2)
-            val pathResponseDto = call.body() as PathResponseDto
-            val pathDto = pathResponseDto.paths
-            result = mapper.mapPathDtoToEntity(pathDto[0])
+            val pathResponseDto = call.body() as PathResponseDto?
+            val pathDto = pathResponseDto?.paths
+            if (pathDto != null) {
+                result = mapper.mapPathDtoToEntity(pathDto[0])
+            }
+
         } catch (e: HttpException) {
             Log.d("HTTP_ERROR", e.code().toString())
         }
@@ -95,13 +98,16 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     override suspend fun getAddressUseCase(pointLatLng: String): Address {
         val addressDto = ApiFactory.apiService.getAddress(pointLatLng)
-        var result = mapper.mapAddressDtoToEntity(
-            addressDto.addressList[0]
-        )
-        addressDto.addressList.forEach {
-            if (it.houseNumber != null) {
-                result = mapper.mapAddressDtoToEntity(it)
-                return@forEach
+        var result = Address.EMPTY_ADDRESS
+        if (!addressDto.addressList.isNullOrEmpty()) {
+            result = mapper.mapAddressDtoToEntity(
+                addressDto.addressList[0]
+            )
+            addressDto.addressList.forEach {
+                if (it.houseNumber != null) {
+                    result = mapper.mapAddressDtoToEntity(it)
+                    return@forEach
+                }
             }
         }
         return result

@@ -53,6 +53,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.domain.entity.AddressSealed
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
@@ -73,7 +74,10 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 
 @Composable
-fun DeliveryMapScreen(paddingValues: PaddingValues) {
+fun DeliveryMapScreen(
+    paddingValues: PaddingValues,
+    onSaveClicked: () -> Unit
+) {
 
     val component = getApplicationComponent()
     val viewModel: DeliveryMapScreenViewModel = viewModel(factory = component.getViewModelFactory())
@@ -89,7 +93,9 @@ fun DeliveryMapScreen(paddingValues: PaddingValues) {
             DeliveryMapScreenContent(
                 paddingValues = paddingValues,
                 viewModel
-            )
+            ) {
+
+            }
         }
     }
 }
@@ -97,7 +103,8 @@ fun DeliveryMapScreen(paddingValues: PaddingValues) {
 @Composable
 fun DeliveryMapScreenContent(
     paddingValues: PaddingValues,
-    viewModel: DeliveryMapScreenViewModel
+    viewModel: DeliveryMapScreenViewModel,
+    onSaveClicked: () -> Unit
 ) {
 
     var permissionGranted by remember {
@@ -131,12 +138,14 @@ fun DeliveryMapScreenContent(
         mutableStateOf(BASE_LOCATION)
     }
 
-    Log.d("TEST_LOC", currentLocation.value)
-
-
     val scope = rememberCoroutineScope()
-    val currentAddress = viewModel.addressFlow.collectAsState()
-    Log.d("TEST_API", currentAddress.value.toString())
+
+    var mapWasMoved = remember {
+        false
+    }
+    if (cameraPositionState.isMoving) {
+        mapWasMoved = true
+    }
 
     var isLocationClicked by remember {
         mutableStateOf(true)
@@ -150,6 +159,8 @@ fun DeliveryMapScreenContent(
         )
         isLocationClicked = false
     }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -157,9 +168,16 @@ fun DeliveryMapScreenContent(
     ) {
         if (permissionGranted) {
             Location() {
-                val latLngString = "${it.latitude},${it.longitude}"
-                currentLocation.value = latLngString
-                viewModel.postLatlang(latLngString)
+                if (!mapWasMoved) {
+                    val latLngString = "${it.latitude},${it.longitude}"
+                    currentLocation.value = latLngString
+                    isLocationClicked = true
+                }
+
+//                viewModel.requestAddress(latLngString)
+            }
+            if (!cameraPositionState.isMoving) {
+                viewModel.postLatLang(cameraPositionState.position.target)
             }
 
             val displayMetrics: DisplayMetrics =
@@ -182,14 +200,18 @@ fun DeliveryMapScreenContent(
                     isLocationClicked = true
                 }
             }
-            EnterForm() {
-                TODO()
+            EnterForm(
+                viewModel
+            ) {
+                viewModel.saveClick()
+                onSaveClicked()
             }
 
         }
     }
 }
 
+//<editor-fold desc="MapWithPin">
 @Composable
 fun MapWithPin(
     cameraPositionState: CameraPositionState,
@@ -215,7 +237,6 @@ fun MapWithPin(
                     indoorLevelPickerEnabled = true,
                 )
             ) {
-
             }
             Column(
                 modifier = Modifier
@@ -238,9 +259,14 @@ fun MapWithPin(
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="EnterForm">
 @Composable
-fun EnterForm(onSaveClicked: () -> Unit) {
+fun EnterForm(
+    viewModel: DeliveryMapScreenViewModel,
+    onSaveClicked: () -> Unit
+) {
 
     LazyColumn(
         modifier = Modifier
@@ -248,24 +274,39 @@ fun EnterForm(onSaveClicked: () -> Unit) {
             .background(Color.White)
     ) {
         item {
-            TextFieldDelivery(
+            TextFieldAddress(
                 label = "Город, улица и дом",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-            )
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                viewModel = viewModel
+            ) {
+                viewModel.sendAddressPart(AddressSealed.AddressLine(it))
+            }
         }
         item {
             RowWithTwoTextField(
                 label1 = "Подъезд",
-                label2 = "Код на двери"
-            )
+                label2 = "Код на двери",
+                viewModel = viewModel,
+                onSaveClicked1 = {
+                    viewModel.sendAddressPart(AddressSealed.Entrance(it))
+                }
+            ) {
+                viewModel.sendAddressPart(AddressSealed.DoorCode(it))
+            }
         }
         item {
             RowWithTwoTextField(
                 label1 = "Этаж",
-                label2 = "Квартира"
-            )
+                label2 = "Квартира",
+                viewModel = viewModel,
+                onSaveClicked1 = {
+                    viewModel.sendAddressPart(AddressSealed.Floor(it))
+                }
+            ) {
+                viewModel.sendAddressPart(AddressSealed.Apartment(it))
+            }
         }
         item {
             TextFieldDelivery(
@@ -276,8 +317,11 @@ fun EnterForm(onSaveClicked: () -> Unit) {
                         start = 16.dp,
                         top = 8.dp,
                         end = 16.dp
-                    )
-            )
+                    ),
+                viewModel = viewModel
+            ) {
+                viewModel.sendAddressPart(AddressSealed.Comment(it))
+            }
         }
         item {
             Row(
@@ -306,7 +350,9 @@ fun EnterForm(onSaveClicked: () -> Unit) {
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="LocationButton">
 @Composable
 fun LocationButton(
     currentLocation: String,
@@ -351,8 +397,9 @@ fun LocationButton(
         }
     }
 }
+//</editor-fold>
 
-
+//<editor-fold desc="Location">
 @Composable
 fun Location(onChange: (LatandLong) -> Unit) {
 
@@ -377,7 +424,9 @@ fun Location(onChange: (LatandLong) -> Unit) {
         )
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="startLocationUpdates">
 @SuppressLint("MissingPermission")
 fun startLocationUpdates(
     locationCallBack: LocationCallback?,
@@ -409,15 +458,31 @@ fun startLocationUpdates(
         )
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="TextFieldDelivery">
 @Composable
-fun TextFieldDelivery(label: String, modifier: Modifier = Modifier) {
+fun TextFieldDelivery(
+    label: String,
+    modifier: Modifier = Modifier,
+    viewModel: DeliveryMapScreenViewModel,
+    onSaveClicked: (String) -> Unit
+) {
+
     var text by remember { mutableStateOf("") }
+
+    val startSavingState by viewModel.saveClickedFlow.collectAsState()
+    if (startSavingState) {
+        onSaveClicked(text)
+    }
+
     OutlinedTextField(
         modifier = modifier,
         label = { Text(text = label) },
-        value = text,
-        onValueChange = { text = it },
+        value = text ?: "",
+        onValueChange = {
+            text = it
+        },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             unfocusedBorderColor = Color.LightGray,
             unfocusedLabelColor = Color.LightGray,
@@ -430,9 +495,71 @@ fun TextFieldDelivery(label: String, modifier: Modifier = Modifier) {
         shape = MaterialTheme.shapes.small.copy(CornerSize(10.dp))
     )
 }
+//</editor-fold>
 
+//<editor-fold desc="TextFieldAddress">
 @Composable
-fun RowWithTwoTextField(label1: String, label2: String) {
+fun TextFieldAddress(
+    label: String,
+    modifier: Modifier = Modifier,
+    viewModel: DeliveryMapScreenViewModel,
+    onSaveClicked: (String) -> Unit
+) {
+
+    var text by remember { mutableStateOf("") }
+
+    val startSavingState by viewModel.saveClickedFlow.collectAsState()
+    if (startSavingState) {
+        onSaveClicked(text)
+    }
+
+
+    val currentAddress by viewModel.addressFlow.collectAsState()
+    if (!currentAddress.isInputTextStarted) {
+        val currentAddressValue = currentAddress
+        if (currentAddressValue.address?.street != null) {
+            text = ("${currentAddressValue.address.street}"
+                    + if (
+                currentAddressValue.address.houseNumber != null
+            ) {
+                ", ${currentAddressValue.address.houseNumber}"
+            } else {
+                ""
+            })
+        }
+    }
+
+    OutlinedTextField(
+        modifier = modifier,
+        label = { Text(text = label) },
+        value = text ?: "",
+        onValueChange = {
+            viewModel.inputTextStarted()
+            text = it
+        },
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            unfocusedBorderColor = Color.LightGray,
+            unfocusedLabelColor = Color.LightGray,
+            backgroundColor = Color.White,
+            textColor = Color.Black,
+            focusedBorderColor = Color.Black,
+            focusedLabelColor = Color.Black,
+            cursorColor = Color.Gray
+        ),
+        shape = MaterialTheme.shapes.small.copy(CornerSize(10.dp))
+    )
+}
+//</editor-fold>
+
+//<editor-fold desc="RowWithTwoTextField">
+@Composable
+fun RowWithTwoTextField(
+    label1: String,
+    label2: String,
+    viewModel: DeliveryMapScreenViewModel,
+    onSaveClicked1: (String) -> Unit,
+    onSaveClicked2: (String) -> Unit
+) {
     val startRowDpPadding = 16.dp
     val endRowDpPadding = 16.dp
     val paddingBetweenTF = 4.dp
@@ -453,13 +580,20 @@ fun RowWithTwoTextField(label1: String, label2: String) {
             label = label1,
             modifier = Modifier
                 .width(textFieldWidth)
-                .padding(end = paddingBetweenTF)
-        )
+                .padding(end = paddingBetweenTF),
+            viewModel = viewModel
+        ) {
+            onSaveClicked1(it)
+        }
         TextFieldDelivery(
             label = label2,
             modifier = Modifier
                 .width(textFieldWidth)
-                .padding(start = paddingBetweenTF)
-        )
+                .padding(start = paddingBetweenTF),
+            viewModel = viewModel
+        ) {
+            onSaveClicked2(it)
+        }
     }
 }
+//</editor-fold>
