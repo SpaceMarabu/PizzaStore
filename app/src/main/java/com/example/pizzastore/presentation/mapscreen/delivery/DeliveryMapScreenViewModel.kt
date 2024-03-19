@@ -36,7 +36,6 @@ class DeliveryMapScreenViewModel @Inject constructor(
     private val addressChangingFlow = MutableSharedFlow<AddressSealed>()
     private val tempAddressStateFlow = MutableStateFlow(AddressSealed.DeliveryInfo())
 
-
     private lateinit var currentCameraPosition: CameraPosition
 
     private val _addressFlow = MutableStateFlow(AddressState())
