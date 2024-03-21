@@ -1,30 +1,27 @@
 package com.example.pizzastore.data.mapper
 
-import com.example.pizzastore.data.database.CityDbModel
+import com.example.pizzastore.data.database.SessionSettingsDbModel
 import com.example.pizzastore.data.network.model.AddressDto
 import com.example.pizzastore.data.network.model.PathDto
 import com.example.pizzastore.domain.entity.Address
-import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
+import com.example.pizzastore.domain.entity.SessionSettings
 import javax.inject.Inject
 
 class Mapper @Inject constructor() {
 
-    fun mapCityEntityToDbModel(city: City) = CityDbModel(
-        name = city.name,
-        deliveryType = city.deliveryType,
-        points = city.points
+    fun mapSessionSettToDbModel(sessionSettings: SessionSettings) = SessionSettingsDbModel(
+        city = sessionSettings.city,
+        account = sessionSettings.account
     )
 
-    fun mapCityDbModelToEntity(cityDbModel: CityDbModel?): City? {
-        return if (cityDbModel == null) {
+    fun mapSessionSettingsDbModelToEntity(settingsDbModel: SessionSettingsDbModel?): SessionSettings? {
+        return if (settingsDbModel == null) {
             null
         } else {
-            City(
-                id = cityDbModel.id,
-                name = cityDbModel.name,
-                deliveryType = cityDbModel.deliveryType,
-                points = cityDbModel.points
+            SessionSettings(
+                city = settingsDbModel.city,
+                account = settingsDbModel.account
             )
         }
     }

@@ -5,11 +5,11 @@ import com.example.pizzastore.domain.repository.PizzaStoreRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetCurrentCityUseCase  @Inject constructor(
+class GetAllCitiesUseCase  @Inject constructor(
     private val repository: PizzaStoreRepository
 ) {
 
-    fun getCurrentCityFlow(): Flow<City?> {
-        return repository.getCurrentCityUseCase()
+    fun getCitiesFlow(): Flow<List<City>> {
+        return repository.getCitiesUseCase()
     }
 }

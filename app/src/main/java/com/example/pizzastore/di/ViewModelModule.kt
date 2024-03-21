@@ -2,7 +2,7 @@ package com.example.pizzastore.di
 
 import androidx.lifecycle.ViewModel
 import com.example.pizzastore.presentation.chosecity.CityDeliveryViewModel
-import com.example.pizzastore.presentation.main.MainViewModel
+import com.example.pizzastore.presentation.home.MainViewModel
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreenViewModel
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeoutMapScreenViewModel
 import com.example.pizzastore.presentation.menu.MenuScreenViewModel

@@ -3,7 +3,7 @@ package com.example.pizzastore.presentation.mapscreen.takeout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.Point
-import com.example.pizzastore.domain.usecases.GetCurrentCityUseCase
+import com.example.pizzastore.domain.usecases.GetCurrentSettingsUseCase
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TakeoutMapScreenViewModel @Inject constructor(
-    private val getCurrentCityUseCase: GetCurrentCityUseCase
+    private val getCurrentCityUseCase: GetCurrentSettingsUseCase
 ) : ViewModel() {
 
     private val _screenState = MutableStateFlow<TakeoutMapScreenState>(TakeoutMapScreenState.Initial)
@@ -72,11 +72,12 @@ class TakeoutMapScreenViewModel @Inject constructor(
     private suspend fun loadCity() {
         _screenState.emit(TakeoutMapScreenState.Loading)
         getCurrentCityUseCase
-            .getCurrentCityFlow()
+            .getCurrentSettingsFlow()
             .collect {
-                if (it == null) return@collect
-                currentPoint = it.points[0]
-                _screenState.emit(TakeoutMapScreenState.Content(it, currentPoint))
+                if (it?.city == null) return@collect
+                val city = it.city
+                currentPoint = city.points[0]
+                _screenState.emit(TakeoutMapScreenState.Content(city, currentPoint))
             }
     }
 

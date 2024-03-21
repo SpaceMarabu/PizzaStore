@@ -1,20 +1,18 @@
 package com.example.pizzastore.presentation.chosecity
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.City
-import com.example.pizzastore.domain.usecases.GetCitiesUseCase
+import com.example.pizzastore.domain.usecases.GetAllCitiesUseCase
 import com.example.pizzastore.domain.usecases.SetCitySettingsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import java.io.Closeable
 import javax.inject.Inject
 
 class CityDeliveryViewModel @Inject constructor(
-    private val getCitiesUseCase: GetCitiesUseCase,
+    private val getCitiesUseCase: GetAllCitiesUseCase,
     private val setCitySettingsUseCase: SetCitySettingsUseCase
 ) : ViewModel() {
 

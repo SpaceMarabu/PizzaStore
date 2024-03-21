@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
@@ -42,7 +41,6 @@ import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.presentation.funs.CircularLoading
-import com.example.pizzastore.ui.theme.DarkBlue
 
 @Composable
 fun ChoseCityScreen(

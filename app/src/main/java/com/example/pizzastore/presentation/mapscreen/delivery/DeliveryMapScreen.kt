@@ -53,7 +53,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
-import com.example.pizzastore.domain.entity.AddressSealed
+import com.example.pizzastore.domain.entity.AddressResult
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
@@ -281,7 +281,7 @@ fun EnterForm(
                     .padding(start = 16.dp, end = 16.dp, top = 8.dp),
                 viewModel = viewModel
             ) {
-                viewModel.sendAddressPart(AddressSealed.AddressLine(it))
+                viewModel.sendAddressPart(AddressResult.AddressLine(it))
             }
         }
         item {
@@ -290,10 +290,10 @@ fun EnterForm(
                 label2 = "Код на двери",
                 viewModel = viewModel,
                 onSaveClicked1 = {
-                    viewModel.sendAddressPart(AddressSealed.Entrance(it))
+                    viewModel.sendAddressPart(AddressResult.Entrance(it))
                 }
             ) {
-                viewModel.sendAddressPart(AddressSealed.DoorCode(it))
+                viewModel.sendAddressPart(AddressResult.DoorCode(it))
             }
         }
         item {
@@ -302,10 +302,10 @@ fun EnterForm(
                 label2 = "Квартира",
                 viewModel = viewModel,
                 onSaveClicked1 = {
-                    viewModel.sendAddressPart(AddressSealed.Floor(it))
+                    viewModel.sendAddressPart(AddressResult.Floor(it))
                 }
             ) {
-                viewModel.sendAddressPart(AddressSealed.Apartment(it))
+                viewModel.sendAddressPart(AddressResult.Apartment(it))
             }
         }
         item {
@@ -320,7 +320,7 @@ fun EnterForm(
                     ),
                 viewModel = viewModel
             ) {
-                viewModel.sendAddressPart(AddressSealed.Comment(it))
+                viewModel.sendAddressPart(AddressResult.Comment(it))
             }
         }
         item {

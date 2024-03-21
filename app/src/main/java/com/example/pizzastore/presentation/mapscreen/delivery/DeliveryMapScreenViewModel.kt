@@ -3,10 +3,10 @@ package com.example.pizzastore.presentation.mapscreen.delivery
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pizzastore.domain.entity.AddressSealed
+import com.example.pizzastore.domain.entity.AddressResult
 import com.example.pizzastore.domain.entity.AddressState
 import com.example.pizzastore.domain.entity.Path
-import com.example.pizzastore.domain.usecases.GetAddressUseCase
+import com.example.pizzastore.domain.usecases.GetAddressByGeoCodeUseCase
 import com.example.pizzastore.domain.usecases.GetPathUseCase
 import com.example.pizzastore.presentation.mapscreen.MapConsts
 import com.google.android.gms.maps.model.CameraPosition
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class DeliveryMapScreenViewModel @Inject constructor(
-    private val getAddressUseCase: GetAddressUseCase,
+    private val getAddressUseCase: GetAddressByGeoCodeUseCase,
     private val getPathUseCase: GetPathUseCase
 ) : ViewModel() {
 
@@ -33,8 +33,8 @@ class DeliveryMapScreenViewModel @Inject constructor(
     val saveClickedFlow
         get() = _saveClickedFlow.asStateFlow()
 
-    private val addressChangingFlow = MutableSharedFlow<AddressSealed>()
-    private val tempAddressStateFlow = MutableStateFlow(AddressSealed.DeliveryInfo())
+    private val addressChangingFlow = MutableSharedFlow<AddressResult>()
+    private val tempAddressStateFlow = MutableStateFlow(AddressResult.DeliveryInfo())
 
     private lateinit var currentCameraPosition: CameraPosition
 
@@ -59,7 +59,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
         }
     }
 
-    fun sendAddressPart(part: AddressSealed) {
+    fun sendAddressPart(part: AddressResult) {
         viewModelScope.launch {
             addressChangingFlow.emit(part)
         }
@@ -70,13 +70,13 @@ class DeliveryMapScreenViewModel @Inject constructor(
             addressChangingFlow.collect {
                 val currentAddressVal = tempAddressStateFlow.value
                 val currentAddressResult = when (it) {
-                    is AddressSealed.DeliveryInfo -> {currentAddressVal}
-                    is AddressSealed.AddressLine -> currentAddressVal.copy(address = it.address)
-                    is AddressSealed.Comment -> currentAddressVal.copy(comment = it.comment)
-                    is AddressSealed.DoorCode -> currentAddressVal.copy(doorCode = it.doorCode)
-                    is AddressSealed.Entrance -> currentAddressVal.copy(entrance = it.entrance)
-                    is AddressSealed.Floor -> currentAddressVal.copy(floor = it.floor)
-                    is AddressSealed.Apartment -> currentAddressVal.copy(apartment = it.apartment)
+                    is AddressResult.DeliveryInfo -> {currentAddressVal}
+                    is AddressResult.AddressLine -> currentAddressVal.copy(address = it.address)
+                    is AddressResult.Comment -> currentAddressVal.copy(comment = it.comment)
+                    is AddressResult.DoorCode -> currentAddressVal.copy(doorCode = it.doorCode)
+                    is AddressResult.Entrance -> currentAddressVal.copy(entrance = it.entrance)
+                    is AddressResult.Floor -> currentAddressVal.copy(floor = it.floor)
+                    is AddressResult.Apartment -> currentAddressVal.copy(apartment = it.apartment)
                 }
                 tempAddressStateFlow.emit(currentAddressResult)
                 Log.d("TEST_ADDRESS", tempAddressStateFlow.value.toString())

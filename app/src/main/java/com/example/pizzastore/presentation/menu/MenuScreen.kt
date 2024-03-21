@@ -1,6 +1,7 @@
 package com.example.pizzastore.presentation.menu
 
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -56,7 +57,7 @@ fun MenuScreen(
     val component = getApplicationComponent()
     val viewModel: MenuScreenViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.screenState.collectAsState()
-
+    Log.d("TEST_TEST", screenState.toString())
 
     when (screenState.value) {
         is MenuScreenState.Content -> {

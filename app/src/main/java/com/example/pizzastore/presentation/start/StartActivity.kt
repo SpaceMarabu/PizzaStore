@@ -6,8 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.di.getApplicationComponent
-import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
-import com.example.pizzastore.presentation.main.MainScreen
+import com.example.pizzastore.presentation.home.MainScreen
 import com.example.pizzastore.ui.theme.PizzaStoreTheme
 
 class StartActivity : ComponentActivity() {

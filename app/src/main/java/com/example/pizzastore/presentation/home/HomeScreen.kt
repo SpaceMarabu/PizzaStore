@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.main
+package com.example.pizzastore.presentation.home
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -84,7 +84,7 @@ fun MainScreen() {
             menuScreenContent = {
                 MenuScreen(
                     onCityClick = {
-                        navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
+                        navigationState.navigateWithDestroy(Screen.ROUTE_CHOSE_CITY)
                     },
                     onAddressClick = { isTakeout ->
                         if (isTakeout) {

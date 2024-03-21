@@ -10,9 +10,9 @@ import kotlinx.coroutines.flow.Flow
 interface CityDao {
 
     @Query("SELECT * FROM session_settings LIMIT 1")
-    fun get(): Flow<CityDbModel>
+    fun get(): Flow<SessionSettingsDbModel?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addCity(cityDbModel: CityDbModel)
+    suspend fun addSessionSettings(cityDbModel: SessionSettingsDbModel)
 
 }
