@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.usecases.GetCurrentSettingsUseCase
+import com.example.pizzastore.domain.usecases.GetStoriesUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -11,20 +12,20 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MenuScreenViewModel @Inject constructor(
-    private val getCurrentSettingsUseCase: GetCurrentSettingsUseCase
+    private val getCurrentSettingsUseCase: GetCurrentSettingsUseCase,
+    private val getStoriesUseCase: GetStoriesUseCase
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<MenuScreenState>(MenuScreenState.Initial)
+    val listStoriesUri = getStoriesUseCase.getStoriesFlow()
 
     private val scope = viewModelScope
-
 
     init {
         scope.launch {
             loadCity()
         }
     }
-
 
     private suspend fun loadCity() {
         screenState.value = MenuScreenState.Loading
@@ -34,16 +35,14 @@ class MenuScreenViewModel @Inject constructor(
             .collect {
                 if (it?.city == null) {
                     screenState.emit(MenuScreenState.EmptyCity)
-//                    delay(300)
-//                    screenState.emit(MenuScreenState.Loading)
+                    delay(300)
+                    screenState.emit(MenuScreenState.Loading)
                 } else {
                     val city = it.city
                     screenState.emit(MenuScreenState.Content(city))
-//                    cityState.emit(it)
                 }
             }
     }
-
 
     fun changeCityFeature(type: DeliveryType) {
         scope.launch {

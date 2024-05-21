@@ -2,12 +2,12 @@ package com.example.pizzastore.presentation.home
 
 sealed class MainScreenState() {
 
-    object Initial : MainScreenState()
-    object Loading : MainScreenState()
+    data object Initial : MainScreenState()
+    data object Loading : MainScreenState()
 
 
 //    object EmptyCity : MainScreenState()
 
-    object City : MainScreenState()
+    data object Content : MainScreenState()
 
 }

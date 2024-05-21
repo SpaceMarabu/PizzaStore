@@ -1,11 +1,12 @@
 package com.example.pizzastore.di
 
 import android.app.Application
-import com.example.pizzastore.data.database.CityDao
-import com.example.pizzastore.data.database.LocalDatabase
+import com.example.pizzastore.data.localdatabase.CityDao
+import com.example.pizzastore.data.localdatabase.LocalDatabase
+import com.example.pizzastore.data.remotedatabase.DatabaseService
+import com.example.pizzastore.data.remotedatabase.FirebaseImpl
 import com.example.pizzastore.data.repository.PizzaStoreRepositoryImpl
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
-import com.google.firebase.database.FirebaseDatabase
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -21,11 +22,14 @@ interface DataModule {
 
     companion object {
 
-//        @ApplicationScope
-//        @Provides
-//        fun provideFirebaseDatabase(): FirebaseDatabase {
-//            return FirebaseDatabase.getInstance()
-//        }
+
+
+            @ApplicationScope
+            @Provides
+            fun provideFirebase() : DatabaseService {
+                return  FirebaseImpl()
+            }
+
 
         @ApplicationScope
         @Provides

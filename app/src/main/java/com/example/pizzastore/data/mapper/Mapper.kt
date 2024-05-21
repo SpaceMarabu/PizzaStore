@@ -1,6 +1,6 @@
 package com.example.pizzastore.data.mapper
 
-import com.example.pizzastore.data.database.SessionSettingsDbModel
+import com.example.pizzastore.data.localdatabase.SessionSettingsDbModel
 import com.example.pizzastore.data.network.model.AddressDto
 import com.example.pizzastore.data.network.model.PathDto
 import com.example.pizzastore.domain.entity.Address

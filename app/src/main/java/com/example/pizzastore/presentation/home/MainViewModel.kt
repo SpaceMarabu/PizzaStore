@@ -30,7 +30,7 @@ class MainViewModel @Inject constructor(
                 if (it == null) {
 //                    _state.emit(MainScreenState.EmptyCity)
                 } else {
-                    _state.emit(MainScreenState.City)
+                    _state.emit(MainScreenState.Content)
                 }
             }
     }

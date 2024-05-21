@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -34,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -57,7 +60,6 @@ fun MenuScreen(
     val component = getApplicationComponent()
     val viewModel: MenuScreenViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.screenState.collectAsState()
-    Log.d("TEST_TEST", screenState.toString())
 
     when (screenState.value) {
         is MenuScreenState.Content -> {
@@ -89,6 +91,7 @@ fun MenuScreenContent(
     cityState: City
 ) {
 
+    val listStoriesUri by viewModel.listStoriesUri.collectAsState(listOf())
 
     Column {
         ChoseCity(
@@ -108,8 +111,13 @@ fun MenuScreenContent(
                 onAddressClick(isTakeout)
             }
         )
-    }
 
+        LazyRow() {
+            items(items = listStoriesUri) {
+
+            }
+        }
+    }
 }
 
 @Composable
@@ -160,22 +168,22 @@ fun ChoseDeliveryType(
             when (city.deliveryType) {
                 DeliveryType.TAKE_OUT -> {
                     TextButton(
-                        text = "Доставка",
+                        text = stringResource(R.string.delivery_text),
                         color = deliveryColor
                     ) { onDeliveryClick(DeliveryType.DELIVERY_TO) }
                     TextButton(
-                        text = "В пиццерии",
+                        text = stringResource(R.string.takeout_text),
                         color = takeoutColor
                     ) { onDeliveryClick(DeliveryType.TAKE_OUT) }
                 }
 
                 DeliveryType.DELIVERY_TO -> {
                     TextButton(
-                        text = "Доставка",
+                        text = stringResource(R.string.delivery_text),
                         color = deliveryColor
                     ) { onDeliveryClick(DeliveryType.DELIVERY_TO) }
                     TextButton(
-                        text = "В пиццерии",
+                        text = stringResource(R.string.takeout_text),
                         color = takeoutColor
                     ) { onDeliveryClick(DeliveryType.TAKE_OUT) }
                 }
@@ -199,7 +207,7 @@ fun ChoseDeliveryType(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Выбрать адрес доставки",
+                text = stringResource(R.string.chose_address_string),
                 color = colorResource(R.color.orange),
                 fontSize = 14.sp
             )
@@ -215,6 +223,7 @@ fun ChoseDeliveryType(
 
 }
 
+//<editor-fold desc="TextButton">
 @Composable
 fun TextButton(
     text: String,
@@ -238,7 +247,9 @@ fun TextButton(
         text = text
     )
 }
+//</editor-fold>
 
+//<editor-fold desc="ChoseCity">
 @Composable
 fun ChoseCity(
     cityName: String,
@@ -269,3 +280,4 @@ fun ChoseCity(
         )
     }
 }
+//</editor-fold>

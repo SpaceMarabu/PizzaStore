@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
@@ -46,18 +48,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.domain.entity.AddressLineInputResult
 import com.example.pizzastore.domain.entity.AddressResult
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
 import com.example.pizzastore.presentation.mapscreen.MapConsts.BASE_LOCATION
+import com.example.pizzastore.presentation.mapscreen.RequestPermissionsButton
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity.GRANULARITY_PERMISSION_LEVEL
 import com.google.android.gms.location.LocationCallback
@@ -71,7 +77,6 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
-
 
 @Composable
 fun DeliveryMapScreen(
@@ -91,23 +96,25 @@ fun DeliveryMapScreen(
 
         is DeliveryMapScreenState.Content -> {
             DeliveryMapScreenContent(
-                paddingValues = paddingValues,
                 viewModel
             ) {
-
+                onSaveClicked()
             }
         }
     }
 }
 
+//<editor-fold desc="DeliveryMapScreenContent">
 @Composable
 fun DeliveryMapScreenContent(
-    paddingValues: PaddingValues,
     viewModel: DeliveryMapScreenViewModel,
-    onSaveClicked: () -> Unit
+    onAddressChosen: () -> Unit
 ) {
 
     var permissionGranted by remember {
+        mutableStateOf(false)
+    }
+    var needRequestPermission by remember {
         mutableStateOf(false)
     }
 
@@ -117,22 +124,23 @@ fun DeliveryMapScreenContent(
     )
 
     val permissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions()) {
-            permissionGranted = !it.values.contains(false)
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissionsMap ->
+            permissionGranted = permissionsMap.values.all { it }
+                    && permissionsMap.values.isNotEmpty()
         }
 
-    SideEffect {
-        if (!permissionGranted) {
+    if (needRequestPermission or !permissionGranted) {
+        SideEffect {
             permissionLauncher.launch(permissions)
         }
+        needRequestPermission = false
     }
-
-    Log.d("TEST_TEST", "outer rec")
 
     val cameraPositionState = rememberCameraPositionState {
         position = viewModel.getCameraPosition("0, 0", 1f)
     }
-
 
     val currentLocation = remember {
         mutableStateOf(BASE_LOCATION)
@@ -160,7 +168,6 @@ fun DeliveryMapScreenContent(
         isLocationClicked = false
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -173,8 +180,6 @@ fun DeliveryMapScreenContent(
                     currentLocation.value = latLngString
                     isLocationClicked = true
                 }
-
-//                viewModel.requestAddress(latLngString)
             }
             if (!cameraPositionState.isMoving) {
                 viewModel.postLatLang(cameraPositionState.position.target)
@@ -204,12 +209,18 @@ fun DeliveryMapScreenContent(
                 viewModel
             ) {
                 viewModel.saveClick()
-                onSaveClicked()
+                if (it) {
+                    onAddressChosen()
+                }
             }
-
+        } else {
+            RequestPermissionsButton {
+                needRequestPermission = true
+            }
         }
     }
 }
+//</editor-fold>
 
 //<editor-fold desc="MapWithPin">
 @Composable
@@ -265,8 +276,12 @@ fun MapWithPin(
 @Composable
 fun EnterForm(
     viewModel: DeliveryMapScreenViewModel,
-    onSaveClicked: () -> Unit
+    onSaveClicked: (Boolean) -> Unit
 ) {
+
+    var errorState by remember {
+        mutableStateOf(false)
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -281,7 +296,8 @@ fun EnterForm(
                     .padding(start = 16.dp, end = 16.dp, top = 8.dp),
                 viewModel = viewModel
             ) {
-                viewModel.sendAddressPart(AddressResult.AddressLine(it))
+                errorState = it.isError
+                viewModel.sendAddressPart(AddressResult.AddressLine(it.line))
             }
         }
         item {
@@ -337,7 +353,7 @@ fun EnterForm(
                     .clip(RoundedCornerShape(30.dp))
                     .background(Color.LightGray.copy(alpha = 0.5f))
                     .clickable {
-                        onSaveClicked()
+                        onSaveClicked(errorState)
                     },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -466,6 +482,7 @@ fun TextFieldDelivery(
     label: String,
     modifier: Modifier = Modifier,
     viewModel: DeliveryMapScreenViewModel,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(),
     onSaveClicked: (String) -> Unit
 ) {
 
@@ -483,6 +500,7 @@ fun TextFieldDelivery(
         onValueChange = {
             text = it
         },
+        keyboardOptions = keyboardOptions,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             unfocusedBorderColor = Color.LightGray,
             unfocusedLabelColor = Color.LightGray,
@@ -503,14 +521,22 @@ fun TextFieldAddress(
     label: String,
     modifier: Modifier = Modifier,
     viewModel: DeliveryMapScreenViewModel,
-    onSaveClicked: (String) -> Unit
+    onSaveClicked: (AddressLineInputResult) -> Unit
 ) {
 
     var text by remember { mutableStateOf("") }
 
+    var isError by remember {
+        mutableStateOf(false)
+    }
+
     val startSavingState by viewModel.saveClickedFlow.collectAsState()
     if (startSavingState) {
-        onSaveClicked(text)
+        if (text.isBlank()) {
+            isError = true
+        }
+        val addressLineInputResult = AddressLineInputResult(text, isError)
+        onSaveClicked(addressLineInputResult)
     }
 
 
@@ -535,8 +561,10 @@ fun TextFieldAddress(
         value = text ?: "",
         onValueChange = {
             viewModel.inputTextStarted()
+            isError = false
             text = it
         },
+        isError = isError,
         colors = TextFieldDefaults.outlinedTextFieldColors(
             unfocusedBorderColor = Color.LightGray,
             unfocusedLabelColor = Color.LightGray,
@@ -581,7 +609,8 @@ fun RowWithTwoTextField(
             modifier = Modifier
                 .width(textFieldWidth)
                 .padding(end = paddingBetweenTF),
-            viewModel = viewModel
+            viewModel = viewModel,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         ) {
             onSaveClicked1(it)
         }
@@ -590,7 +619,8 @@ fun RowWithTwoTextField(
             modifier = Modifier
                 .width(textFieldWidth)
                 .padding(start = paddingBetweenTF),
-            viewModel = viewModel
+            viewModel = viewModel,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         ) {
             onSaveClicked2(it)
         }

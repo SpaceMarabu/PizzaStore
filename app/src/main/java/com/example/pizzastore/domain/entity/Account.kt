@@ -9,5 +9,6 @@ data class Account(
     val number: String? = null,
     val name: String? = null,
     val lastName: String? = null,
-    val address: AddressResult.DeliveryInfo? = null
+    val homeAddress: AddressResult.DeliveryInfo? = null,
+    val pizzaStore: Point? = null
 ) : Parcelable

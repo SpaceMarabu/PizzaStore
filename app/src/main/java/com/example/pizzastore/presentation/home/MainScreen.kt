@@ -84,7 +84,7 @@ fun MainScreen() {
             menuScreenContent = {
                 MenuScreen(
                     onCityClick = {
-                        navigationState.navigateWithDestroy(Screen.ROUTE_CHOSE_CITY)
+                        navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
                     },
                     onAddressClick = { isTakeout ->
                         if (isTakeout) {
@@ -107,11 +107,13 @@ fun MainScreen() {
                 }
             },
             takeOutMapScreenContent = {
-                TakeOutMapScreen(paddingValues = paddingValues)
+                TakeOutMapScreen(paddingValues = paddingValues) {
+                    navigationState.navigateTo(Screen.ROUTE_MENU)
+                }
             },
             deliveryMapScreenContent = {
                 DeliveryMapScreen(paddingValues = paddingValues) {
-
+                    navigationState.navigateTo(Screen.ROUTE_MENU)
                 }
             }
         )

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -43,6 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -57,8 +59,10 @@ import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.getBitmapDescriptorFromVector
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
 import com.example.pizzastore.presentation.mapscreen.ChangeMapZoom
+import com.example.pizzastore.presentation.mapscreen.RequestPermissionsButton
 import com.example.pizzastore.presentation.mapscreen.RowWithIcon
 import com.google.android.gms.maps.model.MapStyleOptions
+import com.google.maps.android.compose.CameraPositionState
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -68,7 +72,10 @@ import com.google.maps.android.compose.rememberMarkerState
 
 
 @Composable
-fun TakeOutMapScreen(paddingValues: PaddingValues) {
+fun TakeOutMapScreen(
+    paddingValues: PaddingValues,
+    onOrderButtonClicked: () -> Unit
+) {
 
     val component = getApplicationComponent()
     val viewModel: TakeoutMapScreenViewModel = viewModel(factory = component.getViewModelFactory())
@@ -89,13 +96,17 @@ fun TakeOutMapScreen(paddingValues: PaddingValues) {
                 currentScreenState.currentPoint,
                 onPointItemClicked = {
                     viewModel.changeScreenState(currentScreenState.copy(currentPoint = it))
+                },
+                onOrderButtonClicked = {
+                    viewModel.pointChosed()
+                    onOrderButtonClicked()
                 }
             )
         }
     }
 }
 
-
+//<editor-fold desc="Экран с контентом">
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TakeOutMapScreenContent(
@@ -103,10 +114,14 @@ fun TakeOutMapScreenContent(
     city: City,
     viewModel: TakeoutMapScreenViewModel,
     currentPoint: Point,
-    onPointItemClicked: (Point) -> Unit
+    onPointItemClicked: (Point) -> Unit,
+    onOrderButtonClicked: () -> Unit
 ) {
 
     var permissionGranted by remember {
+        mutableStateOf(false)
+    }
+    var needRequestPermission by remember {
         mutableStateOf(false)
     }
 
@@ -116,22 +131,23 @@ fun TakeOutMapScreenContent(
     )
 
     val permissionLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestMultiplePermissions()) {
-            permissionGranted = !it.values.contains(false)
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissionsMap ->
+            permissionGranted = permissionsMap.values.all { it }
+                    && permissionsMap.values.isNotEmpty()
         }
 
-    SideEffect {
-        if (!permissionGranted) {
+    if (needRequestPermission or !permissionGranted) {
+        SideEffect {
             permissionLauncher.launch(permissions)
         }
+        needRequestPermission = false
     }
-
-    Log.d("TEST_TEST", "outer rec")
 
     val cameraPositionState = rememberCameraPositionState {
         position = viewModel.getCameraPosition(currentPoint)
     }
-
 
     val scope = rememberCoroutineScope()
     var isPointChanged by remember {
@@ -177,7 +193,7 @@ fun TakeOutMapScreenContent(
     }
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-
+    val bottomSheetState = bottomSheetScaffoldState.bottomSheetState
 
     Box {
         BottomSheetScaffold(
@@ -214,38 +230,17 @@ fun TakeOutMapScreenContent(
                 ) {
                     if (permissionGranted) {
                         Box {
-                            GoogleMap(
+                            CustomGoogleMap(
                                 cameraPositionState = cameraPositionState,
-                                properties = MapProperties(
-                                    isMyLocationEnabled = true,
-                                    mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
-                                        LocalContext.current,
-                                        R.raw.raw_style
-                                    )
-                                ),
-                                uiSettings = MapUiSettings(
-                                    compassEnabled = true,
-                                    myLocationButtonEnabled = true,
-                                    zoomControlsEnabled = false,
-                                    indoorLevelPickerEnabled = true,
-                                )
+                                city = city,
+                                viewModel = viewModel
                             ) {
-                                city.points.forEach { point ->
-                                    val latLngCoords = viewModel.getLatLngCoords(point.coords)
-
-                                    Marker(
-                                        state = rememberMarkerState(position = latLngCoords),
-                                        icon = getBitmapDescriptorFromVector(
-                                            LocalContext.current, R.drawable.ic_contacts_orange
-                                        ),
-                                        tag = point.id,
-                                        onClick = {
-                                            onPointItemClicked(point)
-                                            false
-                                        }
-                                    )
-                                }
+                                onPointItemClicked(it)
                             }
+                        }
+                    } else {
+                        RequestPermissionsButton {
+                            needRequestPermission = true
                         }
                     }
                 }
@@ -256,7 +251,6 @@ fun TakeOutMapScreenContent(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
-            val bottomSheetState = bottomSheetScaffoldState.bottomSheetState
 
             if (bottomSheetState.isCollapsed && !bottomSheetState.isAnimationRunning) {
                 RowWithIcon(id = R.drawable.plus) {
@@ -269,31 +263,88 @@ fun TakeOutMapScreenContent(
             }
         }
         if (isButtonShown) {
-            Column {
-                Spacer(modifier = Modifier.weight(1f))
-                Column(
-                    modifier = Modifier
-                        .height(height = 80.dp)
-                        .background(Color.White),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                            .clip(RoundedCornerShape(30.dp))
-                            .background(colorResource(R.color.orange)),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(text = "Заказать здесь", color = Color.White)
-                    }
-                }
+            OrderButton {
+                onOrderButtonClicked()
             }
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="Карта">
+@Composable
+fun CustomGoogleMap(
+    cameraPositionState: CameraPositionState,
+    city: City,
+    viewModel: TakeoutMapScreenViewModel,
+    onPointItemClicked: (Point) -> Unit
+) {
+    GoogleMap(
+        cameraPositionState = cameraPositionState,
+        properties = MapProperties(
+            isMyLocationEnabled = true,
+            mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
+                LocalContext.current,
+                R.raw.raw_style
+            )
+        ),
+        uiSettings = MapUiSettings(
+            compassEnabled = true,
+            myLocationButtonEnabled = true,
+            zoomControlsEnabled = false,
+            indoorLevelPickerEnabled = true,
+        )
+    ) {
+        city.points.forEach { point ->
+            val latLngCoords = viewModel.getLatLngCoords(point.coords)
+
+            Marker(
+                state = rememberMarkerState(position = latLngCoords),
+                icon = getBitmapDescriptorFromVector(
+                    LocalContext.current, R.drawable.ic_contacts_orange
+                ),
+                tag = point.id,
+                onClick = {
+                    onPointItemClicked(point)
+                    false
+                }
+            )
+        }
+    }
+}
+//</editor-fold>
+
+//<editor-fold desc="Кнопка заказать">
+@Composable
+fun OrderButton(onOrderButtonClicked: () -> Unit) {
+    Column {
+        Spacer(modifier = Modifier.weight(1f))
+        Column(
+            modifier = Modifier
+                .height(height = 80.dp)
+                .background(Color.White),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(30.dp))
+                    .background(colorResource(R.color.orange))
+                    .clickable {
+                        onOrderButtonClicked()
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Заказать здесь", color = Color.White)
+            }
+        }
+    }
+}
+//</editor-fold>
+
+//<editor-fold desc="bottom Sheet, без кнопки заказать">
 @Composable
 fun PointCard(
     city: City,
@@ -369,7 +420,9 @@ fun PointCard(
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="Карточка пиццерии для списка">
 @Composable
 fun PointCardForList(
     cityName: String,
@@ -409,8 +462,9 @@ fun PointCardForList(
         }
     }
 }
+//</editor-fold>
 
-
+//<editor-fold desc="PointContent">
 @Composable
 fun PointContent(
     cityName: String,
@@ -473,7 +527,9 @@ fun PointContent(
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="TwoTextRow">
 @Composable
 fun TwoTextRow(
     text1: String,
@@ -503,3 +559,4 @@ fun TwoTextRow(
         )
     }
 }
+//</editor-fold>

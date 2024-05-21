@@ -8,13 +8,18 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -23,12 +28,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
+import com.example.pizzastore.R
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeoutMapScreenViewModel
 import com.example.pizzastore.presentation.mapscreen.takeout.ZoomDirection
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -43,6 +51,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
+//<editor-fold desc="ChangeMapZoom">
 @Composable
 fun ChangeMapZoom(
     viewModel: TakeoutMapScreenViewModel,
@@ -59,7 +68,9 @@ fun ChangeMapZoom(
     )
     zoomState.value = ZoomDirection.Nothing
 }
+//</editor-fold>
 
+//<editor-fold desc="ChangeMapPosition">
 @Composable
 fun ChangeMapPosition(
     cameraPositionState: CameraPositionState,
@@ -78,7 +89,9 @@ fun ChangeMapPosition(
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="RowWithIcon">
 @Composable
 fun RowWithIcon(id: Int, onClick: () -> Unit) {
     Row {
@@ -104,6 +117,27 @@ fun RowWithIcon(id: Int, onClick: () -> Unit) {
         }
     }
 }
+//</editor-fold>
+
+//<editor-fold desc="RequestPermissionsButton">
+@Composable
+fun RequestPermissionsButton(
+    onButtonClicked: () -> Unit
+) {
+    Column (
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(onClick = {
+            onButtonClicked()
+        }) {
+            Text(text = stringResource(R.string.get_permission_button))
+        }
+    }
+}
+//</editor-fold>
 
 
 

@@ -5,4 +5,8 @@
     <string name="contacts">Contacts</string>
     <string name="shopping_bag">shopping_bag</string>
     <string name="delivery_question">Как будете\nзаказывать?</string>
+    <string name="get_permission_button">Дать доступ к геоданным</string>
+    <string name="chose_address_string">Выбрать адрес доставки</string>
+    <string name="delivery_text">Доставка</string>
+    <string name="takeout_text">В пиццерии</string>
 </resources>

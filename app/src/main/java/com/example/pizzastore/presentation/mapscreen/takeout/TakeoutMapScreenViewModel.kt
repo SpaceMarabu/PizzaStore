@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.usecases.GetCurrentSettingsUseCase
+import com.example.pizzastore.domain.usecases.SetCitySettingsUseCase
+import com.example.pizzastore.domain.usecases.SetPointSettingsUseCase
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +14,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TakeoutMapScreenViewModel @Inject constructor(
-    private val getCurrentCityUseCase: GetCurrentSettingsUseCase
+    private val getCurrentCityUseCase: GetCurrentSettingsUseCase,
+    private val setPointSettingsUseCase: SetPointSettingsUseCase
 ) : ViewModel() {
 
     private val _screenState = MutableStateFlow<TakeoutMapScreenState>(TakeoutMapScreenState.Initial)
@@ -24,24 +27,10 @@ class TakeoutMapScreenViewModel @Inject constructor(
     private var currentZoom = 14f
     private lateinit var currentCameraPosition: CameraPosition
 
-
-//    private val _currentPoint = MutableSharedFlow<Point>(
-//        replay = 1,
-//        extraBufferCapacity = 1,
-//        onBufferOverflow = BufferOverflow.DROP_OLDEST
-//    )
-//    val currentPoint
-//        get() = _currentPoint.asSharedFlow()
-
     init {
         viewModelScope.launch {
             loadCity()
         }
-    }
-
-    fun getStartPoint(): Point {
-        val currentScreenState = screenState.value as TakeoutMapScreenState.Content
-        return currentScreenState.city.points[0]
     }
 
     fun getCameraPosition(point: Point, zoom: ZoomDirection = ZoomDirection.Nothing): CameraPosition {
@@ -69,16 +58,24 @@ class TakeoutMapScreenViewModel @Inject constructor(
         )
     }
 
-    private suspend fun loadCity() {
-        _screenState.emit(TakeoutMapScreenState.Loading)
-        getCurrentCityUseCase
-            .getCurrentSettingsFlow()
-            .collect {
-                if (it?.city == null) return@collect
-                val city = it.city
-                currentPoint = city.points[0]
-                _screenState.emit(TakeoutMapScreenState.Content(city, currentPoint))
-            }
+    private fun loadCity() {
+        viewModelScope.launch {
+            _screenState.emit(TakeoutMapScreenState.Loading)
+            getCurrentCityUseCase
+                .getCurrentSettingsFlow()
+                .collect {
+                    if (it?.city == null) return@collect
+                    val city = it.city
+                    currentPoint = city.points[0]
+                    _screenState.emit(TakeoutMapScreenState.Content(city, currentPoint))
+                }
+        }
+    }
+
+    fun pointChosed() {
+        viewModelScope.launch {
+            setPointSettingsUseCase.setPoint(currentPoint)
+        }
     }
 
     fun changeScreenState(state: TakeoutMapScreenState) {

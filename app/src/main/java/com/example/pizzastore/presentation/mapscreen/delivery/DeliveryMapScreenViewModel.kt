@@ -56,6 +56,8 @@ class DeliveryMapScreenViewModel @Inject constructor(
     fun saveClick() {
         viewModelScope.launch {
             _saveClickedFlow.emit(true)
+            delay(1000)
+            _saveClickedFlow.emit(false)
         }
     }
 
@@ -125,10 +127,6 @@ class DeliveryMapScreenViewModel @Inject constructor(
         )
         return currentCameraPosition
     }
-
-//    fun getNewCameraPosition(zoom: ZoomDirection = ZoomDirection.Nothing): CameraPosition {
-//        return getCameraPosition(currentPoint, zoom)
-//    }
 
     fun getLatLngCoords(coords: String): LatLng {
         val splitedCoords = coords.split(",")

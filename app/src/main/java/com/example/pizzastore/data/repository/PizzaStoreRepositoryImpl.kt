@@ -2,25 +2,18 @@ package com.example.pizzastore.data.repository
 
 import android.util.Log
 import com.example.cryptoapp.data.network.ApiFactory
-import com.example.pizzastore.data.database.CityDao
+import com.example.pizzastore.data.localdatabase.CityDao
 import com.example.pizzastore.data.mapper.Mapper
 import com.example.pizzastore.data.network.model.PathResponseDto
+import com.example.pizzastore.data.remotedatabase.DatabaseService
+import com.example.pizzastore.domain.entity.Account
 import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
+import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.entity.SessionSettings
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
-import com.example.pizzastore.presentation.funs.mergeWith
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import retrofit2.Response
@@ -29,53 +22,13 @@ import javax.inject.Inject
 
 class PizzaStoreRepositoryImpl @Inject constructor(
     private val cityDao: CityDao,
+    private val databaseService: DatabaseService,
     private val mapper: Mapper
 ) : PizzaStoreRepository {
 
-    private val firebaseDatabase = FirebaseDatabase.getInstance()
+    override fun getStoriesUseCase() = databaseService.getListStoriesUri()
 
-//    private var currentSettingsFlow = MutableSharedFlow<SessionSettings>(
-//        replay = 1,
-//        extraBufferCapacity = 1,
-//        onBufferOverflow = BufferOverflow.DROP_OLDEST
-//    )
-
-    private val listCitiesFlow = callbackFlow {
-        val dRef = firebaseDatabase.getReference("cities")
-
-        val postListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val listCities = mutableListOf<City>()
-                for (data in dataSnapshot.children) {
-                    val key: String = data.key ?: continue
-                    val value = data.getValue(City::class.java) ?: continue
-                    listCities.add(
-                        City(
-                            id = key.toInt(),
-                            name = value.name,
-                            points = value.points.filterNotNull()
-                        )
-                    )
-                }
-                val returnList = listCities.toList()
-                trySend(returnList)
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                Log.w(
-                    "PizzaStoreRepositoryImpl",
-                    "loadCities:onCancelled",
-                    databaseError.toException()
-                )
-            }
-        }
-        dRef.addValueEventListener(postListener)
-
-        awaitClose {
-            dRef.removeEventListener(postListener)
-        }
-    }
-
+    //<editor-fold desc="getPathUseCase">
     override suspend fun getPathUseCase(point1: String, point2: String): Path {
         var call: Response<PathResponseDto>? = null
         var result = Path.EMPTY_PATH
@@ -92,11 +45,13 @@ class PizzaStoreRepositoryImpl @Inject constructor(
         }
         return result
     }
+    //</editor-fold>
 
+    //<editor-fold desc="getAddressUseCase">
     override suspend fun getAddressUseCase(pointLatLng: String): Address {
         val addressDto = ApiFactory.apiService.getAddress(pointLatLng)
         var result = Address.EMPTY_ADDRESS
-        if (!addressDto.addressList.isNullOrEmpty()) {
+        if (addressDto.addressList.isNotEmpty()) {
             result = mapper.mapAddressDtoToEntity(
                 addressDto.addressList[0]
             )
@@ -109,7 +64,9 @@ class PizzaStoreRepositoryImpl @Inject constructor(
         }
         return result
     }
+    //</editor-fold>
 
+    //<editor-fold desc="setCityUseCase">
     override suspend fun setCityUseCase(city: City) {
         cityDao.get().map {
             if (it != null) {
@@ -125,7 +82,9 @@ class PizzaStoreRepositoryImpl @Inject constructor(
             cityDao.addSessionSettings(dbModel)
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="getCurrentSettingsUseCase">
     override fun getCurrentSettingsUseCase(): Flow<SessionSettings?> {
         return cityDao.get().map {
             if (it != null) {
@@ -135,8 +94,22 @@ class PizzaStoreRepositoryImpl @Inject constructor(
             }
         }
     }
+    //</editor-fold>
 
-    override fun getCitiesUseCase(): Flow<List<City>> {
-        return listCitiesFlow
+    override fun getCitiesUseCase(): Flow<List<City>> = databaseService.getListCitiesFlow()
+
+    //<editor-fold desc="setPointUseCase">
+    override suspend fun setPointUseCase(point: Point) {
+        cityDao.get().map {
+                val currentAccount = it?.account ?: Account()
+                mapper.mapSessionSettingsDbModelToEntity(
+                    it?.copy(account = currentAccount.copy(pizzaStore = point))
+                )
+        }.collect {
+            if (it == null) return@collect
+            val dbModel = mapper.mapSessionSettToDbModel(it)
+            cityDao.addSessionSettings(dbModel)
+        }
     }
+    //</editor-fold>
 }
