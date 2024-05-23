@@ -128,99 +128,105 @@ fun MenuScreenContent(
     }
     currentVisibleType = viewModel.getCurrentVisibleType(firstVisibleIndexProductState)
 
-    Scaffold(
+    Column(
         modifier = Modifier
             .padding(bottom = paddingValues.calculateBottomPadding())
-    ) { _ ->
-        Column {
-            ChoseCity(
-                cityState.name,
-                16.dp,
-                16.dp,
-                onCityClick
-            )
-            ChoseDeliveryType(
-                city = cityState,
-                onDeliveryClick = { newDeliveryType ->
-                    viewModel.changeDeliveryType(
-                        newDeliveryType
-                    )
-                },
-                onAddressClick = { isTakeout ->
-                    onAddressClick(isTakeout)
-                }
-            )
-            StoriesLazyRow(listStoriesUri = listStoriesUri)
-            ProductTypesLazyRow(
-                listProductTypes = listProductTypes,
-                currentVisibleType = currentVisibleType
-            ) { clickedType ->
-
-                coroutineScope.launch {
-                    val indexType = indexMapForScroll[clickedType]?.first() ?: 0
-                    listState.animateScrollToItem(index = indexType)
-                }
+    ) {
+        ChoseCity(
+            cityState.name,
+            16.dp,
+            16.dp,
+            onCityClick
+        )
+        ChoseDeliveryType(
+            city = cityState,
+            onDeliveryClick = { newDeliveryType ->
+                viewModel.changeDeliveryType(
+                    newDeliveryType
+                )
+            },
+            onAddressClick = { isTakeout ->
+                onAddressClick(isTakeout)
             }
-            LazyColumn(
-                modifier = Modifier
-                    .padding(
-                        start = 16.dp,
-                        top = 8.dp,
-                        end = 16.dp
-                    ),
-                state = listState
-            ) {
-                items(products) { product ->
-                    Row(
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                    ) {
-                        val request = ImageRequest
-                            .Builder(LocalContext.current)
-                            .data(product.photo)
-                            .size(coil.size.Size.ORIGINAL)
-                            .build()
+        )
+        StoriesLazyRow(listStoriesUri = listStoriesUri)
+        ProductTypesLazyRow(
+            listProductTypes = listProductTypes,
+            currentVisibleType = currentVisibleType
+        ) { clickedType ->
 
-                        val painter = rememberAsyncImagePainter(
-                            model = request
+            coroutineScope.launch {
+                val indexType = indexMapForScroll[clickedType]?.first() ?: 0
+                listState.animateScrollToItem(index = indexType)
+            }
+        }
+        LazyColumn(
+            modifier = Modifier
+                .padding(
+                    start = 16.dp,
+                    top = 8.dp,
+                    end = 16.dp
+                ),
+            state = listState
+        ) {
+            items(products) { product ->
+                Row(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                ) {
+                    val request = ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(product.photo)
+                        .size(coil.size.Size.ORIGINAL)
+                        .build()
+
+                    val painter = rememberAsyncImagePainter(
+                        model = request
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(
+                                width = 1.dp,
+                                color = Color.Black,
+                                shape = RoundedCornerShape(10.dp)
+                            )
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            painter = painter,
+                            contentDescription = "image_product"
                         )
-                        Box(
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp)
+                            .height(130.dp)
+                    ) {
+                        Text(text = product.name)
+                        Text(
                             modifier = Modifier
-                                .size(100.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .border(
-                                    width = 1.dp,
-                                    color = Color.Black,
-                                    shape = RoundedCornerShape(10.dp)
-                                )
+                                .padding(top = 4.dp),
+                            text = product.description,
+                            fontWeight = FontWeight.Light
+                        )
+                        Row(
+                            modifier = Modifier.padding(top = 4.dp, end = 16.dp),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Image(
+                            Spacer(modifier = Modifier.weight(1f))
+                            Icon(
                                 modifier = Modifier
-                                    .fillMaxSize(),
-                                painter = painter,
-                                contentDescription = "image_product"
+                                    .size(25.dp)
+                                    .padding(end = 4.dp),
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_shopping_bag),
+                                contentDescription = null
                             )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(start = 8.dp)
-                                .height(130.dp)
-                        ) {
-                            Text(text = product.name)
-                            Text(
-                                modifier = Modifier
-                                    .padding(top = 4.dp),
-                                text = product.description,
-                                fontWeight = FontWeight.Light
-                            )
-                            Row(
-                                modifier = Modifier.padding(top = 4.dp, end = 16.dp),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                Spacer(modifier = Modifier.weight(1f))
-                                Text(text = product.price.toString() + " руб.")
-                            }
+                            Text(text = product.price.toString() + " руб.")
                         }
                     }
                 }
@@ -237,7 +243,7 @@ fun ProductTypesLazyRow(
     onTypeClicked: (ProductType) -> Unit
 ) {
 
-    var clickedType: ProductType by remember (currentVisibleType) {
+    var clickedType: ProductType by remember(currentVisibleType) {
         mutableStateOf(currentVisibleType)
     }
 
@@ -252,7 +258,7 @@ fun ProductTypesLazyRow(
                     .width(16.dp)
             )
         }
-        items(items = listProductTypes) {productType ->
+        items(items = listProductTypes) { productType ->
             Row(
                 modifier = Modifier
                     .width(100.dp)

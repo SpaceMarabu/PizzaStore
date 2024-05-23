@@ -2,12 +2,14 @@ package com.example.pizzastore.domain.repository
 
 import android.net.Uri
 import com.example.pizzastore.domain.entity.Address
+import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.SessionSettings
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface PizzaStoreRepository {
 
@@ -26,4 +28,10 @@ interface PizzaStoreRepository {
     suspend fun setCityUseCase(city: City)
 
     suspend fun setPointUseCase(point: Point)
+
+    fun increaseProductInBucketUseCase(product: Product)
+
+    fun decreaseProductInBucketUseCase(product: Product)
+
+    fun getBucketUseCase(): StateFlow<Bucket>
 }

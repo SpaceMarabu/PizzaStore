@@ -8,6 +8,7 @@ import com.example.pizzastore.data.network.model.PathResponseDto
 import com.example.pizzastore.data.remotedatabase.DatabaseService
 import com.example.pizzastore.domain.entity.Account
 import com.example.pizzastore.domain.entity.Address
+import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
@@ -15,6 +16,8 @@ import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.SessionSettings
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import retrofit2.Response
@@ -26,6 +29,8 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     private val databaseService: DatabaseService,
     private val mapper: Mapper
 ) : PizzaStoreRepository {
+
+    private val userBucket = MutableStateFlow(Bucket())
 
     //<editor-fold desc="getStoriesUseCase">
     override fun getStoriesUseCase() = databaseService.getListStoriesUri()
@@ -89,7 +94,9 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     //<editor-fold desc="getCurrentSettingsUseCase">
     override fun getCurrentSettingsUseCase(): Flow<SessionSettings?> {
-        return cityDao.get().map {
+        return cityDao
+            .get()
+            .map {
             if (it != null) {
                 mapper.mapSessionSettingsDbModelToEntity(it)
             } else {
@@ -121,5 +128,32 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     //<editor-fold desc="getProductsUseCase">
     override fun getProductsUseCase(): Flow<List<Product>> =
         databaseService.getListProductsFlow()
+    //</editor-fold>
+
+    //<editor-fold desc="increaseProductInBucketUseCase">
+    override fun increaseProductInBucketUseCase(product: Product) {
+        val order = userBucket.value.order.toMutableMap()
+        val currentProductCount = order[product] ?: 0
+        order[product] = currentProductCount + 1
+        userBucket.value = Bucket(order = order)
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="decreaseProductInBucketUseCase">
+    override fun decreaseProductInBucketUseCase(product: Product) {
+        val order = userBucket.value.order.toMutableMap()
+        val currentProductCount = order[product] ?: 0
+        val newCountProduct = currentProductCount - 1
+        if (currentProductCount <= 0) {
+            order.remove(product)
+        } else {
+            order[product] = newCountProduct
+        }
+        userBucket.value = Bucket(order = order)
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="getBucketUseCase">
+    override fun getBucketUseCase() = userBucket.asStateFlow()
     //</editor-fold>
 }
