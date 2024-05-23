@@ -83,6 +83,7 @@ fun MainScreen() {
             navHostController = navigationState.navHostController,
             menuScreenContent = {
                 MenuScreen(
+                    paddingValues = paddingValues,
                     onCityClick = {
                         navigationState.navigateTo(Screen.ROUTE_CHOSE_CITY)
                     },

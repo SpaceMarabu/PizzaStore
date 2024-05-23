@@ -5,14 +5,15 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 sealed class ProductType(
-    val type: String = TYPE_PIZZA
+    val type: String = TYPE_PIZZA,
+    val frontName: String = FRONT_NAME_PIZZA
 ) : Parcelable {
 
-    object PIZZA : ProductType(TYPE_PIZZA)
-    object ROLL : ProductType(TYPE_ROLL)
-    object STARTER : ProductType(TYPE_STARTER)
-    object DESSERT : ProductType(TYPE_DESSERT)
-    object DRINK : ProductType(TYPE_DRINK)
+    data object PIZZA : ProductType(TYPE_PIZZA, FRONT_NAME_PIZZA)
+    data object ROLL : ProductType(TYPE_ROLL, FRONT_NAME_ROLL)
+    data object STARTER : ProductType(TYPE_STARTER, FRONT_NAME_STARTER)
+    data object DESSERT : ProductType(TYPE_DESSERT, FRONT_NAME_DESSERT)
+    data object DRINK : ProductType(TYPE_DRINK, FRONT_NAME_DRINK)
 
     companion object {
         private const val TYPE_PIZZA = "pizza"
@@ -20,5 +21,19 @@ sealed class ProductType(
         private const val TYPE_STARTER = "starter"
         private const val TYPE_DESSERT = "dessert"
         private const val TYPE_DRINK = "drink"
+
+        private const val FRONT_NAME_PIZZA = "Пицца"
+        private const val FRONT_NAME_ROLL = "Роллы"
+        private const val FRONT_NAME_STARTER = "Стартеры"
+        private const val FRONT_NAME_DESSERT = "Десерты"
+        private const val FRONT_NAME_DRINK = "Напитки"
+
+        val allTypes = listOf(
+            PIZZA,
+            ROLL,
+            STARTER,
+            DESSERT,
+            DRINK
+        )
     }
 }

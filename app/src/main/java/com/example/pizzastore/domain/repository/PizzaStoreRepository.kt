@@ -5,6 +5,7 @@ import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
+import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.SessionSettings
 import kotlinx.coroutines.flow.Flow
 
@@ -13,6 +14,8 @@ interface PizzaStoreRepository {
     fun getStoriesUseCase(): Flow<List<Uri>>
 
     fun getCitiesUseCase(): Flow<List<City>>
+
+    fun getProductsUseCase(): Flow<List<Product>>
 
     fun getCurrentSettingsUseCase(): Flow<SessionSettings?>
 

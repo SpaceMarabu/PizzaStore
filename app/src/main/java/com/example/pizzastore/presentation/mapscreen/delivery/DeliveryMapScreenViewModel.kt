@@ -44,7 +44,6 @@ class DeliveryMapScreenViewModel @Inject constructor(
 
     private var lastPosition = "0, 0"
 
-
     private val _currentPositionHandleFlow = MutableStateFlow<String?>(null)
 
     init {
@@ -53,6 +52,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
         changingTempAddressFlow()
     }
 
+    //<editor-fold desc="saveClick">
     fun saveClick() {
         viewModelScope.launch {
             _saveClickedFlow.emit(true)
@@ -60,13 +60,17 @@ class DeliveryMapScreenViewModel @Inject constructor(
             _saveClickedFlow.emit(false)
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="sendAddressPart">
     fun sendAddressPart(part: AddressResult) {
         viewModelScope.launch {
             addressChangingFlow.emit(part)
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="changingTempAddressFlow">
     private fun changingTempAddressFlow() {
         viewModelScope.launch {
             addressChangingFlow.collect {
@@ -85,7 +89,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
             }
         }
     }
-
+    //</editor-fold>
 
     //<editor-fold desc="inputTextStarted">
     fun inputTextStarted() {
@@ -96,6 +100,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
     }
     //</editor-fold>
 
+    //<editor-fold desc="startEmitting">
     private fun startEmitting() {
         viewModelScope.launch {
             while (true) {
@@ -109,14 +114,18 @@ class DeliveryMapScreenViewModel @Inject constructor(
             }
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="postLatLang">
     fun postLatLang(latlng: LatLng) {
         viewModelScope.launch {
             val currentPosition = "${latlng.latitude},${latlng.longitude}"
             _currentPositionHandleFlow.emit(currentPosition)
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="getCameraPosition">
     fun getCameraPosition(
         coords: String,
         zoom: Float = 16f
@@ -127,15 +136,19 @@ class DeliveryMapScreenViewModel @Inject constructor(
         )
         return currentCameraPosition
     }
+    //</editor-fold>
 
-    fun getLatLngCoords(coords: String): LatLng {
+    //<editor-fold desc="getLatLngCoords">
+    private fun getLatLngCoords(coords: String): LatLng {
         val splitedCoords = coords.split(",")
         return LatLng(
             splitedCoords[0].toDouble(),
             splitedCoords[1].toDouble()
         )
     }
+    //</editor-fold>
 
+    //<editor-fold desc="requestAddress">
     private fun requestAddress(latlng: String) {
         viewModelScope.launch {
             val address = getAddressUseCase.getAddress(latlng)
@@ -148,12 +161,15 @@ class DeliveryMapScreenViewModel @Inject constructor(
             _addressFlow.emit(addressState)
         }
     }
+    //</editor-fold>
 
 
-    fun changeScreenState(state: DeliveryMapScreenState) {
+    //<editor-fold desc="changeScreenState">
+    private fun changeScreenState(state: DeliveryMapScreenState) {
         viewModelScope.launch {
             _screenState.emit(state)
         }
     }
+    //</editor-fold>
 
 }

@@ -11,6 +11,7 @@ import com.example.pizzastore.domain.entity.Address
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
+import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.SessionSettings
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +27,9 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     private val mapper: Mapper
 ) : PizzaStoreRepository {
 
+    //<editor-fold desc="getStoriesUseCase">
     override fun getStoriesUseCase() = databaseService.getListStoriesUri()
+    //</editor-fold>
 
     //<editor-fold desc="getPathUseCase">
     override suspend fun getPathUseCase(point1: String, point2: String): Path {
@@ -96,7 +99,9 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     }
     //</editor-fold>
 
+    //<editor-fold desc="getCitiesUseCase">
     override fun getCitiesUseCase(): Flow<List<City>> = databaseService.getListCitiesFlow()
+    //</editor-fold>
 
     //<editor-fold desc="setPointUseCase">
     override suspend fun setPointUseCase(point: Point) {
@@ -111,5 +116,10 @@ class PizzaStoreRepositoryImpl @Inject constructor(
             cityDao.addSessionSettings(dbModel)
         }
     }
+    //</editor-fold>
+
+    //<editor-fold desc="getProductsUseCase">
+    override fun getProductsUseCase(): Flow<List<Product>> =
+        databaseService.getListProductsFlow()
     //</editor-fold>
 }

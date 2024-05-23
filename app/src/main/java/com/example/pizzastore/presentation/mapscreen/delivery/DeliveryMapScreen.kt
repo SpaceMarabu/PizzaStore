@@ -290,7 +290,7 @@ fun EnterForm(
     ) {
         item {
             TextFieldAddress(
-                label = "Город, улица и дом",
+                label = stringResource(R.string.city_street_house_lable),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, end = 16.dp, top = 8.dp),
@@ -302,8 +302,8 @@ fun EnterForm(
         }
         item {
             RowWithTwoTextField(
-                label1 = "Подъезд",
-                label2 = "Код на двери",
+                label1 = stringResource(R.string.gate_label),
+                label2 = stringResource(R.string.door_code_label),
                 viewModel = viewModel,
                 onSaveClicked1 = {
                     viewModel.sendAddressPart(AddressResult.Entrance(it))
@@ -314,8 +314,8 @@ fun EnterForm(
         }
         item {
             RowWithTwoTextField(
-                label1 = "Этаж",
-                label2 = "Квартира",
+                label1 = stringResource(R.string.floor_label),
+                label2 = stringResource(R.string.room_number_label),
                 viewModel = viewModel,
                 onSaveClicked1 = {
                     viewModel.sendAddressPart(AddressResult.Floor(it))
@@ -326,7 +326,7 @@ fun EnterForm(
         }
         item {
             TextFieldDelivery(
-                label = "Комментарий к адресу",
+                label = stringResource(R.string.address_comment_label),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -359,7 +359,7 @@ fun EnterForm(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Сохранить",
+                    text = stringResource(R.string.save_button_text),
                     color = Color.Gray.copy(alpha = 0.5f)
                 )
             }

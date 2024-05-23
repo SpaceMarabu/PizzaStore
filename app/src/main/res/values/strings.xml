@@ -9,4 +9,11 @@
     <string name="chose_address_string">Выбрать адрес доставки</string>
     <string name="delivery_text">Доставка</string>
     <string name="takeout_text">В пиццерии</string>
+    <string name="city_street_house_lable">Город, улица и дом</string>
+    <string name="gate_label">Подъезд</string>
+    <string name="door_code_label">Код на двери</string>
+    <string name="floor_label">Этаж</string>
+    <string name="room_number_label">Квартира</string>
+    <string name="address_comment_label">Комментарий к адресу</string>
+    <string name="save_button_text">Сохранить</string>
 </resources>
