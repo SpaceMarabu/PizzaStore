@@ -18,6 +18,7 @@ import com.example.pizzastore.navigation.AppNavGraph
 import com.example.pizzastore.navigation.NavigationItem
 import com.example.pizzastore.navigation.Screen
 import com.example.pizzastore.navigation.rememberNavigationState
+import com.example.pizzastore.presentation.bucket.BucketScreen
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreen
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeOutMapScreen
@@ -35,7 +36,7 @@ fun MainScreen() {
     val screensWithBottom = listOf(
         Screen.ROUTE_MENU,
         Screen.ROUTE_CONTACTS,
-        Screen.ROUTE_SHOPPING_BAG
+        Screen.ROUTE_BUCKET
     )
 
     val showBottomBar = navBackStackEntry?.destination?.route in screensWithBottom
@@ -98,7 +99,6 @@ fun MainScreen() {
                 )
             },
             contactsScreenContent = { Text(text = "contacts") },
-            shoppingBagScreenContent = { Text(text = "shoppingBag") },
             choseCityScreenContent = {
                 ChoseCityScreen {
                     navigationState.navigateWithDestroy(Screen.ROUTE_MENU)
@@ -113,6 +113,9 @@ fun MainScreen() {
                 DeliveryMapScreen(paddingValues = paddingValues) {
                     navigationState.navigateTo(Screen.ROUTE_MENU)
                 }
+            },
+            bucketScreenContent = {
+                BucketScreen(paddingValues = paddingValues)
             }
         )
     }

@@ -80,6 +80,10 @@ class MenuScreenViewModel @Inject constructor(
     }
     //</editor-fold>
 
+    //<editor-fold desc="getInitialProductType">
+    fun getInitialProductType() = listProductTypes[0]
+    //</editor-fold>
+
     //<editor-fold desc="loadBucket">
     private suspend fun loadBucket() {
         getBucketUseCase
@@ -174,9 +178,8 @@ class MenuScreenViewModel @Inject constructor(
 
     //<editor-fold desc="sortListProducts">
     private suspend fun sortListProducts(products: List<Product>): List<Product> {
-        val types = listProductTypes
         val resultList = mutableListOf<Product>()
-        types.forEach { currentType ->
+        listProductTypes.forEach { currentType ->
             val currentTypeProducts =
                 products.filter { currentProduct ->
                     currentProduct.type == currentType

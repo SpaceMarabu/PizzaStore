@@ -17,4 +17,9 @@
     <string name="address_comment_label">Комментарий к адресу</string>
     <string name="save_button_text">Сохранить</string>
     <string name="roubles_postfix">" руб."</string>
+    <string name="bucket">Bucket</string>
+    <string name="order_sum_template_many">" товаров на "</string>
+    <string name="order_sum_template_one">" товар на "</string>
+    <string name="empty_bucket">Тут пока пусто</string>
+    <string name="order_sum_template_2_4">" товара на "</string>
 </resources>

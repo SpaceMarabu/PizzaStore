@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -123,7 +124,7 @@ fun MenuScreenContent(
     val coroutineScope = rememberCoroutineScope()
 
     var currentVisibleType by remember {
-        mutableStateOf(listProductTypes[0])
+        mutableStateOf(viewModel.getInitialProductType())
     }
     val firstVisibleIndexProductState by remember {
         derivedStateOf { listState.firstVisibleItemIndex }
@@ -156,110 +157,141 @@ fun MenuScreenContent(
             listProductTypes = listProductTypes,
             currentVisibleType = currentVisibleType
         ) { clickedType ->
-
             coroutineScope.launch {
                 val indexType = indexMapForScroll[clickedType]?.first() ?: 0
                 listState.animateScrollToItem(index = indexType)
             }
         }
-        LazyColumn(
-            modifier = Modifier
-                .padding(
-                    start = 16.dp,
-                    top = 8.dp,
-                    end = 16.dp
-                ),
-            state = listState
-        ) {
-            items(products) { product ->
+        LazyProductColumn(
+            listState = listState,
+            products = products,
+            bucket = bucket,
+            viewModel = viewModel
+        )
+    }
+}
 
-                val request = ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(product.photo)
-                    .size(coil.size.Size.ORIGINAL)
-                    .build()
+//<editor-fold desc="LazyProductColumn">
+@Composable
+fun LazyProductColumn(
+    listState: LazyListState,
+    products: List<Product>,
+    bucket: Bucket,
+    viewModel: MenuScreenViewModel
+) {
+    LazyColumn(
+        modifier = Modifier
+            .padding(
+                start = 16.dp,
+                top = 8.dp,
+                end = 16.dp
+            ),
+        state = listState
+    ) {
+        items(products) { product ->
 
-                val painter = rememberAsyncImagePainter(
-                    model = request
-                )
-                val productCount = bucket.order[product] ?: 0
+            val request = ImageRequest
+                .Builder(LocalContext.current)
+                .data(product.photo)
+                .size(coil.size.Size.ORIGINAL)
+                .build()
 
-                Row(
+            val painter = rememberAsyncImagePainter(
+                model = request
+            )
+            val productCount = bucket.order[product] ?: 0
+
+            Row(
+                modifier = Modifier
+                    .padding(top = 8.dp)
+            ) {
+                Box(
                     modifier = Modifier
-                        .padding(top = 8.dp)
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(
+                            width = 1.dp,
+                            color = Color.Black,
+                            shape = RoundedCornerShape(10.dp)
+                        )
                 ) {
-                    Box(
+                    Image(
                         modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .border(
-                                width = 1.dp,
-                                color = Color.Black,
-                                shape = RoundedCornerShape(10.dp)
-                            )
-                    ) {
-                        Image(
-                            modifier = Modifier
-                                .fillMaxSize(),
-                            painter = painter,
-                            contentDescription = "image_product"
-                        )
-                    }
-                    Column(
+                            .fillMaxSize(),
+                        painter = painter,
+                        contentDescription = "image_product"
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                        .height(130.dp)
+                ) {
+                    Text(text = product.name)
+                    Text(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp)
-                            .height(130.dp)
-                    ) {
-                        Text(text = product.name)
-                        Text(
-                            modifier = Modifier
-                                .padding(top = 4.dp),
-                            text = product.description,
-                            fontWeight = FontWeight.Light
-                        )
-                        Row(
-                            modifier = Modifier.padding(top = 4.dp, end = 16.dp),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Spacer(modifier = Modifier.weight(1f))
-                            if (productCount > 0) {
-                                Row (
-                                    modifier = Modifier
-                                        .padding(
-                                            start = 4.dp,
-                                            end = 4.dp
-                                        )
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .background(Color.LightGray.copy(alpha = 0.15f)),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceEvenly
-                                ){
-                                    ClickableIconByResourceId(R.drawable.ic_minus) {
-                                        viewModel.decreaseProductInBucket(product)
-                                    }
-                                    Text(text = productCount.toString())
-                                    ClickableIconByResourceId(R.drawable.ic_plus) {
-                                        viewModel.increaseProductInBucket(product)
-                                    }
-                                }
-                            } else {
-                                ClickableIconByResourceId (
-                                    R.drawable.ic_shopping_bag
-                                ) {
-                                    viewModel.increaseProductInBucket(product)
-                                }
-                                Text(text = product.price.toString() +
-                                        stringResource(R.string.roubles_postfix))
-                            }
-                        }
-                    }
+                            .padding(top = 4.dp),
+                        text = product.description,
+                        fontWeight = FontWeight.Light
+                    )
+                    PriceRow(
+                        productCount = productCount,
+                        product = product,
+                        viewModel = viewModel
+                    )
                 }
             }
         }
     }
 }
+//</editor-fold>
+
+//<editor-fold desc="PriceRow">
+@Composable
+fun PriceRow(
+    productCount: Int,
+    product: Product,
+    viewModel: MenuScreenViewModel
+) {
+    Row(
+        modifier = Modifier.padding(top = 4.dp, end = 16.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        if (productCount > 0) {
+            Row (
+                modifier = Modifier
+                    .padding(
+                        start = 4.dp,
+                        end = 4.dp
+                    )
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color.LightGray.copy(alpha = 0.15f)),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                ClickableIconByResourceId(R.drawable.ic_minus) {
+                    viewModel.decreaseProductInBucket(product)
+                }
+                Text(text = productCount.toString())
+                ClickableIconByResourceId(R.drawable.ic_plus) {
+                    viewModel.increaseProductInBucket(product)
+                }
+            }
+        } else {
+            ClickableIconByResourceId (
+                R.drawable.ic_shopping_bag
+            ) {
+                viewModel.increaseProductInBucket(product)
+            }
+            Text(text = product.price.toString() +
+                    stringResource(R.string.roubles_postfix))
+        }
+    }
+}
+//</editor-fold>
 
 //<editor-fold desc="ClickableIcon">
 @Composable
