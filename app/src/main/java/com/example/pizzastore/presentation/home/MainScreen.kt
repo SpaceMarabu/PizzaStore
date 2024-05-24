@@ -35,7 +35,6 @@ fun MainScreen() {
     val screensWithBottom = listOf(
         Screen.ROUTE_MENU,
         Screen.ROUTE_CONTACTS,
-        Screen.ROUTE_PROFILE,
         Screen.ROUTE_SHOPPING_BAG
     )
 
@@ -48,7 +47,6 @@ fun MainScreen() {
 
                     val items = listOf(
                         NavigationItem.Menu,
-                        NavigationItem.Profile,
                         NavigationItem.Contacts,
                         NavigationItem.ShoppingBag,
                     )
@@ -99,7 +97,6 @@ fun MainScreen() {
                     }
                 )
             },
-            profileScreenContent = { Text(text = "profile") },
             contactsScreenContent = { Text(text = "contacts") },
             shoppingBagScreenContent = { Text(text = "shoppingBag") },
             choseCityScreenContent = {

@@ -5,9 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
+import com.example.pizzastore.domain.usecases.DecreaseProductInBucketUseCase
+import com.example.pizzastore.domain.usecases.DecreaseProductInBucketUseCase_Factory
+import com.example.pizzastore.domain.usecases.GetBucketUseCase
 import com.example.pizzastore.domain.usecases.GetCurrentSettingsUseCase
 import com.example.pizzastore.domain.usecases.GetProductsUseCase
 import com.example.pizzastore.domain.usecases.GetStoriesUseCase
+import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase
+import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase_Factory
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -19,7 +24,10 @@ import javax.inject.Inject
 class MenuScreenViewModel @Inject constructor(
     private val getCurrentSettingsUseCase: GetCurrentSettingsUseCase,
     private val getStoriesUseCase: GetStoriesUseCase,
-    private val getProductsUseCase: GetProductsUseCase
+    private val getProductsUseCase: GetProductsUseCase,
+    private val getBucketUseCase: GetBucketUseCase,
+    private val increaseProductInBucketUseCase: IncreaseProductInBucketUseCase,
+    private val decreaseProductInBucketUseCase: DecreaseProductInBucketUseCase
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<MenuScreenState>(MenuScreenState.Initial)
@@ -33,21 +41,34 @@ class MenuScreenViewModel @Inject constructor(
     val listProductTypes = ProductType.allTypes
     private val _typesMap = MutableStateFlow(getInitialProductIndexMap())
 
-    private val scope = viewModelScope
-
-
     init {
         screenState.value = MenuScreenState.Loading
-        scope.launch {
+        viewModelScope.launch {
             subscribeScreenStateChanges()
             loadCity()
         }
-        scope.launch {
+        viewModelScope.launch {
             loadStories()
             loadProducts()
         }
+        viewModelScope.launch {
+            loadBucket()
+        }
     }
 
+    //<editor-fold desc="increaseProductInBucket">
+    fun increaseProductInBucket(product: Product) {
+        increaseProductInBucketUseCase.increaseProduct(product)
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="decreaseProductInBucket">
+    fun decreaseProductInBucket(product: Product) {
+        decreaseProductInBucketUseCase.decreaseProduct(product)
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="getCurrentVisibleType">
     fun getCurrentVisibleType(index: Int): ProductType {
         var resultType = listProductTypes[0]
         _typesMap.value.forEach { element ->
@@ -57,6 +78,19 @@ class MenuScreenViewModel @Inject constructor(
         }
         return resultType
     }
+    //</editor-fold>
+
+    //<editor-fold desc="loadBucket">
+    private suspend fun loadBucket() {
+        getBucketUseCase
+            .getBucketFlow()
+            .collect {
+                changesFlow.emit(
+                    ScreenStateChanges.ChangeBucket(bucket = it)
+                )
+            }
+    }
+    //</editor-fold>
 
     //<editor-fold desc="subscribeScreenStateChanges">
     private fun subscribeScreenStateChanges() {
@@ -73,29 +107,57 @@ class MenuScreenViewModel @Inject constructor(
                     }
 
                     is ScreenStateChanges.ChangeProducts -> {
-                        val currentScreenState = screenState.value as MenuScreenState.Content
-                        screenState.value =
-                            currentScreenState.copy(products = changesKind.products)
+                        val currentScreenState = screenState.value
+                        screenStateChanger(currentScreenState, changesKind){
+                            val stateContent = currentScreenState as MenuScreenState.Content
+                            screenState.value =
+                                stateContent.copy(products = changesKind.products)
+                        }
                     }
 
                     is ScreenStateChanges.ChangeStories -> {
-                        val currentScreenState = screenState.value as MenuScreenState.Content
-                        screenState.value =
-                            currentScreenState.copy(stories = changesKind.stories)
+                        val currentScreenState = screenState.value
+                        screenStateChanger(currentScreenState, changesKind){
+                            val stateContent = currentScreenState as MenuScreenState.Content
+                            screenState.value =
+                                stateContent.copy(stories = changesKind.stories)
+                        }
                     }
 
                     is ScreenStateChanges.ChangeIndexingMap -> {
-                        if (screenState.value is MenuScreenState.Loading) {
-                            delay(300)
-                            changesFlow.emit(changesKind)
-                        } else {
-                            val currentScreenState = screenState.value as MenuScreenState.Content
+                        val currentScreenState = screenState.value
+                        screenStateChanger(currentScreenState, changesKind){
+                            val stateContent = currentScreenState as MenuScreenState.Content
                             screenState.value =
-                                currentScreenState.copy(indexingByTypeMap = changesKind.map)
+                                stateContent.copy(indexingByTypeMap = changesKind.map)
+                        }
+                    }
+
+                    is ScreenStateChanges.ChangeBucket -> {
+                        val currentScreenState = screenState.value
+                        screenStateChanger(currentScreenState, changesKind){
+                            val stateContent = currentScreenState as MenuScreenState.Content
+                            screenState.value =
+                                stateContent.copy(bucket = changesKind.bucket)
                         }
                     }
                 }
             }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="screenStateChanger">
+    private suspend fun screenStateChanger(
+        currentScreenState: MenuScreenState,
+        changes: ScreenStateChanges,
+        doChanges: () -> Unit
+    ) {
+        if (currentScreenState is MenuScreenState.Loading) {
+            delay(50)
+            changesFlow.emit(changes)
+        } else {
+            doChanges()
         }
     }
     //</editor-fold>
@@ -163,7 +225,7 @@ class MenuScreenViewModel @Inject constructor(
     private suspend fun loadCity() {
         getCurrentSettingsUseCase
             .getCurrentSettingsFlow()
-            .stateIn(scope)
+            .stateIn(viewModelScope)
             .collect {
                 if (it?.city == null) {
                     screenState.emit(MenuScreenState.EmptyCity)
@@ -179,7 +241,7 @@ class MenuScreenViewModel @Inject constructor(
 
     //<editor-fold desc="changeDeliveryType">
     fun changeDeliveryType(type: DeliveryType) {
-        scope.launch {
+        viewModelScope.launch {
             if (screenState.value is MenuScreenState.Content) {
                 val currentState = screenState.value as MenuScreenState.Content
                 val currentCity = currentState.city

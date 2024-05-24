@@ -29,7 +29,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -58,6 +57,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
+import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Product
@@ -88,7 +88,8 @@ fun MenuScreen(
                 cityState = currentState.city,
                 products = currentState.products,
                 listStoriesUri = currentState.stories,
-                indexMapForScroll = currentState.indexingByTypeMap
+                indexMapForScroll = currentState.indexingByTypeMap,
+                bucket = currentState.bucket
             )
         }
 
@@ -111,6 +112,7 @@ fun MenuScreenContent(
     products: List<Product>,
     listStoriesUri: List<Uri>,
     indexMapForScroll: Map<ProductType, List<Int>>,
+    bucket: Bucket,
     onCityClick: () -> Unit,
     onAddressClick: (isTakeout: Boolean) -> Unit
 ) {
@@ -170,19 +172,22 @@ fun MenuScreenContent(
             state = listState
         ) {
             items(products) { product ->
+
+                val request = ImageRequest
+                    .Builder(LocalContext.current)
+                    .data(product.photo)
+                    .size(coil.size.Size.ORIGINAL)
+                    .build()
+
+                val painter = rememberAsyncImagePainter(
+                    model = request
+                )
+                val productCount = bucket.order[product] ?: 0
+
                 Row(
                     modifier = Modifier
                         .padding(top = 8.dp)
                 ) {
-                    val request = ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(product.photo)
-                        .size(coil.size.Size.ORIGINAL)
-                        .build()
-
-                    val painter = rememberAsyncImagePainter(
-                        model = request
-                    )
                     Box(
                         modifier = Modifier
                             .size(100.dp)
@@ -219,14 +224,35 @@ fun MenuScreenContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Spacer(modifier = Modifier.weight(1f))
-                            Icon(
-                                modifier = Modifier
-                                    .size(25.dp)
-                                    .padding(end = 4.dp),
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_shopping_bag),
-                                contentDescription = null
-                            )
-                            Text(text = product.price.toString() + " руб.")
+                            if (productCount > 0) {
+                                Row (
+                                    modifier = Modifier
+                                        .padding(
+                                            start = 4.dp,
+                                            end = 4.dp
+                                        )
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(Color.LightGray.copy(alpha = 0.15f)),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ){
+                                    ClickableIconByResourceId(R.drawable.ic_minus) {
+                                        viewModel.decreaseProductInBucket(product)
+                                    }
+                                    Text(text = productCount.toString())
+                                    ClickableIconByResourceId(R.drawable.ic_plus) {
+                                        viewModel.increaseProductInBucket(product)
+                                    }
+                                }
+                            } else {
+                                ClickableIconByResourceId (
+                                    R.drawable.ic_shopping_bag
+                                ) {
+                                    viewModel.increaseProductInBucket(product)
+                                }
+                                Text(text = product.price.toString() +
+                                        stringResource(R.string.roubles_postfix))
+                            }
                         }
                     }
                 }
@@ -234,6 +260,28 @@ fun MenuScreenContent(
         }
     }
 }
+
+//<editor-fold desc="ClickableIcon">
+@Composable
+fun ClickableIconByResourceId(
+    resourceId: Int,
+    onClick: () -> Unit
+) {
+    Icon(
+        modifier = Modifier
+            .size(25.dp)
+            .padding(
+                start = 4.dp,
+                end = 4.dp
+            )
+            .clickable {
+                onClick()
+            },
+        imageVector = ImageVector.vectorResource(resourceId),
+        contentDescription = "clickable_icon"
+    )
+}
+//</editor-fold>
 
 //<editor-fold desc="ProductTypesLazyRow">
 @Composable

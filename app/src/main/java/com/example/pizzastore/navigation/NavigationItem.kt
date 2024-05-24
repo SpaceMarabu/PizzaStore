@@ -14,12 +14,6 @@ sealed class NavigationItem(
         icon = R.drawable.ic_menu
     )
 
-    object Profile : NavigationItem(
-        screen = Screen.Profile,
-        titleResId = R.string.profile,
-        icon = R.drawable.ic_profile
-    )
-
     object Contacts : NavigationItem(
         screen = Screen.Contacts,
         titleResId = R.string.contacts,
@@ -31,6 +25,4 @@ sealed class NavigationItem(
         titleResId = R.string.shopping_bag,
         icon = R.drawable.ic_shopping_bag
     )
-
-
 }

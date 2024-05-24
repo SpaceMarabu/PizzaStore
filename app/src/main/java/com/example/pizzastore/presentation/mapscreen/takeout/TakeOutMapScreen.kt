@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -44,7 +43,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -253,11 +251,11 @@ fun TakeOutMapScreenContent(
         ) {
 
             if (bottomSheetState.isCollapsed && !bottomSheetState.isAnimationRunning) {
-                RowWithIcon(id = R.drawable.plus) {
+                RowWithIcon(id = R.drawable.ic_plus) {
                     zoomChangeState.value = ZoomDirection.Plus
                 }
                 Spacer(modifier = Modifier.size(8.dp))
-                RowWithIcon(id = R.drawable.minus) {
+                RowWithIcon(id = R.drawable.ic_minus) {
                     zoomChangeState.value = ZoomDirection.Minus
                 }
             }

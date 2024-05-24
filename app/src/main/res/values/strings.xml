@@ -16,4 +16,5 @@
     <string name="room_number_label">Квартира</string>
     <string name="address_comment_label">Комментарий к адресу</string>
     <string name="save_button_text">Сохранить</string>
+    <string name="roubles_postfix">" руб."</string>
 </resources>
