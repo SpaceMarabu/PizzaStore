@@ -19,7 +19,6 @@ class BucketScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<BucketScreenState>(BucketScreenState.Initial)
-    private val bucket = MutableStateFlow(Bucket())
 
     private val listProductTypes = ProductType.allTypes
 
@@ -42,11 +41,14 @@ class BucketScreenViewModel @Inject constructor(
     //</editor-fold
 
     //<editor-fold desc="takeProductsFromBucket">
-    fun takeProductsFromBucket(bucket: Bucket): List<Product> {
+    private fun takeProductsFromBucket(bucket: Bucket): List<Product> {
         val resultList = mutableListOf<Product>()
         listProductTypes.forEach { currentType ->
+            val notEmptyProduct = bucket.order.filter {
+                it.value > 0
+            }
             val currentTypeProducts =
-                bucket.order.keys.filter { currentProduct ->
+                notEmptyProduct.keys.filter { currentProduct ->
                     currentProduct.type == currentType
                 }
             resultList.addAll(currentTypeProducts)
@@ -60,9 +62,11 @@ class BucketScreenViewModel @Inject constructor(
         getBucketUseCase
             .getBucketFlow()
             .collect {
-                bucket.value = it
                 val products = takeProductsFromBucket(it)
-                screenState.value = BucketScreenState.Content(productsList = products)
+                screenState.value = BucketScreenState.Content(
+                    productsList = products,
+                    bucket = it
+                )
             }
     }
     //</editor-fold>
@@ -70,25 +74,47 @@ class BucketScreenViewModel @Inject constructor(
     //<editor-fold desc="getOrderSum">
     fun getOrderSum(): Int {
         var orderSum = 0
-        bucket.value.order.forEach {
-            orderSum += it.key.price * it.value
+        val currentScreenState = screenState.value
+        if (currentScreenState is BucketScreenState.Content) {
+            currentScreenState.bucket.order.forEach {
+                orderSum += it.key.price * it.value
+            }
         }
         return orderSum
     }
     //</editor-fold>
 
     //<editor-fold desc="getOrderCountProducts">
-    fun getOrderCountProducts() = bucket.value.order.filter { it.value > 0 }.size
+    fun getOrderCountProducts(): Int {
+        val currentScreenState = screenState.value
+        var resultCount = 0
+        if (currentScreenState is BucketScreenState.Content) {
+            resultCount = currentScreenState.bucket.order.filter { it.value > 0 }.size
+        }
+        return resultCount
+    }
     //</editor-fold>
 
     //<editor-fold desc="getProductSum">
     fun getProductSum(product: Product): Int {
-        val countProductInBucket = bucket.value.order[product] ?: 0
-        return product.price * countProductInBucket
+        val currentScreenState = screenState.value
+        var resultSum = 0
+        if (currentScreenState is BucketScreenState.Content) {
+            val countProductInBucket = currentScreenState.bucket.order[product] ?: 0
+            resultSum = product.price * countProductInBucket
+        }
+        return resultSum
     }
     //</editor-fold>
 
     //<editor-fold desc="getProductCount">
-    fun getProductCount(product: Product) = bucket.value.order[product] ?: 0
+    fun getProductCount(product: Product): Int {
+        val currentScreenState = screenState.value
+        var currentCount = 0
+        if (currentScreenState is BucketScreenState.Content) {
+            currentCount = currentScreenState.bucket.order[product] ?: 0
+        }
+        return currentCount
+    }
     //</editor-fold>
 }

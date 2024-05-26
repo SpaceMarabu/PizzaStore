@@ -22,4 +22,5 @@
     <string name="order_sum_template_one">" товар на "</string>
     <string name="empty_bucket">Тут пока пусто</string>
     <string name="order_sum_template_2_4">" товара на "</string>
+    <string name="order_button_text">Заказать</string>
 </resources>
