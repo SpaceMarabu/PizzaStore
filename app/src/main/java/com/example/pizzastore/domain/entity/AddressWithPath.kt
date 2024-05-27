@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class Address(
+data class AddressWithPath(
     val city: String? = null,
     val street: String? = null,
     val houseNumber: String? = null,
@@ -12,6 +12,6 @@ data class Address(
 ) : Parcelable {
 
     companion object {
-        val EMPTY_ADDRESS = Address()
+        val EMPTY_ADDRESS = AddressWithPath()
     }
 }

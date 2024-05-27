@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -27,7 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
@@ -58,7 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.AddressLineInputResult
-import com.example.pizzastore.domain.entity.AddressResult
+import com.example.pizzastore.domain.entity.AddressParts
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
@@ -208,9 +206,9 @@ fun DeliveryMapScreenContent(
             EnterForm(
                 viewModel
             ) {
-                viewModel.saveClick()
-                if (it) {
+                if (!it) {
                     onAddressChosen()
+                    viewModel.onLeavingScreen()
                 }
             }
         } else {
@@ -297,7 +295,7 @@ fun EnterForm(
                 viewModel = viewModel
             ) {
                 errorState = it.isError
-                viewModel.sendAddressPart(AddressResult.AddressLine(it.line))
+                viewModel.sendAddressPart(AddressParts.AddressLine(it.line))
             }
         }
         item {
@@ -306,10 +304,10 @@ fun EnterForm(
                 label2 = stringResource(R.string.door_code_label),
                 viewModel = viewModel,
                 onSaveClicked1 = {
-                    viewModel.sendAddressPart(AddressResult.Entrance(it))
+                    viewModel.sendAddressPart(AddressParts.Entrance(it))
                 }
             ) {
-                viewModel.sendAddressPart(AddressResult.DoorCode(it))
+                viewModel.sendAddressPart(AddressParts.DoorCode(it))
             }
         }
         item {
@@ -318,10 +316,10 @@ fun EnterForm(
                 label2 = stringResource(R.string.room_number_label),
                 viewModel = viewModel,
                 onSaveClicked1 = {
-                    viewModel.sendAddressPart(AddressResult.Floor(it))
+                    viewModel.sendAddressPart(AddressParts.Floor(it))
                 }
             ) {
-                viewModel.sendAddressPart(AddressResult.Apartment(it))
+                viewModel.sendAddressPart(AddressParts.Apartment(it))
             }
         }
         item {
@@ -336,7 +334,7 @@ fun EnterForm(
                     ),
                 viewModel = viewModel
             ) {
-                viewModel.sendAddressPart(AddressResult.Comment(it))
+                viewModel.sendAddressPart(AddressParts.Comment(it))
             }
         }
         item {
@@ -353,6 +351,7 @@ fun EnterForm(
                     .clip(RoundedCornerShape(30.dp))
                     .background(Color.LightGray.copy(alpha = 0.5f))
                     .clickable {
+                        viewModel.saveClick()
                         onSaveClicked(errorState)
                     },
                 horizontalArrangement = Arrangement.Center,

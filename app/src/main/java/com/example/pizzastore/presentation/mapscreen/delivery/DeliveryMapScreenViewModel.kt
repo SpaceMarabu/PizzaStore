@@ -3,11 +3,16 @@ package com.example.pizzastore.presentation.mapscreen.delivery
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pizzastore.domain.entity.AddressResult
+import com.example.pizzastore.domain.entity.AddressDetails
+import com.example.pizzastore.domain.entity.AddressParts
 import com.example.pizzastore.domain.entity.AddressState
+import com.example.pizzastore.domain.entity.AddressWithPath
+import com.example.pizzastore.domain.entity.DeliveryDetails
+import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.usecases.GetAddressByGeoCodeUseCase
 import com.example.pizzastore.domain.usecases.GetPathUseCase
+import com.example.pizzastore.domain.usecases.SendDeliveryDetailsUseCase
 import com.example.pizzastore.presentation.mapscreen.MapConsts
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -20,7 +25,8 @@ import javax.inject.Inject
 
 class DeliveryMapScreenViewModel @Inject constructor(
     private val getAddressUseCase: GetAddressByGeoCodeUseCase,
-    private val getPathUseCase: GetPathUseCase
+    private val getPathUseCase: GetPathUseCase,
+    private val sendDeliveryDetailsUseCase: SendDeliveryDetailsUseCase
 ) : ViewModel() {
 
     private val _screenState =
@@ -33,8 +39,8 @@ class DeliveryMapScreenViewModel @Inject constructor(
     val saveClickedFlow
         get() = _saveClickedFlow.asStateFlow()
 
-    private val addressChangingFlow = MutableSharedFlow<AddressResult>()
-    private val tempAddressStateFlow = MutableStateFlow(AddressResult.DeliveryInfo())
+    private val addressChangingFlow = MutableSharedFlow<AddressParts>()
+    private val tempAddressStateFlow = MutableStateFlow(AddressDetails())
 
     private lateinit var currentCameraPosition: CameraPosition
 
@@ -52,6 +58,19 @@ class DeliveryMapScreenViewModel @Inject constructor(
         changingTempAddressFlow()
     }
 
+    fun onLeavingScreen() {
+        val deliverType = DeliveryType.DELIVERY_TO
+        val address = tempAddressStateFlow.value
+        val geoPoint = lastPosition
+        val details = DeliveryDetails(
+            type = deliverType,
+            deliveryAddress = address,
+            pizzaStore = null,
+            deliveryGeoPoint = geoPoint
+        )
+        sendDeliveryDetailsUseCase.sendDetails(details)
+    }
+
     //<editor-fold desc="saveClick">
     fun saveClick() {
         viewModelScope.launch {
@@ -63,7 +82,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
     //</editor-fold>
 
     //<editor-fold desc="sendAddressPart">
-    fun sendAddressPart(part: AddressResult) {
+    fun sendAddressPart(part: AddressParts) {
         viewModelScope.launch {
             addressChangingFlow.emit(part)
         }
@@ -76,16 +95,14 @@ class DeliveryMapScreenViewModel @Inject constructor(
             addressChangingFlow.collect {
                 val currentAddressVal = tempAddressStateFlow.value
                 val currentAddressResult = when (it) {
-                    is AddressResult.DeliveryInfo -> {currentAddressVal}
-                    is AddressResult.AddressLine -> currentAddressVal.copy(address = it.address)
-                    is AddressResult.Comment -> currentAddressVal.copy(comment = it.comment)
-                    is AddressResult.DoorCode -> currentAddressVal.copy(doorCode = it.doorCode)
-                    is AddressResult.Entrance -> currentAddressVal.copy(entrance = it.entrance)
-                    is AddressResult.Floor -> currentAddressVal.copy(floor = it.floor)
-                    is AddressResult.Apartment -> currentAddressVal.copy(apartment = it.apartment)
+                    is AddressParts.AddressLine -> currentAddressVal.copy(address = it.address)
+                    is AddressParts.Comment -> currentAddressVal.copy(comment = it.comment)
+                    is AddressParts.DoorCode -> currentAddressVal.copy(doorCode = it.doorCode)
+                    is AddressParts.Entrance -> currentAddressVal.copy(entrance = it.entrance)
+                    is AddressParts.Floor -> currentAddressVal.copy(floor = it.floor)
+                    is AddressParts.Apartment -> currentAddressVal.copy(apartment = it.apartment)
                 }
                 tempAddressStateFlow.emit(currentAddressResult)
-                Log.d("TEST_ADDRESS", tempAddressStateFlow.value.toString())
             }
         }
     }
@@ -162,7 +179,6 @@ class DeliveryMapScreenViewModel @Inject constructor(
         }
     }
     //</editor-fold>
-
 
     //<editor-fold desc="changeScreenState">
     private fun changeScreenState(state: DeliveryMapScreenState) {

@@ -1,9 +1,10 @@
 package com.example.pizzastore.domain.repository
 
 import android.net.Uri
-import com.example.pizzastore.domain.entity.Address
+import com.example.pizzastore.domain.entity.AddressWithPath
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.domain.entity.DeliveryDetails
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.entity.Product
@@ -21,7 +22,7 @@ interface PizzaStoreRepository {
 
     fun getCurrentSettingsUseCase(): Flow<SessionSettings?>
 
-    suspend fun getAddressUseCase(pointLatLng: String): Address
+    suspend fun getAddressUseCase(pointLatLng: String): AddressWithPath
 
     suspend fun getPathUseCase(point1: String, point2: String): Path
 
@@ -34,4 +35,8 @@ interface PizzaStoreRepository {
     fun decreaseProductInBucketUseCase(product: Product)
 
     fun getBucketUseCase(): StateFlow<Bucket>
+
+    fun sendDeliveryDetailsUseCase(details: DeliveryDetails)
+
+    fun finishOrderingUseCase()
 }

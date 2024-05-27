@@ -2,7 +2,9 @@ package com.example.pizzastore.data.remotedatabase
 
 import android.net.Uri
 import android.util.Log
+import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 import com.google.firebase.Firebase
@@ -31,6 +33,7 @@ class FirebaseImpl: DatabaseService {
 
     private val dRefProduct = firebaseDatabase.getReference("product")
     private val dRefCities = firebaseDatabase.getReference("cities")
+    private val dRefAccount = firebaseDatabase.getReference("account")
 
     private val listPicturesUriFlow: MutableSharedFlow<List<Uri>> = MutableSharedFlow(replay = 1)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -130,11 +133,17 @@ class FirebaseImpl: DatabaseService {
     }
     //</editor-fold>
 
+    //<editor-fold desc="getListProductsFlow">
     override fun getListProductsFlow(): Flow<List<Product>> = listProductsFlow
+    //</editor-fold>
 
+    //<editor-fold desc="getListCitiesFlow">
     override fun getListCitiesFlow() = listCitiesFlow
+    //</editor-fold>
 
+    //<editor-fold desc="getListStoriesUri">
     override fun getListStoriesUri() = listPicturesUriFlow.asSharedFlow()
+    //</editor-fold>
 
     //<editor-fold desc="loadStoriesUri">
     private suspend fun loadStoriesUri() {
@@ -173,4 +182,6 @@ class FirebaseImpl: DatabaseService {
             deferred.await()
         }
 //</editor-fold>
+
+
 }

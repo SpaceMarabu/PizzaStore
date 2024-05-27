@@ -7,9 +7,10 @@ import com.example.pizzastore.data.mapper.Mapper
 import com.example.pizzastore.data.network.model.PathResponseDto
 import com.example.pizzastore.data.remotedatabase.DatabaseService
 import com.example.pizzastore.domain.entity.Account
-import com.example.pizzastore.domain.entity.Address
+import com.example.pizzastore.domain.entity.AddressWithPath
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
+import com.example.pizzastore.domain.entity.DeliveryDetails
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.entity.Product
@@ -56,9 +57,9 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     //</editor-fold>
 
     //<editor-fold desc="getAddressUseCase">
-    override suspend fun getAddressUseCase(pointLatLng: String): Address {
+    override suspend fun getAddressUseCase(pointLatLng: String): AddressWithPath {
         val addressDto = ApiFactory.apiService.getAddress(pointLatLng)
-        var result = Address.EMPTY_ADDRESS
+        var result = AddressWithPath.EMPTY_ADDRESS
         if (addressDto.addressList.isNotEmpty()) {
             result = mapper.mapAddressDtoToEntity(
                 addressDto.addressList[0]
@@ -97,12 +98,12 @@ class PizzaStoreRepositoryImpl @Inject constructor(
         return cityDao
             .get()
             .map {
-            if (it != null) {
-                mapper.mapSessionSettingsDbModelToEntity(it)
-            } else {
-                SessionSettings()
+                if (it != null) {
+                    mapper.mapSessionSettingsDbModelToEntity(it)
+                } else {
+                    SessionSettings()
+                }
             }
-        }
     }
     //</editor-fold>
 
@@ -113,10 +114,17 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     //<editor-fold desc="setPointUseCase">
     override suspend fun setPointUseCase(point: Point) {
         cityDao.get().map {
-                val currentAccount = it?.account ?: Account()
-                mapper.mapSessionSettingsDbModelToEntity(
-                    it?.copy(account = currentAccount.copy(pizzaStore = point))
+            val currentAccount = it?.account ?: Account()
+            val currentDeliveryDetails = currentAccount.deliveryDetails
+            mapper.mapSessionSettingsDbModelToEntity(
+                it?.copy(
+                    account = currentAccount.copy(
+                        deliveryDetails = currentDeliveryDetails.copy(
+                            pizzaStore = point
+                        )
+                    )
                 )
+            )
         }.collect {
             if (it == null) return@collect
             val dbModel = mapper.mapSessionSettToDbModel(it)
@@ -156,4 +164,24 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     //<editor-fold desc="getBucketUseCase">
     override fun getBucketUseCase() = userBucket.asStateFlow()
     //</editor-fold>
+
+    override fun sendDeliveryDetailsUseCase(details: DeliveryDetails) {
+        val sessionSettings = cityDao.get()
+            .map {
+            if (it != null) {
+                val settings = mapper.mapSessionSettingsDbModelToEntity(it)
+                val account = settings?.account ?: Account()
+                settings?.copy(account = account.copy(deliveryDetails = details))
+            } else {
+                SessionSettings(account = Account(deliveryDetails = details))
+            }
+        }
+            //работать отсюда
+        val sessionSettingsDto = mapper.mapSessionSettToDbModel(sessionSettings)
+        cityDao.addSessionSettings()
+    }
+
+    override fun finishOrderingUseCase() {
+        val bucket = userBucket.value
+    }
 }
