@@ -96,7 +96,7 @@ fun TakeOutMapScreen(
                     viewModel.changeScreenState(currentScreenState.copy(currentPoint = it))
                 },
                 onOrderButtonClicked = {
-                    viewModel.pointChosed()
+                    viewModel.pointChoose()
                     onOrderButtonClicked()
                 }
             )

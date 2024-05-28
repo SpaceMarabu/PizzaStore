@@ -9,5 +9,6 @@ data class Account(
     val number: String? = null,
     val name: String? = null,
     val lastName: String? = null,
-    val deliveryDetails: DeliveryDetails = DeliveryDetails()
+    val deliveryDetails: DeliveryDetails = DeliveryDetails(),
+    val orders: List<Order> = listOf()
 ) : Parcelable

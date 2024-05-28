@@ -56,7 +56,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.AddressLineInputResult
-import com.example.pizzastore.domain.entity.AddressParts
+import com.example.pizzastore.domain.entity.AddressPart
 import com.example.pizzastore.presentation.funs.CircularLoading
 import com.example.pizzastore.presentation.funs.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
@@ -295,7 +295,7 @@ fun EnterForm(
                 viewModel = viewModel
             ) {
                 errorState = it.isError
-                viewModel.sendAddressPart(AddressParts.AddressLine(it.line))
+                viewModel.sendAddressPart(AddressPart.AddressLine(it.line))
             }
         }
         item {
@@ -304,10 +304,10 @@ fun EnterForm(
                 label2 = stringResource(R.string.door_code_label),
                 viewModel = viewModel,
                 onSaveClicked1 = {
-                    viewModel.sendAddressPart(AddressParts.Entrance(it))
+                    viewModel.sendAddressPart(AddressPart.Entrance(it))
                 }
             ) {
-                viewModel.sendAddressPart(AddressParts.DoorCode(it))
+                viewModel.sendAddressPart(AddressPart.DoorCode(it))
             }
         }
         item {
@@ -316,10 +316,10 @@ fun EnterForm(
                 label2 = stringResource(R.string.room_number_label),
                 viewModel = viewModel,
                 onSaveClicked1 = {
-                    viewModel.sendAddressPart(AddressParts.Floor(it))
+                    viewModel.sendAddressPart(AddressPart.Floor(it))
                 }
             ) {
-                viewModel.sendAddressPart(AddressParts.Apartment(it))
+                viewModel.sendAddressPart(AddressPart.Apartment(it))
             }
         }
         item {
@@ -334,7 +334,7 @@ fun EnterForm(
                     ),
                 viewModel = viewModel
             ) {
-                viewModel.sendAddressPart(AddressParts.Comment(it))
+                viewModel.sendAddressPart(AddressPart.Comment(it))
             }
         }
         item {
@@ -418,8 +418,8 @@ fun LocationButton(
 @Composable
 fun Location(onChange: (LatandLong) -> Unit) {
 
-    var locationCallBack: LocationCallback? = null
-    var fusedLocationClient: FusedLocationProviderClient? = null
+    val locationCallBack: LocationCallback?
+    val fusedLocationClient: FusedLocationProviderClient?
 
     fusedLocationClient = LocationServices.getFusedLocationProviderClient(LocalContext.current)
     locationCallBack = object : LocationCallback() {
@@ -495,7 +495,7 @@ fun TextFieldDelivery(
     OutlinedTextField(
         modifier = modifier,
         label = { Text(text = label) },
-        value = text ?: "",
+        value = text,
         onValueChange = {
             text = it
         },
@@ -557,7 +557,7 @@ fun TextFieldAddress(
     OutlinedTextField(
         modifier = modifier,
         label = { Text(text = label) },
-        value = text ?: "",
+        value = text,
         onValueChange = {
             viewModel.inputTextStarted()
             isError = false

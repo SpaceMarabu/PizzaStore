@@ -36,7 +36,7 @@ interface PizzaStoreRepository {
 
     fun getBucketUseCase(): StateFlow<Bucket>
 
-    fun sendDeliveryDetailsUseCase(details: DeliveryDetails)
+    suspend fun sendDeliveryDetailsUseCase(details: DeliveryDetails)
 
-    fun finishOrderingUseCase()
+    suspend fun finishOrderingUseCase(): Int
 }

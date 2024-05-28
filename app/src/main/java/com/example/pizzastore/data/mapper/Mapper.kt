@@ -15,7 +15,9 @@ class Mapper @Inject constructor() {
         account = sessionSettings.account
     )
 
-    fun mapSessionSettingsDbModelToEntity(settingsDbModel: SessionSettingsDbModel?): SessionSettings? {
+    fun mapSessionSettingsDbModelToEntity(
+        settingsDbModel: SessionSettingsDbModel?
+    ): SessionSettings? {
         return if (settingsDbModel == null) {
             null
         } else {

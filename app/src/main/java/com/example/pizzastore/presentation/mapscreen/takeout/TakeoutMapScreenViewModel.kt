@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.usecases.GetCurrentSettingsUseCase
-import com.example.pizzastore.domain.usecases.SetCitySettingsUseCase
 import com.example.pizzastore.domain.usecases.SetPointSettingsUseCase
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -33,6 +32,7 @@ class TakeoutMapScreenViewModel @Inject constructor(
         }
     }
 
+    //<editor-fold desc="getCameraPosition">
     fun getCameraPosition(point: Point, zoom: ZoomDirection = ZoomDirection.Nothing): CameraPosition {
         when (zoom) {
             is ZoomDirection.Plus -> currentZoom += 1
@@ -45,11 +45,14 @@ class TakeoutMapScreenViewModel @Inject constructor(
         )
         return currentCameraPosition
     }
+    //</editor-fold>
 
-    fun getNewCameraPosition(zoom: ZoomDirection = ZoomDirection.Nothing): CameraPosition {
-        return getCameraPosition(currentPoint, zoom)
-    }
+    //<editor-fold desc="getNewCameraPosition">
+    fun getNewCameraPosition(zoom: ZoomDirection = ZoomDirection.Nothing) =
+        getCameraPosition(currentPoint, zoom)
+    //</editor-fold>
 
+    //<editor-fold desc="getLatLngCoords">
     fun getLatLngCoords(coords: String): LatLng {
         val splitedCoords = coords.split(",")
         return LatLng(
@@ -57,7 +60,9 @@ class TakeoutMapScreenViewModel @Inject constructor(
             splitedCoords[1].toDouble()
         )
     }
+    //</editor-fold>
 
+    //<editor-fold desc="loadCity">
     private fun loadCity() {
         viewModelScope.launch {
             _screenState.emit(TakeoutMapScreenState.Loading)
@@ -71,21 +76,28 @@ class TakeoutMapScreenViewModel @Inject constructor(
                 }
         }
     }
+    //</editor-fold>
 
-    fun pointChosed() {
+    //<editor-fold desc="pointChoose">
+    fun pointChoose() {
         viewModelScope.launch {
             setPointSettingsUseCase.setPoint(currentPoint)
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="changeScreenState">
     fun changeScreenState(state: TakeoutMapScreenState) {
         viewModelScope.launch {
             _screenState.emit(state)
         }
     }
+    //</editor-fold>
 
+    //<editor-fold desc="changePoint">
     fun changePoint(point: Point) {
         currentPoint = point
     }
+    //</editor-fold>
 
 }

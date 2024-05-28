@@ -8,7 +8,7 @@ class SendDeliveryDetailsUseCase  @Inject constructor(
     private val repository: PizzaStoreRepository
 ) {
 
-    fun sendDetails(details: DeliveryDetails) {
+    suspend fun sendDetails(details: DeliveryDetails) {
         return repository.sendDeliveryDetailsUseCase(details)
     }
 }

@@ -6,13 +6,11 @@ import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 import com.example.pizzastore.domain.usecases.DecreaseProductInBucketUseCase
-import com.example.pizzastore.domain.usecases.DecreaseProductInBucketUseCase_Factory
 import com.example.pizzastore.domain.usecases.GetBucketUseCase
 import com.example.pizzastore.domain.usecases.GetCurrentSettingsUseCase
 import com.example.pizzastore.domain.usecases.GetProductsUseCase
 import com.example.pizzastore.domain.usecases.GetStoriesUseCase
 import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase
-import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase_Factory
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -157,7 +155,8 @@ class MenuScreenViewModel @Inject constructor(
         changes: ScreenStateChanges,
         doChanges: () -> Unit
     ) {
-        if (currentScreenState is MenuScreenState.Loading) {
+        if (currentScreenState is MenuScreenState.Loading
+            || currentScreenState is MenuScreenState.EmptyCity) {
             delay(50)
             changesFlow.emit(changes)
         } else {
