@@ -1,12 +1,13 @@
 package com.example.pizzastore.di
 
 import androidx.lifecycle.ViewModel
-import com.example.pizzastore.presentation.bucket.BucketScreenViewModel
+import com.example.pizzastore.presentation.order.bucket.BucketScreenViewModel
 import com.example.pizzastore.presentation.chosecity.CityDeliveryViewModel
 import com.example.pizzastore.presentation.home.MainViewModel
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreenViewModel
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeoutMapScreenViewModel
 import com.example.pizzastore.presentation.menu.MenuScreenViewModel
+import com.example.pizzastore.presentation.order.orderstatus.OrderStatusScreenViewModel
 import com.example.pizzastore.presentation.start.StartScreenViewModel
 import dagger.Binds
 import dagger.Module
@@ -50,4 +51,9 @@ interface ViewModelModule {
     @ViewModelKey(BucketScreenViewModel::class)
     @Binds
     fun bindBucketScreenViewModel(viewModel: BucketScreenViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(OrderStatusScreenViewModel::class)
+    @Binds
+    fun bindOrderScreenViewModel(viewModel: OrderStatusScreenViewModel): ViewModel
 }

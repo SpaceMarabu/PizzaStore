@@ -13,7 +13,8 @@ fun AppNavGraph(
     choseCityScreenContent: @Composable () -> Unit,
     takeOutMapScreenContent: @Composable () -> Unit,
     deliveryMapScreenContent: @Composable () -> Unit,
-    bucketScreenContent: @Composable () -> Unit
+    bucketScreenContent: @Composable () -> Unit,
+    orderStatusScreenContent: @Composable () -> Unit
 ) {
     NavHost(
         navController = navHostController,
@@ -25,11 +26,12 @@ fun AppNavGraph(
             takeOutMapScreenContent = takeOutMapScreenContent,
             deliveryMapScreenContent = deliveryMapScreenContent
         )
+        orderScreenNavGraph(
+            bucketScreenContent = bucketScreenContent,
+            orderStatusScreenContent = orderStatusScreenContent
+        )
         composable(Screen.Contacts.route) {
             contactsScreenContent()
-        }
-        composable(Screen.Bucket.route) {
-         bucketScreenContent()
         }
     }
 }

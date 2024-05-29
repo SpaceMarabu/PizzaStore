@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.bucket
+package com.example.pizzastore.presentation.order.bucket
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,6 +50,7 @@ import com.example.pizzastore.domain.entity.Product
 @Composable
 fun BucketScreen(
     paddingValues: PaddingValues,
+    onOrderingFinish: () -> Unit
 ) {
 
     val component = getApplicationComponent()
@@ -64,16 +65,20 @@ fun BucketScreen(
                 viewModel = viewModel,
                 listProductsFromBucket = currentScreenState.productsList,
                 paddingValues = paddingValues
-            )
+            ) {
+                onOrderingFinish()
+            }
         }
     }
 }
 
+//<editor-fold desc="BucketScreenContent">
 @Composable
 fun BucketScreenContent(
     viewModel: BucketScreenViewModel,
     listProductsFromBucket: List<Product>,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onOrderingFinish: () -> Unit
 ) {
     var isOrderListEmpty by remember {
         mutableStateOf(listProductsFromBucket.isEmpty())
@@ -98,11 +103,12 @@ fun BucketScreenContent(
         )
         if (!isOrderListEmpty) {
             OderButton {
-
+                onOrderingFinish()
             }
         }
     }
 }
+//</editor-fold>
 
 //<editor-fold desc="OderButton">
 @Composable

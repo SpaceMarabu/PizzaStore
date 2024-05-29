@@ -7,6 +7,7 @@ import com.example.pizzastore.data.localdatabase.SessionSettingsDbModel
 import com.example.pizzastore.data.mapper.Mapper
 import com.example.pizzastore.data.network.model.PathResponseDto
 import com.example.pizzastore.data.remotedatabase.DatabaseService
+import com.example.pizzastore.data.remotedatabase.entity.DBResultOrder
 import com.example.pizzastore.domain.entity.Account
 import com.example.pizzastore.domain.entity.AddressWithPath
 import com.example.pizzastore.domain.entity.Bucket
@@ -25,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -40,6 +42,7 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 ) : PizzaStoreRepository {
 
     private val userBucket = MutableStateFlow(Bucket())
+    private val currentOrderId = MutableStateFlow(Order.DEFAULT_ID)
 
     //<editor-fold desc="getStoriesUseCase">
     override fun getStoriesUseCase() = databaseService.getListStoriesUri()
@@ -202,35 +205,45 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     //<editor-fold desc="finishOrderingUseCase">
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun finishOrderingUseCase(): Int {
-        var idForOrder = 0
+    override suspend fun finishOrderingUseCase() {
         val bucket = userBucket.value
-        val sessionSettingsFlow = cityDao.get()
-            .map {
-                val settings =
-                    mapper.mapSessionSettingsDbModelToEntity(it) ?: SessionSettings()
-                val account = settings.account ?: Account()
-                val orders = account.orders.toMutableList()
-                idForOrder = orders.size
-                orders.add(
-                    Order(
-                        id = idForOrder,
-                        status = OrderStatus.NEW,
-                        bucket = bucket
-                    )
-                )
-                settings.copy(account = account.copy(orders = orders))
-            }
-        val deferred = CompletableDeferred<SessionSettingsDbModel>(null)
-        CoroutineScope(Dispatchers.IO).launch {
-            sessionSettingsFlow.collect {
-                val sessionSettingsDto = mapper.mapSessionSettToDbModel(it)
-                deferred.complete(sessionSettingsDto)
-            }
+        val orderId = when (val orderSendingResult = databaseService.sendCurrentOrder(bucket)) {
+            is DBResultOrder.Complete -> orderSendingResult.orderId
+            DBResultOrder.Error -> Order.ERROR_ID
         }
-        deferred.await()
-        cityDao.addSessionSettings(deferred.getCompleted())
-        return idForOrder
+        currentOrderId.value = orderId
+        if (orderId != Order.ERROR_ID) {
+            val sessionSettingsFlow = cityDao.get()
+                .map {
+                    val settings =
+                        mapper.mapSessionSettingsDbModelToEntity(it) ?: SessionSettings()
+                    val account = settings.account ?: Account()
+                    val orders = account.orders.toMutableList()
+                    orders.add(
+                        Order(
+                            id = orderId,
+                            status = OrderStatus.NEW,
+                            bucket = bucket
+                        )
+                    )
+                    settings.copy(account = account.copy(orders = orders))
+                }
+            val deferred = CompletableDeferred<SessionSettingsDbModel>(null)
+            CoroutineScope(Dispatchers.IO).launch {
+                sessionSettingsFlow.collect {
+                    val sessionSettingsDto = mapper.mapSessionSettToDbModel(it)
+                    deferred.complete(sessionSettingsDto)
+                }
+            }
+            deferred.await()
+            cityDao.addSessionSettings(deferred.getCompleted())
+        }
     }
     //</editor-fold>
+
+    //<editor-fold desc="getCurrentOrderIdUseCase">
+//    override fun getCurrentOrderIdUseCase() = currentOrderId.asStateFlow()
+    //</editor-fold>
+
+    override fun getOrderUseCase() = databaseService.getCurrentOrder()
 }

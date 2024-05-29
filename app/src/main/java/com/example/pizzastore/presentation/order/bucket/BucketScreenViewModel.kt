@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.bucket
+package com.example.pizzastore.presentation.order.bucket
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

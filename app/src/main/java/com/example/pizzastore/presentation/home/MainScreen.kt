@@ -18,11 +18,12 @@ import com.example.pizzastore.navigation.AppNavGraph
 import com.example.pizzastore.navigation.NavigationItem
 import com.example.pizzastore.navigation.Screen
 import com.example.pizzastore.navigation.rememberNavigationState
-import com.example.pizzastore.presentation.bucket.BucketScreen
+import com.example.pizzastore.presentation.order.bucket.BucketScreen
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreen
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeOutMapScreen
 import com.example.pizzastore.presentation.menu.MenuScreen
+import com.example.pizzastore.presentation.order.orderstatus.OrderStatusScreen
 
 
 @Composable
@@ -114,8 +115,15 @@ fun MainScreen() {
                     navigationState.navigateTo(Screen.ROUTE_MENU)
                 }
             },
+            orderStatusScreenContent = {
+                OrderStatusScreen(paddingValues = paddingValues) {
+                    navigationState.navigateTo(Screen.ROUTE_BUCKET)
+                }
+            },
             bucketScreenContent = {
-                BucketScreen(paddingValues = paddingValues)
+                BucketScreen(paddingValues = paddingValues) {
+                    navigationState.navigateTo(Screen.ROUTE_ORDER)
+                }
             }
         )
     }

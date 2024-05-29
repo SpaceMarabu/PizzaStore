@@ -8,20 +8,20 @@ sealed class NavigationItem(
     val icon: Int
 ) {
 
-    object Menu : NavigationItem(
+    data object Menu : NavigationItem(
         screen = Screen.Menu,
         titleResId = R.string.menu,
         icon = R.drawable.ic_menu
     )
 
-    object Contacts : NavigationItem(
+    data object Contacts : NavigationItem(
         screen = Screen.Contacts,
         titleResId = R.string.contacts,
         icon = R.drawable.ic_contacts
     )
 
-    object ShoppingBag : NavigationItem(
-        screen = Screen.Bucket,
+    data object ShoppingBag : NavigationItem(
+        screen = Screen.Order,
         titleResId = R.string.bucket,
         icon = R.drawable.ic_shopping_bag
     )
