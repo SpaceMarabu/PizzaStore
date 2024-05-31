@@ -6,6 +6,7 @@ import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 import com.example.pizzastore.domain.usecases.DecreaseProductInBucketUseCase
+import com.example.pizzastore.domain.usecases.FinishOrderingUseCase
 import com.example.pizzastore.domain.usecases.GetBucketUseCase
 import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 class BucketScreenViewModel @Inject constructor(
     private val getBucketUseCase: GetBucketUseCase,
     private val increaseProductInBucketUseCase: IncreaseProductInBucketUseCase,
-    private val decreaseProductInBucketUseCase: DecreaseProductInBucketUseCase
+    private val decreaseProductInBucketUseCase: DecreaseProductInBucketUseCase,
+    private val finishOrderingUseCase: FinishOrderingUseCase
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<BucketScreenState>(BucketScreenState.Initial)
@@ -27,6 +29,14 @@ class BucketScreenViewModel @Inject constructor(
             subscribeBucket()
         }
     }
+
+    //<editor-fold desc="finishOrdering">
+    fun finishOrdering() {
+        viewModelScope.launch {
+            finishOrderingUseCase.finishOrdering()
+        }
+    }
+    //</editor-fold>
 
     //<editor-fold desc="increaseProductInBucket">
     fun increaseProductInBucket(product: Product) {

@@ -1,8 +1,8 @@
 package com.example.pizzastore.data.remotedatabase
 
 import android.net.Uri
+import com.example.pizzastore.data.remotedatabase.entity.BucketDto
 import com.example.pizzastore.data.remotedatabase.entity.DBResultOrder
-import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.Product
@@ -18,7 +18,7 @@ interface DatabaseService {
 
     fun getListProductsFlow(): Flow<List<Product>>
 
-    suspend fun sendCurrentOrder(bucket: Bucket): DBResultOrder
+    suspend fun sendCurrentOrder(bucket: BucketDto): DBResultOrder
 
     fun getCurrentOrder(): StateFlow<Order?>
 }

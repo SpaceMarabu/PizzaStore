@@ -8,7 +8,7 @@ import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.SessionSettings
 import javax.inject.Inject
 
-class Mapper @Inject constructor() {
+class LocalMapper @Inject constructor() {
 
     fun mapSessionSettToDbModel(sessionSettings: SessionSettings) = SessionSettingsDbModel(
         city = sessionSettings.city,

@@ -2,7 +2,12 @@ package com.example.pizzastore.data.remotedatabase
 
 import android.net.Uri
 import android.util.Log
+import com.example.pizzastore.data.localdatabase.CityDao
+import com.example.pizzastore.data.mapper.LocalMapper
+import com.example.pizzastore.data.mapper.RemoteMapper
+import com.example.pizzastore.data.remotedatabase.entity.BucketDto
 import com.example.pizzastore.data.remotedatabase.entity.DBResultOrder
+import com.example.pizzastore.data.remotedatabase.entity.OrderDto
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Order
@@ -31,8 +36,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class FirebaseImpl : DatabaseService {
+class FirebaseImpl  : DatabaseService {
 
     private val firebaseDatabase = FirebaseDatabase.getInstance()
     private val firebaseStorage = Firebase.storage("gs://pizzastore-b379f.appspot.com")
@@ -210,10 +216,10 @@ class FirebaseImpl : DatabaseService {
 
     //<editor-fold desc="sendOrder">
     @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun sendCurrentOrder(bucket: Bucket): DBResultOrder {
+    override suspend fun sendCurrentOrder(bucket: BucketDto): DBResultOrder {
         val currentIdToInsert = maxOrderIdFlow.value
         orderToSubscribeFlow.value = currentIdToInsert
-        val currentOrder = Order(
+        val currentOrder = OrderDto(
             id = currentIdToInsert,
             OrderStatus.NEW,
             bucket

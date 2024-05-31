@@ -103,6 +103,7 @@ fun BucketScreenContent(
         )
         if (!isOrderListEmpty) {
             OderButton {
+                viewModel.finishOrdering()
                 onOrderingFinish()
             }
         }

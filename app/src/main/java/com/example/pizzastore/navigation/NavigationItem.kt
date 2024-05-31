@@ -21,8 +21,8 @@ sealed class NavigationItem(
     )
 
     data object ShoppingBag : NavigationItem(
-        screen = Screen.Order,
-        titleResId = R.string.bucket,
+        screen = Screen.OrderStatus,
+        titleResId = R.string.order,
         icon = R.drawable.ic_shopping_bag
     )
 }

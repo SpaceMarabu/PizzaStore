@@ -26,6 +26,19 @@ class NavigationState(
             restoreState = true
         }
     }
+
+    fun navigateStartDestination(route: String) {
+        navHostController.navigate(route) {
+            launchSingleTop = true
+            popUpTo(0)
+        }
+    }
+
+    fun navigateWithPop(route: String) {
+        navHostController.navigate(route) {
+            popUpTo(Screen.ROUTE_ORDER) { inclusive = true }
+        }
+    }
 }
 
 @Composable

@@ -22,8 +22,6 @@ interface DataModule {
 
     companion object {
 
-
-
             @ApplicationScope
             @Provides
             fun provideFirebase() : DatabaseService {

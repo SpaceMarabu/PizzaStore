@@ -1,5 +1,6 @@
 package com.example.pizzastore.presentation.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -59,7 +60,7 @@ fun MainScreen() {
                         BottomNavigationItem(
                             selected = currentRoute == item.screen.route,
                             onClick = {
-                                navigationState.navigateTo(item.screen.route)
+                                navigationState.navigateStartDestination(item.screen.route)
                             },
                             icon = {
                                 Icon(
@@ -117,12 +118,12 @@ fun MainScreen() {
             },
             orderStatusScreenContent = {
                 OrderStatusScreen(paddingValues = paddingValues) {
-                    navigationState.navigateTo(Screen.ROUTE_BUCKET)
+                    navigationState.navigateWithPop(Screen.ROUTE_BUCKET)
                 }
             },
             bucketScreenContent = {
                 BucketScreen(paddingValues = paddingValues) {
-                    navigationState.navigateTo(Screen.ROUTE_ORDER)
+                    navigationState.navigateStartDestination(Screen.ROUTE_ORDER)
                 }
             }
         )

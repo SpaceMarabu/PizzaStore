@@ -25,11 +25,15 @@ class OrderStatusScreenViewModel @Inject constructor(
             .getCurrentOrderFlow()
             .collect { order ->
                 if (order != null) {
-                    screenState.value = OrderStatusScreenState.Content(order)
+                    screenState.emit(OrderStatusScreenState.Content(order))
                 } else {
-                    screenState.value = OrderStatusScreenState.EmptyOrder
+                    screenState.emit(OrderStatusScreenState.EmptyOrder)
                 }
             }
     }
     //</editor-fold>
+
+    fun onLeaveScreen() {
+        screenState.value = OrderStatusScreenState.Initial
+    }
 }
