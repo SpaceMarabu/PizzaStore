@@ -2,13 +2,9 @@ package com.example.pizzastore.data.remotedatabase
 
 import android.net.Uri
 import android.util.Log
-import com.example.pizzastore.data.localdatabase.CityDao
-import com.example.pizzastore.data.mapper.LocalMapper
-import com.example.pizzastore.data.mapper.RemoteMapper
 import com.example.pizzastore.data.remotedatabase.entity.BucketDto
 import com.example.pizzastore.data.remotedatabase.entity.DBResultOrder
 import com.example.pizzastore.data.remotedatabase.entity.OrderDto
-import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.OrderStatus
@@ -32,11 +28,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class FirebaseImpl  : DatabaseService {
 
@@ -48,36 +42,32 @@ class FirebaseImpl  : DatabaseService {
     private val dRefCities = firebaseDatabase.getReference("cities")
     private val dRefOrder = firebaseDatabase.getReference("order")
 
-    private val listPicturesUriFlow: MutableSharedFlow<List<Uri>> = MutableSharedFlow(replay = 1)
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
+    private val listPicturesUriFlow: MutableSharedFlow<List<Uri>> = MutableSharedFlow(replay = 1)
+
     private val orderToSubscribeFlow = MutableStateFlow(Order.DEFAULT_ID)
-    private val currentOrder = MutableStateFlow<Order?>(null)
+    private val currentOrder = MutableStateFlow<OrderDto?>(null)
     private val maxOrderIdFlow = MutableStateFlow(-1)
+
 
     //<editor-fold desc="listOrdersColdFlow">
     private val listOrdersColdFlow = callbackFlow {
 
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val listOrders = mutableListOf<Order>()
+                val listOrders = mutableListOf<OrderDto>()
                 for (dataFromChildren in dataSnapshot.children) {
                     val key: Int = dataFromChildren.key?.toInt() ?: continue
                     if (maxOrderIdFlow.value < key) {
                         maxOrderIdFlow.value = key
                     }
 
-                    val status = when (
-                        dataFromChildren.child("status").value.toString()
-                    ) {
-                        OrderStatus.NEW.toString() -> OrderStatus.NEW
-                        OrderStatus.PROCESSING.toString() -> OrderStatus.PROCESSING
-                        else -> OrderStatus.FINISH
-                    }
+                    val status = dataFromChildren.child("status").value.toString()
                     val bucket = dataFromChildren
-                        .child("bucket").getValue(Bucket::class.java) ?: Bucket()
+                        .child("bucket").getValue(BucketDto::class.java) ?: BucketDto()
                     listOrders.add(
-                        Order(
+                        OrderDto(
                             id = key,
                             status = status,
                             bucket = bucket
@@ -217,11 +207,11 @@ class FirebaseImpl  : DatabaseService {
     //<editor-fold desc="sendOrder">
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun sendCurrentOrder(bucket: BucketDto): DBResultOrder {
-        val currentIdToInsert = maxOrderIdFlow.value
+        val currentIdToInsert = maxOrderIdFlow.value + 1
         orderToSubscribeFlow.value = currentIdToInsert
         val currentOrder = OrderDto(
             id = currentIdToInsert,
-            OrderStatus.NEW,
+            OrderStatus.NEW.ordinal.toString(),
             bucket
         )
         val deferred = CompletableDeferred<DBResultOrder>(null)
@@ -293,5 +283,11 @@ class FirebaseImpl  : DatabaseService {
 
     //<editor-fold desc="getCurrentOrder">
     override fun getCurrentOrder() = currentOrder.asStateFlow()
+    //</editor-fold>
+
+    //<editor-fold desc="sendLastOpenedOrderId">
+    override fun sendLastOpenedOrderId(orderId: Int) {
+        orderToSubscribeFlow.value = orderId
+    }
     //</editor-fold>
 }

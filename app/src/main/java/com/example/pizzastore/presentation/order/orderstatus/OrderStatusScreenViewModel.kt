@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.usecases.GetCurrentOrderUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +24,7 @@ class OrderStatusScreenViewModel @Inject constructor(
     private suspend fun subscribeCurrentOrderFlow() {
         getCurrentOrderUseCase
             .getCurrentOrderFlow()
+            .stateIn(viewModelScope)
             .collect { order ->
                 if (order != null) {
                     screenState.emit(OrderStatusScreenState.Content(order))

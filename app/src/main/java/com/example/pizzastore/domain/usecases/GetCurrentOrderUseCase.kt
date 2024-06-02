@@ -11,7 +11,7 @@ class GetCurrentOrderUseCase  @Inject constructor(
     private val repository: PizzaStoreRepository
 ) {
 
-    fun getCurrentOrderFlow(): StateFlow<Order?> {
+    fun getCurrentOrderFlow(): Flow<Order?> {
         return repository.getOrderUseCase()
     }
 }

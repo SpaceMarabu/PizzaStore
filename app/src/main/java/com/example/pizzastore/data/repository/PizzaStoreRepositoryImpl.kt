@@ -25,11 +25,13 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import retrofit2.Response
 import javax.inject.Inject
@@ -44,6 +46,11 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     private val userBucket = MutableStateFlow(Bucket())
     private val currentOrderId = MutableStateFlow(Order.DEFAULT_ID)
+    private val listProductsStateFlow = MutableStateFlow<List<Product>>(listOf())
+
+    init {
+        subscribeListProducts()
+    }
 
     //<editor-fold desc="getStoriesUseCase">
     override fun getStoriesUseCase() = databaseService.getListStoriesUri()
@@ -111,6 +118,16 @@ class PizzaStoreRepositoryImpl @Inject constructor(
             .get()
             .map {
                 if (it != null) {
+                    val account = it.account
+                    val orders = account?.orders
+                    val lastOrder = if (!orders.isNullOrEmpty()) {
+                        orders.last()
+                    } else {
+                        null
+                    }
+                    if (lastOrder != null && lastOrder.status != OrderStatus.FINISH) {
+                        databaseService.sendLastOpenedOrderId(lastOrder.id)
+                    }
                     localMapper.mapSessionSettingsDbModelToEntity(it)
                 } else {
                     SessionSettings()
@@ -234,20 +251,38 @@ class PizzaStoreRepositoryImpl @Inject constructor(
             CoroutineScope(Dispatchers.IO).launch {
                 sessionSettingsFlow.collect {
                     val sessionSettingsDto = localMapper.mapSessionSettToDbModel(it)
-                    deferred.complete(sessionSettingsDto)
+                     if (deferred.complete(sessionSettingsDto)) {
+                         this.cancel()
+                     }
                 }
             }
-            deferred.await()
-            cityDao.addSessionSettings(deferred.getCompleted())
+            val sessionSettings = runBlocking { deferred.await() }
+            cityDao.addSessionSettings(sessionSettings)
         }
     }
-    //</editor-fold>
+    //</editor-fold> до до
 
     //<editor-fold desc="getCurrentOrderIdUseCase">
 //    override fun getCurrentOrderIdUseCase() = currentOrderId.asStateFlow()
     //</editor-fold>
 
     //<editor-fold desc="getOrderUseCase">
-    override fun getOrderUseCase() = databaseService.getCurrentOrder()
+    override fun getOrderUseCase() = databaseService
+        .getCurrentOrder()
+        .map { orderDto ->
+            remoteMapper.mapOrderDtoToEntity(orderDto, listProductsStateFlow.value)
+        }
+    //</editor-fold>
+
+    //<editor-fold desc="subscribeListProducts">
+    private fun subscribeListProducts() {
+        CoroutineScope(Dispatchers.IO).launch {
+            databaseService
+                .getListProductsFlow()
+                .collect {
+                    listProductsStateFlow.value = it
+                }
+        }
+    }
     //</editor-fold>
 }

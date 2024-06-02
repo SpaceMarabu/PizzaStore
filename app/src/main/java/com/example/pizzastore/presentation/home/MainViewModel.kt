@@ -27,11 +27,7 @@ class MainViewModel @Inject constructor(
         getCurrentSettingsUseCase
             .getCurrentSettingsFlow()
             .collect {
-                if (it == null) {
-//                    _state.emit(MainScreenState.EmptyCity)
-                } else {
-                    _state.emit(MainScreenState.Content)
-                }
+                _state.emit(MainScreenState.Content)
             }
     }
 

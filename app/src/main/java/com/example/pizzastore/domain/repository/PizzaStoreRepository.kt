@@ -44,5 +44,5 @@ interface PizzaStoreRepository {
 
 //    fun getCurrentOrderIdUseCase(): StateFlow<Int>
 
-    fun getOrderUseCase(): StateFlow<Order?>
+    fun getOrderUseCase(): Flow<Order?>
 }
