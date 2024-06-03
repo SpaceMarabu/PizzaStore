@@ -23,7 +23,7 @@ class LocalMapper @Inject constructor() {
         } else {
             SessionSettings(
                 city = settingsDbModel.city,
-                account = settingsDbModel.account
+                account = settingsDbModel.account,
             )
         }
     }

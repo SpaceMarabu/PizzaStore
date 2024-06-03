@@ -13,6 +13,9 @@ interface CityDao {
     fun get(): Flow<SessionSettingsDbModel?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addSessionSettings(cityDbModel: SessionSettingsDbModel)
+    suspend fun addSessionSettings(settingsDbModel: SessionSettingsDbModel)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addAccount()
 
 }

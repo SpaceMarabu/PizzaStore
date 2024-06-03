@@ -35,5 +35,9 @@ sealed class ProductType(
             DESSERT,
             DRINK
         )
+
+        fun fromString(type: String?): ProductType {
+            return allTypes.find { it.type == type } ?: PIZZA
+        }
     }
 }

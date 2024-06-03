@@ -16,6 +16,7 @@ import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryDetails
 import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.OrderStatus
+import com.example.pizzastore.domain.entity.OrdersHistory
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.entity.Product
@@ -119,7 +120,7 @@ class PizzaStoreRepositoryImpl @Inject constructor(
             .map {
                 if (it != null) {
                     val account = it.account
-                    val orders = account?.orders
+                    val orders = account?.orders?.listOrders
                     val lastOrder = if (!orders.isNullOrEmpty()) {
                         orders.last()
                     } else {
@@ -237,7 +238,7 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                     val settings =
                         localMapper.mapSessionSettingsDbModelToEntity(it) ?: SessionSettings()
                     val account = settings.account ?: Account()
-                    val orders = account.orders.toMutableList()
+                    val orders = account.orders.listOrders.toMutableList()
                     orders.add(
                         Order(
                             id = orderId,
@@ -245,15 +246,19 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                             bucket = bucket
                         )
                     )
-                    settings.copy(account = account.copy(orders = orders))
+                    settings.copy(
+                        account = account.copy(
+                            orders = OrdersHistory(orders)
+                        )
+                    )
                 }
             val deferred = CompletableDeferred<SessionSettingsDbModel>(null)
             CoroutineScope(Dispatchers.IO).launch {
                 sessionSettingsFlow.collect {
                     val sessionSettingsDto = localMapper.mapSessionSettToDbModel(it)
-                     if (deferred.complete(sessionSettingsDto)) {
-                         this.cancel()
-                     }
+                    if (deferred.complete(sessionSettingsDto)) {
+                        this.cancel()
+                    }
                 }
             }
             val sessionSettings = runBlocking { deferred.await() }
