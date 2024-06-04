@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class FirebaseImpl  : DatabaseService {
+class FirebaseImpl : DatabaseService {
 
     private val firebaseDatabase = FirebaseDatabase.getInstance()
     private val firebaseStorage = Firebase.storage("gs://pizzastore-b379f.appspot.com")
@@ -288,6 +288,25 @@ class FirebaseImpl  : DatabaseService {
     //<editor-fold desc="sendLastOpenedOrderId">
     override fun sendLastOpenedOrderId(orderId: Int) {
         orderToSubscribeFlow.value = orderId
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="acceptOrderId">
+    override fun acceptOrder() {
+        val currentOrderValue = currentOrder.value
+        if (currentOrderValue != null) {
+            dRefOrder.child(currentOrderValue.id.toString())
+                .setValue(
+                    currentOrderValue.copy(status = OrderStatus.ACCEPT.ordinal.toString())
+                )
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="onOrderFinished">
+    override fun onOrderFinished() {
+        currentOrder.value = null
+        orderToSubscribeFlow.value = Order.DEFAULT_ID
     }
     //</editor-fold>
 }

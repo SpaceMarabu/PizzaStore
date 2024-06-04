@@ -50,10 +50,11 @@ class RemoteMapper @Inject constructor() {
             return null
         }
         val id = orderDto.id
-        val status: OrderStatus = when (orderDto.status) {
-            OrderStatus.NEW.ordinal.toString() -> OrderStatus.NEW
-            OrderStatus.PROCESSING.ordinal.toString() -> OrderStatus.PROCESSING
-            else -> OrderStatus.FINISH
+        val status: OrderStatus = when (orderDto.status.toInt()) {
+            OrderStatus.NEW.ordinal -> OrderStatus.NEW
+            OrderStatus.PROCESSING.ordinal -> OrderStatus.PROCESSING
+            OrderStatus.FINISH.ordinal -> OrderStatus.FINISH
+            else -> OrderStatus.ACCEPT
         }
         val bucket = mapBucketDtoToEntity(orderDto.bucket, products)
         return Order(

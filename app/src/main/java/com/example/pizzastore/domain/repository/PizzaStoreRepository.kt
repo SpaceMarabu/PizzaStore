@@ -12,7 +12,6 @@ import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.SessionSettings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
-import java.lang.Thread.State
 
 interface PizzaStoreRepository {
 
@@ -44,5 +43,7 @@ interface PizzaStoreRepository {
 
 //    fun getCurrentOrderIdUseCase(): StateFlow<Int>
 
-    fun getOrderUseCase(): Flow<Order?>
+    fun getCurrentOrderUseCase(): Flow<Order?>
+
+    fun acceptOrderUseCase()
 }

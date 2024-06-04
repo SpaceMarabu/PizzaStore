@@ -38,6 +38,7 @@ fun MainScreen() {
     val screensWithBottom = listOf(
         Screen.ROUTE_MENU,
         Screen.ROUTE_CONTACTS,
+        Screen.ROUTE_ORDER_STATUS,
         Screen.ROUTE_BUCKET
     )
 

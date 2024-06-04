@@ -6,7 +6,7 @@ import com.example.pizzastore.domain.entity.DeliveryDetails
 import com.example.pizzastore.domain.entity.Order
 import kotlinx.parcelize.Parcelize
 
-@Entity(tableName = "account")
+@Entity
 @Parcelize
 data class AccountDbModel(
     val id: Int = -1,

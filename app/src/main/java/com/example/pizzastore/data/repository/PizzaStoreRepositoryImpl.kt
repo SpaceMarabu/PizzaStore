@@ -134,7 +134,7 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                         } else {
                             null
                         }
-                        if (lastOrder != null && lastOrder.status != OrderStatus.FINISH) {
+                        if (lastOrder != null && lastOrder.status != OrderStatus.ACCEPT) {
                             databaseService.sendLastOpenedOrderId(lastOrder.id)
                         }
                     }
@@ -240,7 +240,6 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     //</editor-fold>
 
     //<editor-fold desc="finishOrderingUseCase">
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun finishOrderingUseCase() {
         val bucket = userBucket.value
         val products = listProductsStateFlow.value
@@ -287,21 +286,52 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                 }
             }
             val sessionSettings = runBlocking { deferred.await() }
+            userBucket.value = Bucket()
             cityDao.addSessionSettings(sessionSettings)
         }
     }
-    //</editor-fold> до до
-
-    //<editor-fold desc="getCurrentOrderIdUseCase">
-//    override fun getCurrentOrderIdUseCase() = currentOrderId.asStateFlow()
     //</editor-fold>
 
-    //<editor-fold desc="getOrderUseCase">
-    override fun getOrderUseCase() = databaseService
+    //<editor-fold desc="getCurrentOrderUseCase">
+    override fun getCurrentOrderUseCase() = databaseService
         .getCurrentOrder()
         .map { orderDto ->
-            remoteMapper.mapOrderDtoToEntity(orderDto, listProductsStateFlow.value)
+            val products = listProductsStateFlow.value
+            val orderDtoMapped = remoteMapper.mapOrderDtoToEntity(orderDto, products)
+            val currentSettingsDbModel = getSessionSettingsCompletableDeferred()
+            val currentSettings = localMapper.mapSessionSettingsDbModelToEntity(
+                currentSettingsDbModel,
+                products
+            ) ?: SessionSettings()
+            val account = currentSettings.account
+            val orders = account?.orders?.toMutableList()
+            if (!orders.isNullOrEmpty() && orderDtoMapped != null) {
+                orders[orders.size - 1] = orderDtoMapped
+                val newAccount = account.copy(orders = orders)
+                val newSettings = currentSettings.copy(account = newAccount)
+                val settingsDbModel = localMapper.mapSessionSettToDbModel(newSettings)
+                cityDao.addSessionSettings(settingsDbModel)
+            }
+            if (orderDtoMapped != null && orderDtoMapped.status == OrderStatus.ACCEPT) {
+                databaseService.onOrderFinished()
+            }
+            orderDtoMapped
         }
+    //</editor-fold>
+
+    //<editor-fold desc="getSessionSettingsCompletableDeferred">
+    private fun getSessionSettingsCompletableDeferred(): SessionSettingsDbModel {
+        val deferred = CompletableDeferred<SessionSettingsDbModel>(null)
+        CoroutineScope(Dispatchers.IO).launch {
+            cityDao.get().collect {sessionSettings ->
+                val sessionSettingsDto = sessionSettings ?: SessionSettingsDbModel()
+                if (deferred.complete(sessionSettingsDto)) {
+                    this.cancel()
+                }
+            }
+        }
+        return runBlocking { deferred.await() }
+    }
     //</editor-fold>
 
     //<editor-fold desc="subscribeListProducts">
@@ -313,6 +343,12 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                     listProductsStateFlow.value = it
                 }
         }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="acceptOrderUseCase">
+    override fun acceptOrderUseCase() {
+        databaseService.acceptOrder()
     }
     //</editor-fold>
 }

@@ -1,10 +1,8 @@
 package com.example.pizzastore.domain.usecases
 
 import com.example.pizzastore.domain.entity.Order
-import com.example.pizzastore.domain.entity.SessionSettings
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 class GetCurrentOrderUseCase  @Inject constructor(
@@ -12,6 +10,6 @@ class GetCurrentOrderUseCase  @Inject constructor(
 ) {
 
     fun getCurrentOrderFlow(): Flow<Order?> {
-        return repository.getOrderUseCase()
+        return repository.getCurrentOrderUseCase()
     }
 }

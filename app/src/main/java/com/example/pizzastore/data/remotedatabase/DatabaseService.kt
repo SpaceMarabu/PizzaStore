@@ -23,4 +23,8 @@ interface DatabaseService {
     fun getCurrentOrder(): StateFlow<OrderDto?>
 
     fun sendLastOpenedOrderId(orderId: Int)
+
+    fun acceptOrder()
+
+    fun onOrderFinished()
 }

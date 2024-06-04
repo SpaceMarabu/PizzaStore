@@ -174,10 +174,11 @@ class LocalMapper @Inject constructor() {
 
     //<editor-fold desc="getOrderStatusByDbModel">
     private fun getOrderStatusByDbModel(dbModel: OrderDbModel): OrderStatus {
-        return when (dbModel.status) {
-            OrderStatus.NEW.ordinal.toString() -> OrderStatus.NEW
-            OrderStatus.PROCESSING.ordinal.toString() -> OrderStatus.PROCESSING
-            else -> OrderStatus.FINISH
+        return when (dbModel.status.toInt()) {
+            OrderStatus.NEW.ordinal -> OrderStatus.NEW
+            OrderStatus.PROCESSING.ordinal -> OrderStatus.PROCESSING
+            OrderStatus.FINISH.ordinal -> OrderStatus.FINISH
+            else -> OrderStatus.ACCEPT
         }
     }
     //</editor-fold>
