@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.pizzastore.data.localdatabase.entity.SessionSettingsDbModel
 
 @Database(entities = [SessionSettingsDbModel::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)

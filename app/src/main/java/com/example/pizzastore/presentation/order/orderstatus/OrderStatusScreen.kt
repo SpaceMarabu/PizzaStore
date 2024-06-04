@@ -42,41 +42,16 @@ fun OrderStatusScreen(
 
 
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { source, event ->
+        val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_DESTROY -> {
                     viewModel.onLeaveScreen()
                 }
-
-                Lifecycle.Event.ON_CREATE -> {
-                    Log.d("WTF", "WTF")
-                }
-
-                Lifecycle.Event.ON_START -> {
-                    Log.d("WTF", "WTF")
-                }
-
-                Lifecycle.Event.ON_RESUME -> {
-                    Log.d("WTF", "WTF")
-                }
-
-                Lifecycle.Event.ON_PAUSE -> {
-                    Log.d("WTF", "WTF")
-                }
-
-                Lifecycle.Event.ON_STOP -> {
-                    Log.d("WTF", "WTF")
-                }
-
                 else -> {}
             }
         }
 
-//        ProcessLifecycleOwner.get().getLifecycle()
-
         lifecycleOwner.lifecycle.addObserver(observer)
-
-//        observer.onStateChanged(lifecycleOwner, Lifecycle.Event.ON_DESTROY)
 
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)

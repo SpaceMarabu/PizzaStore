@@ -13,5 +13,5 @@ data class Account(
     val name: String? = null,
     val lastName: String? = null,
     val deliveryDetails: DeliveryDetails = DeliveryDetails(),
-    val orders: OrdersHistory = OrdersHistory()
+    val orders: List<Order> = listOf()
 ) : Parcelable

@@ -3,7 +3,8 @@ package com.example.pizzastore.data.repository
 import android.util.Log
 import com.example.cryptoapp.data.network.ApiFactory
 import com.example.pizzastore.data.localdatabase.CityDao
-import com.example.pizzastore.data.localdatabase.SessionSettingsDbModel
+import com.example.pizzastore.data.localdatabase.entity.AccountDbModel
+import com.example.pizzastore.data.localdatabase.entity.SessionSettingsDbModel
 import com.example.pizzastore.data.mapper.LocalMapper
 import com.example.pizzastore.data.mapper.RemoteMapper
 import com.example.pizzastore.data.network.model.PathResponseDto
@@ -16,7 +17,6 @@ import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryDetails
 import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.OrderStatus
-import com.example.pizzastore.domain.entity.OrdersHistory
 import com.example.pizzastore.domain.entity.Path
 import com.example.pizzastore.domain.entity.Point
 import com.example.pizzastore.domain.entity.Product
@@ -97,10 +97,12 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     //<editor-fold desc="setCityUseCase">
     override suspend fun setCityUseCase(city: City) {
+        val cityDbModel = localMapper.mapCityToCityDbModel(city)
         cityDao.get().map {
             if (it != null) {
                 localMapper.mapSessionSettingsDbModelToEntity(
-                    it.copy(city = city)
+                    settingsDbModel = it.copy(city = cityDbModel),
+                    products = listProductsStateFlow.value
                 )
             } else {
                 SessionSettings(city = city)
@@ -117,19 +119,28 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     override fun getCurrentSettingsUseCase(): Flow<SessionSettings?> {
         return cityDao
             .get()
-            .map {
-                if (it != null) {
-                    val account = it.account
-                    val orders = account?.orders?.listOrders
-                    val lastOrder = if (!orders.isNullOrEmpty()) {
-                        orders.last()
-                    } else {
-                        null
+            .map { sessionSettingsDbModel ->
+                if (sessionSettingsDbModel != null) {
+                    val products = listProductsStateFlow.value
+                    val settings = localMapper.mapSessionSettingsDbModelToEntity(
+                        sessionSettingsDbModel,
+                        products
+                    )
+                    val account = settings?.account
+                    if (account != null) {
+                        val orders = account.orders
+                        val lastOrder = if (orders.isNotEmpty()) {
+                            orders.last()
+                        } else {
+                            null
+                        }
+                        if (lastOrder != null && lastOrder.status != OrderStatus.FINISH) {
+                            databaseService.sendLastOpenedOrderId(lastOrder.id)
+                        }
                     }
-                    if (lastOrder != null && lastOrder.status != OrderStatus.FINISH) {
-                        databaseService.sendLastOpenedOrderId(lastOrder.id)
-                    }
-                    localMapper.mapSessionSettingsDbModelToEntity(it)
+
+                    settings
+
                 } else {
                     SessionSettings()
                 }
@@ -143,17 +154,19 @@ class PizzaStoreRepositoryImpl @Inject constructor(
 
     //<editor-fold desc="setPointUseCase">
     override suspend fun setPointUseCase(point: Point) {
-        cityDao.get().map {
-            val currentAccount = it?.account ?: Account()
+        cityDao.get().map { sessionSettingsDbModel ->
+            val currentAccount = sessionSettingsDbModel?.account ?: AccountDbModel()
             val currentDeliveryDetails = currentAccount.deliveryDetails
+            val products = listProductsStateFlow.value
             localMapper.mapSessionSettingsDbModelToEntity(
-                it?.copy(
+                settingsDbModel = sessionSettingsDbModel?.copy(
                     account = currentAccount.copy(
                         deliveryDetails = currentDeliveryDetails.copy(
-                            pizzaStore = point
+                            pizzaStore = localMapper.mapPointToDbModel(point)
                         )
                     )
-                )
+                ),
+                products = products
             )
         }.collect {
             if (it == null) return@collect
@@ -198,10 +211,14 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     //<editor-fold desc="sendDeliveryDetailsUseCase">
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun sendDeliveryDetailsUseCase(details: DeliveryDetails) {
+        val products = listProductsStateFlow.value
         val sessionSettingsFlow = cityDao.get()
-            .map {
-                if (it != null) {
-                    val settings = localMapper.mapSessionSettingsDbModelToEntity(it)
+            .map { sessionSettingsDbModel ->
+                if (sessionSettingsDbModel != null) {
+                    val settings = localMapper.mapSessionSettingsDbModelToEntity(
+                        sessionSettingsDbModel,
+                        products
+                    )
                     val account = settings?.account ?: Account()
                     settings?.copy(account = account.copy(deliveryDetails = details))
                 } else {
@@ -226,6 +243,7 @@ class PizzaStoreRepositoryImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun finishOrderingUseCase() {
         val bucket = userBucket.value
+        val products = listProductsStateFlow.value
         val bucketDto = remoteMapper.mapBucketToBucketDto(bucket)
         val orderId = when (val orderSendingResult = databaseService.sendCurrentOrder(bucketDto)) {
             is DBResultOrder.Complete -> orderSendingResult.orderId
@@ -234,11 +252,17 @@ class PizzaStoreRepositoryImpl @Inject constructor(
         currentOrderId.value = orderId
         if (orderId != Order.ERROR_ID) {
             val sessionSettingsFlow = cityDao.get()
-                .map {
+                .map { sessionSettingsDbModel ->
+
                     val settings =
-                        localMapper.mapSessionSettingsDbModelToEntity(it) ?: SessionSettings()
+                        localMapper.mapSessionSettingsDbModelToEntity(
+                            sessionSettingsDbModel,
+                            products
+                        ) ?: SessionSettings()
+
                     val account = settings.account ?: Account()
-                    val orders = account.orders.listOrders.toMutableList()
+                    val orders = account.orders.toMutableList()
+
                     orders.add(
                         Order(
                             id = orderId,
@@ -246,9 +270,10 @@ class PizzaStoreRepositoryImpl @Inject constructor(
                             bucket = bucket
                         )
                     )
+
                     settings.copy(
                         account = account.copy(
-                            orders = OrdersHistory(orders)
+                            orders = orders
                         )
                     )
                 }

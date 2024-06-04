@@ -10,6 +10,7 @@ import javax.inject.Inject
 
 class RemoteMapper @Inject constructor() {
 
+    //<editor-fold desc="mapBucketToBucketDto">
     fun mapBucketToBucketDto(bucket: Bucket): BucketDto {
         val productsFromBucket = bucket.order
         val mapProductsForDB = mutableMapOf<String, Int>()
@@ -20,13 +21,17 @@ class RemoteMapper @Inject constructor() {
         }
         return BucketDto(order = mapProductsForDB)
     }
+    //</editor-fold>
 
+    //<editor-fold desc="mapOrderToOrderDto">
     fun mapOrderToOrderDto(order: Order) = OrderDto(
         id = order.id,
         status = order.status.ordinal.toString(),
         bucket = mapBucketToBucketDto(order.bucket)
     )
+    //</editor-fold>
 
+    //<editor-fold desc="mapBucketDtoToEntity">
     private fun mapBucketDtoToEntity(bucket: BucketDto, products: List<Product>): Bucket {
         val orderResult = mutableMapOf<Product, Int>()
         bucket.order.forEach { currentPair ->
@@ -37,7 +42,9 @@ class RemoteMapper @Inject constructor() {
         }
         return Bucket(order = orderResult)
     }
+    //</editor-fold>
 
+    //<editor-fold desc="mapOrderDtoToEntity">
     fun mapOrderDtoToEntity(orderDto: OrderDto?, products: List<Product>): Order? {
         if (orderDto == null) {
             return null
@@ -55,4 +62,5 @@ class RemoteMapper @Inject constructor() {
             bucket = bucket
         )
     }
+    //</editor-fold>
 }

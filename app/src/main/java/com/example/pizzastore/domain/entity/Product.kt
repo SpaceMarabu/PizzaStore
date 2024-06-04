@@ -17,7 +17,7 @@ data class Product(
     val type: ProductType = ProductType.PIZZA,
     val name: String = "",
     val price: Int = 0,
-    val photo: String? = null,
+    var photo: String? = null,
     val description: String = "Lorem ipsum dolor sit amet, consectetur adipiscing elit," +
             " sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 ) : Parcelable {

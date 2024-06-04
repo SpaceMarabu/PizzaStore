@@ -1,4 +1,4 @@
-package com.example.pizzastore.data.localdatabase
+package com.example.pizzastore.data.localdatabase.entity
 
 import android.os.Parcelable
 import androidx.room.Entity
@@ -13,7 +13,7 @@ import kotlinx.parcelize.Parcelize
 data class SessionSettingsDbModel(
     @PrimaryKey
     var id: Int = 1,
-    var city: City? = null,
-    var account: Account? = null
+    var city: CityDbModel? = null,
+    var account: AccountDbModel? = null
 ) : Parcelable
 
