@@ -3,7 +3,7 @@ package com.example.pizzastore.data.remotedatabase
 import android.net.Uri
 import android.util.Log
 import com.example.pizzastore.data.remotedatabase.entity.BucketDto
-import com.example.pizzastore.data.remotedatabase.entity.DBResultOrder
+import com.example.pizzastore.data.remotedatabase.entity.DBResponseOrder
 import com.example.pizzastore.data.remotedatabase.entity.OrderDto
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Order
@@ -20,7 +20,6 @@ import com.google.firebase.storage.storage
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -47,7 +46,7 @@ class FirebaseImpl : DatabaseService {
     private val listPicturesUriFlow: MutableSharedFlow<List<Uri>> = MutableSharedFlow(replay = 1)
 
     private val orderToSubscribeFlow = MutableStateFlow(Order.DEFAULT_ID)
-    private val currentOrder = MutableStateFlow<OrderDto?>(null)
+    private val currentOrderFlow = MutableStateFlow<OrderDto?>(null)
     private val maxOrderIdFlow = MutableStateFlow(-1)
 
 
@@ -197,37 +196,39 @@ class FirebaseImpl : DatabaseService {
             .collect { listOrders ->
                 listOrders.forEach { order ->
                     if (order.id == orderToSubscribeFlow.value) {
-                        currentOrder.value = order
+                        currentOrderFlow.value = order
                     }
                 }
             }
     }
     //</editor-fold>
 
-    //<editor-fold desc="sendOrder">
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override suspend fun sendCurrentOrder(bucket: BucketDto): DBResultOrder {
+    //<editor-fold desc="sendCurrentOrder">
+    override suspend fun sendCurrentOrder(bucket: BucketDto): DBResponseOrder {
         val currentIdToInsert = maxOrderIdFlow.value + 1
-        orderToSubscribeFlow.value = currentIdToInsert
-        val currentOrder = OrderDto(
+        val newOrder = OrderDto(
             id = currentIdToInsert,
             OrderStatus.NEW.ordinal.toString(),
             bucket
         )
-        val deferred = CompletableDeferred<DBResultOrder>(null)
+        val deferred = CompletableDeferred<DBResponseOrder>(null)
         withContext(Dispatchers.IO) {
             dRefOrder.child(currentIdToInsert.toString())
-                .setValue(currentOrder)
+                .setValue(newOrder)
                 .addOnSuccessListener {
-                    val result = DBResultOrder.Complete(currentIdToInsert)
+                    val result = DBResponseOrder.Complete(currentIdToInsert)
                     deferred.complete(result)
                 }
                 .addOnFailureListener { _ ->
-                    deferred.complete(DBResultOrder.Error)
+                    deferred.complete(DBResponseOrder.Error)
                 }
         }
-        deferred.await()
-        return deferred.getCompleted()
+        val dbResponse =  deferred.await()
+        if (dbResponse is DBResponseOrder.Complete) {
+            currentOrderFlow.value = newOrder
+            orderToSubscribeFlow.value = dbResponse.orderId
+        }
+        return dbResponse
     }
     //</editor-fold>
 
@@ -282,7 +283,7 @@ class FirebaseImpl : DatabaseService {
 //</editor-fold>
 
     //<editor-fold desc="getCurrentOrder">
-    override fun getCurrentOrder() = currentOrder.asStateFlow()
+    override fun getCurrentOrder() = currentOrderFlow.asStateFlow()
     //</editor-fold>
 
     //<editor-fold desc="sendLastOpenedOrderId">
@@ -293,7 +294,7 @@ class FirebaseImpl : DatabaseService {
 
     //<editor-fold desc="acceptOrderId">
     override fun acceptOrder() {
-        val currentOrderValue = currentOrder.value
+        val currentOrderValue = currentOrderFlow.value
         if (currentOrderValue != null) {
             dRefOrder.child(currentOrderValue.id.toString())
                 .setValue(
@@ -305,7 +306,7 @@ class FirebaseImpl : DatabaseService {
 
     //<editor-fold desc="onOrderFinished">
     override fun onOrderFinished() {
-        currentOrder.value = null
+        currentOrderFlow.value = null
         orderToSubscribeFlow.value = Order.DEFAULT_ID
     }
     //</editor-fold>

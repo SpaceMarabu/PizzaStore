@@ -1,14 +1,20 @@
 package com.example.pizzastore.presentation.order.bucket
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pizzastore.data.remotedatabase.entity.DBResponseOrder
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 import com.example.pizzastore.domain.usecases.DecreaseProductInBucketUseCase
+import com.example.pizzastore.domain.usecases.DisposeDbResponseUseCase
 import com.example.pizzastore.domain.usecases.FinishOrderingUseCase
 import com.example.pizzastore.domain.usecases.GetBucketUseCase
+import com.example.pizzastore.domain.usecases.GetDBResponseFlowUseCase
 import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase
+import com.example.pizzastore.presentation.order.orderstatus.OrderStatusScreenState
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,23 +23,33 @@ class BucketScreenViewModel @Inject constructor(
     private val getBucketUseCase: GetBucketUseCase,
     private val increaseProductInBucketUseCase: IncreaseProductInBucketUseCase,
     private val decreaseProductInBucketUseCase: DecreaseProductInBucketUseCase,
-    private val finishOrderingUseCase: FinishOrderingUseCase
+    private val finishOrderingUseCase: FinishOrderingUseCase,
+    private val getDBResponseFlowUseCase: GetDBResponseFlowUseCase,
+    private val disposeDbResponseUseCase: DisposeDbResponseUseCase
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<BucketScreenState>(BucketScreenState.Initial)
 
     private val listProductTypes = ProductType.allTypes
+    private val scope = viewModelScope
 
     init {
-        viewModelScope.launch {
+        Log.d("TEST_SCOPE", "BucketScreenViewModel: $scope")
+        scope.launch {
             subscribeBucket()
+        }
+        scope.launch {
+            subscribeDBResponse()
         }
     }
 
     //<editor-fold desc="finishOrdering">
     fun finishOrdering() {
-        viewModelScope.launch {
+        scope.launch {
             finishOrderingUseCase.finishOrdering()
+//            screenState.value = BucketScreenState.Initial
+//            disposeDbResponseUseCase.dispose()
+//            scope.cancel()
         }
     }
     //</editor-fold>
@@ -69,14 +85,38 @@ class BucketScreenViewModel @Inject constructor(
 
     //<editor-fold desc="subscribeBucket">
     private suspend fun subscribeBucket() {
-        getBucketUseCase
-            .getBucketFlow()
+        scope.launch {
+            getBucketUseCase
+                .getBucketFlow()
+                .collect {
+                    val products = takeProductsFromBucket(it)
+                    screenState.value = BucketScreenState.Content(
+                        productsList = products,
+                        bucket = it
+                    )
+                }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="subscribeDBResponse">
+    private suspend fun subscribeDBResponse() {
+        getDBResponseFlowUseCase
+            .getFlow()
             .collect {
-                val products = takeProductsFromBucket(it)
-                screenState.value = BucketScreenState.Content(
-                    productsList = products,
-                    bucket = it
-                )
+                when (it) {
+                    is DBResponseOrder.Complete -> {
+                        screenState.value = BucketScreenState.CompleteOrdering
+
+                        scope.cancel()
+
+                    }
+                    DBResponseOrder.Error -> {}
+                    DBResponseOrder.Initial -> {}
+                    DBResponseOrder.Processing -> {
+                        screenState.value = BucketScreenState.Loading
+                    }
+                }
             }
     }
     //</editor-fold>
@@ -105,18 +145,6 @@ class BucketScreenViewModel @Inject constructor(
     }
     //</editor-fold>
 
-    //<editor-fold desc="getProductSum">
-    fun getProductSum(product: Product): Int {
-        val currentScreenState = screenState.value
-        var resultSum = 0
-        if (currentScreenState is BucketScreenState.Content) {
-            val countProductInBucket = currentScreenState.bucket.order[product] ?: 0
-            resultSum = product.price * countProductInBucket
-        }
-        return resultSum
-    }
-    //</editor-fold>
-
     //<editor-fold desc="getProductCount">
     fun getProductCount(product: Product): Int {
         val currentScreenState = screenState.value
@@ -125,6 +153,12 @@ class BucketScreenViewModel @Inject constructor(
             currentCount = currentScreenState.bucket.order[product] ?: 0
         }
         return currentCount
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="onLeaveScreen">
+    fun onLeaveScreen() {
+        screenState.value = BucketScreenState.Initial
     }
     //</editor-fold>
 }

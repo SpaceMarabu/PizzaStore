@@ -7,6 +7,10 @@ sealed class BucketScreenState() {
 
     data object Initial : BucketScreenState()
 
+    data object Loading : BucketScreenState()
+
+    data object CompleteOrdering : BucketScreenState()
+
     data class Content(
         val productsList: List<Product> = listOf(),
         val bucket: Bucket = Bucket()

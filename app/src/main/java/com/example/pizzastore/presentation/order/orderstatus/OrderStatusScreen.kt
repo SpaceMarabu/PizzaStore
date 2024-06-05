@@ -79,8 +79,13 @@ fun OrderStatusScreen(
         }
 
         is OrderStatusScreenState.EmptyOrder -> {
-            onOrderIsEmpty()
-            viewModel.onLeaveScreen()
+            DisposableEffect(Unit) {
+                onOrderIsEmpty()
+
+                onDispose {
+                    viewModel.onLeaveScreen()
+                }
+            }
         }
     }
 }
@@ -147,7 +152,7 @@ fun OrderStatusScreenContent(
                     }
                 }
             }
-            if (order.status == OrderStatus.FINISH) {
+            if (/*order.status == OrderStatus.FINISH*/true) {
                 AcceptButton {
                     viewModel.acceptOrder()
                 }

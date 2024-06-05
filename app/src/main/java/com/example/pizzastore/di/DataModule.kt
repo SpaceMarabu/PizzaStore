@@ -1,7 +1,7 @@
 package com.example.pizzastore.di
 
 import android.app.Application
-import com.example.pizzastore.data.localdatabase.CityDao
+import com.example.pizzastore.data.localdatabase.PizzaDao
 import com.example.pizzastore.data.localdatabase.LocalDatabase
 import com.example.pizzastore.data.remotedatabase.DatabaseService
 import com.example.pizzastore.data.remotedatabase.FirebaseImpl
@@ -33,7 +33,7 @@ interface DataModule {
         @Provides
         fun provideCityDao(
             application: Application
-        ): CityDao {
+        ): PizzaDao {
             return LocalDatabase.getInstance(application).cityDao()
         }
     }

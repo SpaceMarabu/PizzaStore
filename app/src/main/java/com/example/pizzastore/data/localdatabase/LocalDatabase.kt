@@ -11,7 +11,7 @@ import com.example.pizzastore.data.localdatabase.entity.SessionSettingsDbModel
 @TypeConverters(Converters::class)
 abstract class LocalDatabase : RoomDatabase() {
 
-    abstract fun cityDao(): CityDao
+    abstract fun cityDao(): PizzaDao
 
     companion object {
 

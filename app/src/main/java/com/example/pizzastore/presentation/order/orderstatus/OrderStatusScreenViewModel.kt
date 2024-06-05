@@ -1,9 +1,11 @@
 package com.example.pizzastore.presentation.order.orderstatus
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.usecases.AcceptOrderUseCase
 import com.example.pizzastore.domain.usecases.GetCurrentOrderUseCase
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -15,9 +17,11 @@ class OrderStatusScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<OrderStatusScreenState>(OrderStatusScreenState.Initial)
+    private val scope = viewModelScope
 
     init {
-        viewModelScope.launch {
+        Log.d("TEST_SCOPE", "OrderStatusScreenViewModel: $viewModelScope")
+        scope.launch {
             subscribeCurrentOrderFlow()
         }
     }
@@ -26,7 +30,7 @@ class OrderStatusScreenViewModel @Inject constructor(
     private suspend fun subscribeCurrentOrderFlow() {
         getCurrentOrderUseCase
             .getCurrentOrderFlow()
-            .stateIn(viewModelScope)
+            .stateIn(scope)
             .collect { order ->
                 if (order != null) {
                     screenState.emit(OrderStatusScreenState.Content(order))
@@ -40,6 +44,7 @@ class OrderStatusScreenViewModel @Inject constructor(
     //<editor-fold desc="onLeaveScreen">
     fun onLeaveScreen() {
         screenState.value = OrderStatusScreenState.Initial
+        scope.cancel()
     }
     //</editor-fold>
 

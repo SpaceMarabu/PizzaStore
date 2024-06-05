@@ -8,7 +8,7 @@ import com.example.pizzastore.data.localdatabase.entity.SessionSettingsDbModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface CityDao {
+interface PizzaDao {
 
     @Query("SELECT * FROM session_settings LIMIT 1")
     fun get(): Flow<SessionSettingsDbModel?>

@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,6 +47,7 @@ import coil.request.ImageRequest
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.Product
+import com.example.pizzastore.presentation.funs.CircularLoading
 
 @Composable
 fun BucketScreen(
@@ -59,15 +61,25 @@ fun BucketScreen(
 
     when (screenState) {
         is BucketScreenState.Initial -> {}
+
         is BucketScreenState.Content -> {
             val currentScreenState = screenState as BucketScreenState.Content
             BucketScreenContent(
                 viewModel = viewModel,
                 listProductsFromBucket = currentScreenState.productsList,
                 paddingValues = paddingValues
-            ) {
+            )
+        }
+
+        BucketScreenState.CompleteOrdering -> {
+            DisposableEffect(Unit) {
                 onOrderingFinish()
+                onDispose { viewModel.onLeaveScreen() }
             }
+        }
+
+        BucketScreenState.Loading -> {
+            CircularLoading()
         }
     }
 }
@@ -77,8 +89,7 @@ fun BucketScreen(
 fun BucketScreenContent(
     viewModel: BucketScreenViewModel,
     listProductsFromBucket: List<Product>,
-    paddingValues: PaddingValues,
-    onOrderingFinish: () -> Unit
+    paddingValues: PaddingValues
 ) {
     var isOrderListEmpty by remember {
         mutableStateOf(listProductsFromBucket.isEmpty())
@@ -104,7 +115,6 @@ fun BucketScreenContent(
         if (!isOrderListEmpty) {
             OderButton {
                 viewModel.finishOrdering()
-                onOrderingFinish()
             }
         }
     }
