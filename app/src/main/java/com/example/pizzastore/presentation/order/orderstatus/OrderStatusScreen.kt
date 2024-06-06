@@ -152,7 +152,7 @@ fun OrderStatusScreenContent(
                     }
                 }
             }
-            if (/*order.status == OrderStatus.FINISH*/true) {
+            if (order.status == OrderStatus.FINISH) {
                 AcceptButton {
                     viewModel.acceptOrder()
                 }

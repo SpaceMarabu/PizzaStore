@@ -64,6 +64,7 @@ import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 import com.example.pizzastore.presentation.funs.CircularLoading
+import com.example.pizzastore.presentation.funs.ClickableIconByResourceId
 import kotlinx.coroutines.launch
 
 @Composable
@@ -272,46 +273,22 @@ fun PriceRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly
             ){
-                ClickableIconByResourceId(R.drawable.ic_minus) {
+                ClickableIconByResourceId(resourceId = R.drawable.ic_minus) {
                     viewModel.decreaseProductInBucket(product)
                 }
                 Text(text = productCount.toString())
-                ClickableIconByResourceId(R.drawable.ic_plus) {
+                ClickableIconByResourceId(resourceId = R.drawable.ic_plus) {
                     viewModel.increaseProductInBucket(product)
                 }
             }
         } else {
-            ClickableIconByResourceId (
-                R.drawable.ic_shopping_bag
-            ) {
+            ClickableIconByResourceId (resourceId = R.drawable.ic_shopping_bag) {
                 viewModel.increaseProductInBucket(product)
             }
             Text(text = product.price.toString() +
                     stringResource(R.string.roubles_postfix))
         }
     }
-}
-//</editor-fold>
-
-//<editor-fold desc="ClickableIcon">
-@Composable
-fun ClickableIconByResourceId(
-    resourceId: Int,
-    onClick: () -> Unit
-) {
-    Icon(
-        modifier = Modifier
-            .size(25.dp)
-            .padding(
-                start = 4.dp,
-                end = 4.dp
-            )
-            .clickable {
-                onClick()
-            },
-        imageVector = ImageVector.vectorResource(resourceId),
-        contentDescription = "clickable_icon"
-    )
 }
 //</editor-fold>
 

@@ -48,6 +48,7 @@ import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.presentation.funs.CircularLoading
+import com.example.pizzastore.presentation.funs.ClickableIconByResourceId
 
 @Composable
 fun BucketScreen(
@@ -242,11 +243,11 @@ fun ProductItem(
                         .background(Color.LightGray.copy(alpha = 0.15f)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ClickableIconByResourceId(R.drawable.ic_minus) {
+                    ClickableIconByResourceId(resourceId = R.drawable.ic_minus) {
                         viewModel.decreaseProductInBucket(orderedProduct)
                     }
                     Text(text = viewModel.getProductCount(orderedProduct).toString())
-                    ClickableIconByResourceId(R.drawable.ic_plus) {
+                    ClickableIconByResourceId(resourceId = R.drawable.ic_plus) {
                         viewModel.increaseProductInBucket(orderedProduct)
                     }
                 }
@@ -254,28 +255,6 @@ fun ProductItem(
         }
 
     }
-}
-//</editor-fold>
-
-//<editor-fold desc="ClickableIcon">
-@Composable
-fun ClickableIconByResourceId(
-    resourceId: Int,
-    onClick: () -> Unit
-) {
-    Icon(
-        modifier = Modifier
-            .size(25.dp)
-            .padding(
-                start = 4.dp,
-                end = 4.dp
-            )
-            .clickable {
-                onClick()
-            },
-        imageVector = ImageVector.vectorResource(resourceId),
-        contentDescription = "clickable_icon"
-    )
 }
 //</editor-fold>
 

@@ -3,6 +3,7 @@ package com.example.pizzastore.di
 import androidx.lifecycle.ViewModel
 import com.example.pizzastore.presentation.order.bucket.BucketScreenViewModel
 import com.example.pizzastore.presentation.chosecity.CityDeliveryViewModel
+import com.example.pizzastore.presentation.contacts.ContactsScreenViewModel
 import com.example.pizzastore.presentation.home.MainViewModel
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreenViewModel
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeoutMapScreenViewModel
@@ -56,4 +57,9 @@ interface ViewModelModule {
     @ViewModelKey(OrderStatusScreenViewModel::class)
     @Binds
     fun bindOrderScreenViewModel(viewModel: OrderStatusScreenViewModel): ViewModel
+
+    @IntoMap
+    @ViewModelKey(ContactsScreenViewModel::class)
+    @Binds
+    fun bindContactsScreenViewModel(viewModel: ContactsScreenViewModel): ViewModel
 }

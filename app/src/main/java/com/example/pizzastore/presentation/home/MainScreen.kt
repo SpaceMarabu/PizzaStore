@@ -21,6 +21,7 @@ import com.example.pizzastore.navigation.Screen
 import com.example.pizzastore.navigation.rememberNavigationState
 import com.example.pizzastore.presentation.order.bucket.BucketScreen
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
+import com.example.pizzastore.presentation.contacts.ContactsScreen
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreen
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeOutMapScreen
 import com.example.pizzastore.presentation.menu.MenuScreen
@@ -101,7 +102,9 @@ fun MainScreen() {
                     }
                 )
             },
-            contactsScreenContent = { Text(text = "contacts") },
+            contactsScreenContent = {
+                ContactsScreen(paddingValues = paddingValues)
+            },
             choseCityScreenContent = {
                 ChoseCityScreen {
                     navigationState.navigateWithDestroy(Screen.ROUTE_MENU)

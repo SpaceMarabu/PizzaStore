@@ -48,7 +48,7 @@ class BucketScreenViewModel @Inject constructor(
         scope.launch {
             finishOrderingUseCase.finishOrdering()
 //            screenState.value = BucketScreenState.Initial
-//            disposeDbResponseUseCase.dispose()
+            disposeDbResponseUseCase.dispose()
 //            scope.cancel()
         }
     }

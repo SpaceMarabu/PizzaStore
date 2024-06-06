@@ -20,7 +20,6 @@ class OrderStatusScreenViewModel @Inject constructor(
     private val scope = viewModelScope
 
     init {
-        Log.d("TEST_SCOPE", "OrderStatusScreenViewModel: $viewModelScope")
         scope.launch {
             subscribeCurrentOrderFlow()
         }

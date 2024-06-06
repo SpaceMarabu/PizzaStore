@@ -18,7 +18,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navHostController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Contacts.route
     ) {
         homeScreenNavGraph(
             menuScreenContent = menuScreenContent,

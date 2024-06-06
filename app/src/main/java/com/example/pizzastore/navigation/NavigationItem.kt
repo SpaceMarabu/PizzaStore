@@ -17,7 +17,7 @@ sealed class NavigationItem(
     data object Contacts : NavigationItem(
         screen = Screen.Contacts,
         titleResId = R.string.contacts,
-        icon = R.drawable.ic_contacts
+        icon = R.drawable.ic_mail
     )
 
     data object ShoppingBag : NavigationItem(
