@@ -24,4 +24,10 @@
     <string name="order_sum_template_2_4">" товара на "</string>
     <string name="order_button_text">Заказать</string>
     <string name="order">Order</string>
+    <string name="telegram_contact_developer">https://t.me/nyangoodbye</string>
+    <string name="github_project">https://github.com/SpaceMarabu/PizzaStore</string>
+    <string name="mail_contact_developer">mailto:qiberos@gmail.com</string>
+    <string name="its_would_be_yours_contact">Тут могли бы быть ваши контакты</string>
+    <string name="designed_and_developed">Задизайнено и разработано:</string>
+    <string name="developer_RP">Климовым Д.И.</string>
 </resources>
