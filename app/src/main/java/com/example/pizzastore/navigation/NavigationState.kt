@@ -34,7 +34,7 @@ class NavigationState(
         }
     }
 
-    fun navigateWithPop(route: String) {
+    fun navigateWithFromOrderStatus(route: String) {
         navHostController.navigate(route) {
             popUpTo(Screen.ROUTE_ORDER) { inclusive = true }
         }

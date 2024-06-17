@@ -4,7 +4,6 @@ import com.example.pizzastore.R
 
 sealed class NavigationItem(
     val screen: Screen,
-    val titleResId: Int,
     val icon: Int
 ) {
 
@@ -21,7 +20,7 @@ sealed class NavigationItem(
     )
 
     data object ShoppingBag : NavigationItem(
-        screen = Screen.OrderStatus,
+        screen = Screen.Order,
         titleResId = R.string.order,
         icon = R.drawable.ic_shopping_bag
     )

@@ -1,6 +1,5 @@
 package com.example.pizzastore.domain.usecases
 
-import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.repository.PizzaStoreRepository
 import kotlinx.coroutines.flow.Flow

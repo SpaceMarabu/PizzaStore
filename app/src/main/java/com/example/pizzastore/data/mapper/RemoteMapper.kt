@@ -23,14 +23,6 @@ class RemoteMapper @Inject constructor() {
     }
     //</editor-fold>
 
-    //<editor-fold desc="mapOrderToOrderDto">
-    fun mapOrderToOrderDto(order: Order) = OrderDto(
-        id = order.id,
-        status = order.status.ordinal.toString(),
-        bucket = mapBucketToBucketDto(order.bucket)
-    )
-    //</editor-fold>
-
     //<editor-fold desc="mapBucketDtoToEntity">
     private fun mapBucketDtoToEntity(bucket: BucketDto, products: List<Product>): Bucket {
         val orderResult = mutableMapOf<Product, Int>()

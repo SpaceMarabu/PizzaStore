@@ -1,9 +1,6 @@
 package com.example.pizzastore.domain.entity
 
 import android.os.Parcelable
-import androidx.room.Entity
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

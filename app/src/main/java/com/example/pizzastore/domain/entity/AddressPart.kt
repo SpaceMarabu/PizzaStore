@@ -3,7 +3,7 @@ package com.example.pizzastore.domain.entity
 import androidx.compose.runtime.Immutable
 
 
-sealed class AddressPart() {
+sealed class AddressPart {
 
     @Immutable
     data class AddressLine(val address: String? = null) : AddressPart()

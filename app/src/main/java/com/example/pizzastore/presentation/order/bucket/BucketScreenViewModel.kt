@@ -13,7 +13,6 @@ import com.example.pizzastore.domain.usecases.FinishOrderingUseCase
 import com.example.pizzastore.domain.usecases.GetBucketUseCase
 import com.example.pizzastore.domain.usecases.GetDBResponseFlowUseCase
 import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase
-import com.example.pizzastore.presentation.order.orderstatus.OrderStatusScreenState
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch

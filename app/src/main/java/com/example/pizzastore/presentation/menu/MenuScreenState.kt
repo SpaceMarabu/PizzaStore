@@ -6,7 +6,7 @@ import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 
-sealed class MenuScreenState() {
+sealed class MenuScreenState {
 
     data object Initial : MenuScreenState()
     data object Loading : MenuScreenState()

@@ -1,9 +1,7 @@
 <resources>
     <string name="app_name">PizzaStore</string>
     <string name="menu">menu</string>
-    <string name="profile">profile</string>
     <string name="contacts">Contacts</string>
-    <string name="shopping_bag">shopping_bag</string>
     <string name="delivery_question">Как будете\nзаказывать?</string>
     <string name="get_permission_button">Дать доступ к геоданным</string>
     <string name="chose_address_string">Выбрать адрес доставки</string>
@@ -17,7 +15,6 @@
     <string name="address_comment_label">Комментарий к адресу</string>
     <string name="save_button_text">Сохранить</string>
     <string name="roubles_postfix">" руб."</string>
-    <string name="bucket">Bucket</string>
     <string name="order_sum_template_many">" товаров на "</string>
     <string name="order_sum_template_one">" товар на "</string>
     <string name="empty_bucket">Тут пока пусто</string>

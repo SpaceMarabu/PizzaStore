@@ -24,7 +24,6 @@ import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.presentation.funs.ClickableIconByResourceId
 
-
 @Composable
 fun ContactsScreen(paddingValues: PaddingValues) {
 
@@ -43,7 +42,7 @@ fun ContactsScreen(paddingValues: PaddingValues) {
     }
 }
 
-
+//<editor-fold desc="ContactsScreenContent">
 @Composable
 fun ContactsScreenContent(paddingValues: PaddingValues) {
 
@@ -114,9 +113,12 @@ fun ContactsScreenContent(paddingValues: PaddingValues) {
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="getActionIntent">
 fun getActionIntent(uriString: String) = Intent(
     Intent.ACTION_VIEW,
     Uri.parse(uriString)
 )
+//</editor-fold>
 

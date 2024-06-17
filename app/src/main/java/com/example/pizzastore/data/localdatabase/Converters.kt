@@ -4,12 +4,6 @@ import androidx.room.TypeConverter
 import com.example.pizzastore.data.localdatabase.entity.AccountDbModel
 import com.example.pizzastore.data.localdatabase.entity.CityDbModel
 import com.example.pizzastore.data.localdatabase.entity.PointDbModel
-import com.example.pizzastore.domain.entity.Account
-import com.example.pizzastore.domain.entity.Bucket
-import com.example.pizzastore.domain.entity.City
-import com.example.pizzastore.domain.entity.Order
-import com.example.pizzastore.domain.entity.Point
-import com.example.pizzastore.domain.entity.Product
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type

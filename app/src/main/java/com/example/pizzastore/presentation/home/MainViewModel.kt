@@ -30,10 +30,4 @@ class MainViewModel @Inject constructor(
                 _state.emit(MainScreenState.Content)
             }
     }
-
-    fun changeState(state: MainScreenState) {
-        viewModelScope.launch {
-            _state.emit(state)
-        }
-    }
 }

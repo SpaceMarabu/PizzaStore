@@ -1,4 +1,4 @@
-package com.example.cryptoapp.data.network
+package com.example.pizzastore.data.network
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -12,5 +12,5 @@ object ApiFactory {
         .baseUrl(BASE_URL)
         .build()
 
-    val apiService = retrofit.create(ApiService::class.java)
+    val apiService: ApiService = retrofit.create(ApiService::class.java)
 }

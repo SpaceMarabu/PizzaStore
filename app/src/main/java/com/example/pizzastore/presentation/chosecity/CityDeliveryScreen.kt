@@ -20,8 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pizzastore.R
+import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
-import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.presentation.funs.CircularLoading
 
 @Composable
@@ -89,6 +87,7 @@ fun ChoseCityScreen(
 
 }
 
+//<editor-fold desc="ChoseCity">
 @Composable
 fun ChoseCity(
     listCities: List<City>,
@@ -115,83 +114,84 @@ fun ChoseCity(
         }
     }
 }
+//</editor-fold>
 
-
-@OptIn(ExperimentalMaterial3Api::class)
+//<editor-fold desc="ChoseDeliveryType">
 @Composable
 fun ChoseDeliveryType(onDeliveryClicked: (DeliveryType) -> Unit) {
 
-    Scaffold {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.LightGray.copy(alpha = 0.15f))
+    ) {
+        Spacer(
+            modifier = Modifier
+                .height(64.dp)
+        )
+        Text(
+            modifier = Modifier
+                .padding(start = 16.dp),
+            text = stringResource(R.string.delivery_question),
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(
+            modifier = Modifier
+                .height(128.dp)
+        )
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.LightGray.copy(alpha = 0.15f))
-        ) {
-            Spacer(
-                modifier = Modifier
-                    .height(64.dp)
-            )
-            Text(
-                modifier = Modifier
-                    .padding(start = 16.dp),
-                text = stringResource(R.string.delivery_question),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(
-                modifier = Modifier
-                    .height(128.dp)
-            )
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(10))
-                    .border(
-                        border = BorderStroke(
-                            1.dp,
-                            Color.LightGray
-                        ),
-                        shape = RoundedCornerShape(10)
-                    )
-                    .background(Color.White)
-            ) {
-                RowDelivery(
-                    iconId = R.drawable.ic_delivery,
-                    text1 = "Доставка",
-                    text2 = "До вашего адреса"
-                ) {
-                    onDeliveryClicked(DeliveryType.DELIVERY_TO)
-                }
-                Divider(
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(10))
+                .border(
+                    border = BorderStroke(
+                        1.dp,
+                        Color.LightGray
+                    ),
+                    shape = RoundedCornerShape(10)
                 )
-                RowDelivery(
-                    iconId = R.drawable.ic_cultery,
-                    text1 = "В пиццерии",
-                    text2 = "С собой или в зале"
-                ) {
-                    onDeliveryClicked(DeliveryType.TAKE_OUT)
-                }
+                .background(Color.White)
+        ) {
+            DeliveryOption(
+                iconId = R.drawable.ic_delivery,
+                text1 = "Доставка",
+                text2 = "До вашего адреса"
+            ) {
+                onDeliveryClicked(DeliveryType.DELIVERY_TO)
+            }
+            Divider(
+                modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+            )
+            DeliveryOption(
+                iconId = R.drawable.ic_cultery,
+                text1 = "В пиццерии",
+                text2 = "С собой или в зале"
+            ) {
+                onDeliveryClicked(DeliveryType.TAKE_OUT)
             }
         }
     }
 }
+//</editor-fold>
 
+//<editor-fold desc="DeliveryOption">
 @Composable
-fun RowDelivery(iconId: Int, text1: String, text2: String, onDeliveryClicked: () -> Unit) {
+fun DeliveryOption(
+    iconId: Int,
+    text1: String,
+    text2: String,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 8.dp)
-            .clickable {
-                onDeliveryClicked()
-            },
+            .clickable { onClick() }
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 modifier = Modifier
                     .padding(8.dp)
@@ -199,19 +199,9 @@ fun RowDelivery(iconId: Int, text1: String, text2: String, onDeliveryClicked: ()
                 imageVector = ImageVector.vectorResource(iconId),
                 contentDescription = null
             )
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-            ) {
-                Text(
-                    text = text1,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = text2,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Light
-                )
+            Column(modifier = Modifier.padding(start = 8.dp)) {
+                Text(text = text1, fontSize = 16.sp)
+                Text(text = text2, fontSize = 12.sp, fontWeight = FontWeight.Light)
             }
         }
         Icon(
@@ -224,3 +214,4 @@ fun RowDelivery(iconId: Int, text1: String, text2: String, onDeliveryClicked: ()
         )
     }
 }
+//</editor-fold>

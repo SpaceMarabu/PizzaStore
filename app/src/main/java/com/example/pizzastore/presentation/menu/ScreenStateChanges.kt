@@ -3,7 +3,6 @@ package com.example.pizzastore.presentation.menu
 import android.net.Uri
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City
-import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
 

@@ -1,7 +1,6 @@
 package com.example.pizzastore.data.localdatabase.entity
 
 import android.os.Parcelable
-import com.example.pizzastore.domain.entity.OrderStatus
 import kotlinx.parcelize.Parcelize
 
 @Parcelize

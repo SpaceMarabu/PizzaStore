@@ -2,10 +2,10 @@ package com.example.pizzastore.presentation.chosecity
 
 import com.example.pizzastore.domain.entity.City
 
-sealed class CityDeliveryScreenState() {
+sealed class CityDeliveryScreenState {
 
-    object Initial : CityDeliveryScreenState()
-    object Loading : CityDeliveryScreenState()
+    data object Initial : CityDeliveryScreenState()
+    data object Loading : CityDeliveryScreenState()
 
     data class ListCities(
         val cities: List<City>

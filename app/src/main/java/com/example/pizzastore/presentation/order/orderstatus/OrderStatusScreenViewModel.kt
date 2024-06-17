@@ -1,6 +1,5 @@
 package com.example.pizzastore.presentation.order.orderstatus
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.domain.usecases.AcceptOrderUseCase

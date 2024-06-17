@@ -78,7 +78,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun DeliveryMapScreen(
-    paddingValues: PaddingValues,
     onSaveClicked: () -> Unit
 ) {
 

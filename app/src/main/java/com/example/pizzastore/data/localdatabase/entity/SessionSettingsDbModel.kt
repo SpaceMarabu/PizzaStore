@@ -3,8 +3,6 @@ package com.example.pizzastore.data.localdatabase.entity
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.pizzastore.domain.entity.Account
-import com.example.pizzastore.domain.entity.City
 import kotlinx.parcelize.Parcelize
 
 

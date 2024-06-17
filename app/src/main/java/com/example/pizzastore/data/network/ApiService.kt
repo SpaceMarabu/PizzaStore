@@ -1,8 +1,7 @@
-package com.example.cryptoapp.data.network
+package com.example.pizzastore.data.network
 
 import com.example.pizzastore.data.network.model.AddressResponseDto
 import com.example.pizzastore.data.network.model.PathResponseDto
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

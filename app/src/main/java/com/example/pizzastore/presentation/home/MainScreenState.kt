@@ -1,6 +1,6 @@
 package com.example.pizzastore.presentation.home
 
-sealed class MainScreenState() {
+sealed class MainScreenState {
 
     data object Initial : MainScreenState()
     data object Loading : MainScreenState()
