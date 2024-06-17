@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.pizzastore.data.localdatabase.entity.SessionSettingsDbModel
 
-@Database(entities = [SessionSettingsDbModel::class], version = 1, exportSchema = false)
+@Database(entities = [SessionSettingsDbModel::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class LocalDatabase : RoomDatabase() {
 
@@ -31,7 +31,9 @@ abstract class LocalDatabase : RoomDatabase() {
                     application,
                     LocalDatabase::class.java,
                     DB_NAME
-                ).build()
+                )
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = db
                 return db
             }

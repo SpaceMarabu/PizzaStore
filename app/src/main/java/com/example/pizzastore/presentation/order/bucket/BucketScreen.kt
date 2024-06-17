@@ -280,7 +280,7 @@ fun OrderSize(viewModel: BucketScreenViewModel) {
     Row {
         Text(
             text = orderDetailTemplate,
-            fontSize = 24.sp
+            fontSize = if (orderedProductCount == 0) 40.sp else 24.sp
         )
     }
 }

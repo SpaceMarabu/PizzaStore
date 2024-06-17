@@ -13,7 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -348,7 +348,7 @@ fun EnterForm(
                         bottom = 16.dp
                     )
                     .clip(RoundedCornerShape(30.dp))
-                    .background(Color.LightGray.copy(alpha = 0.5f))
+                    .background(colorResource(id = R.color.orange))
                     .clickable {
                         viewModel.saveClick()
                         onSaveClicked(errorState)
@@ -358,7 +358,7 @@ fun EnterForm(
             ) {
                 Text(
                     text = stringResource(R.string.save_button_text),
-                    color = Color.Gray.copy(alpha = 0.5f)
+                    color = Color.Black
                 )
             }
         }

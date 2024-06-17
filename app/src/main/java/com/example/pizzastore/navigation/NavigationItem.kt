@@ -4,6 +4,7 @@ import com.example.pizzastore.R
 
 sealed class NavigationItem(
     val screen: Screen,
+    val titleResId: Int,
     val icon: Int
 ) {
 

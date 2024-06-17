@@ -102,7 +102,7 @@ fun ChoseCity(
                         onCityChosen(city)
                     },
                 text = city.name,
-                fontSize = 16.sp
+                fontSize = 24.sp
             )
             Divider(
                 modifier = Modifier
