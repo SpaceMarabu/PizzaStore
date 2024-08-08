@@ -1,7 +1,7 @@
 package com.example.pizzastore.domain.repository
 
 import android.net.Uri
-import com.example.pizzastore.data.remotedatabase.entity.DBResponseOrder
+import com.example.pizzastore.data.remotedatabase.model.DBResponseOrder
 import com.example.pizzastore.domain.entity.AddressWithPath
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.City

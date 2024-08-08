@@ -1,7 +1,7 @@
 package com.example.pizzastore.data.mapper
 
-import com.example.pizzastore.data.remotedatabase.entity.BucketDto
-import com.example.pizzastore.data.remotedatabase.entity.OrderDto
+import com.example.pizzastore.data.remotedatabase.model.BucketDto
+import com.example.pizzastore.data.remotedatabase.model.OrderDto
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.OrderStatus

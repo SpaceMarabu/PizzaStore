@@ -1,4 +1,4 @@
-package com.example.pizzastore.data.remotedatabase.entity
+package com.example.pizzastore.data.remotedatabase.model
 
 sealed class DBResponseOrder {
 

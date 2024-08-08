@@ -2,9 +2,9 @@ package com.example.pizzastore.data.remotedatabase
 
 import android.net.Uri
 import android.util.Log
-import com.example.pizzastore.data.remotedatabase.entity.BucketDto
-import com.example.pizzastore.data.remotedatabase.entity.DBResponseOrder
-import com.example.pizzastore.data.remotedatabase.entity.OrderDto
+import com.example.pizzastore.data.remotedatabase.model.BucketDto
+import com.example.pizzastore.data.remotedatabase.model.DBResponseOrder
+import com.example.pizzastore.data.remotedatabase.model.OrderDto
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Order
 import com.example.pizzastore.domain.entity.OrderStatus

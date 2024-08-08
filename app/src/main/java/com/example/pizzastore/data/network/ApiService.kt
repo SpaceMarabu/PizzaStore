@@ -8,12 +8,12 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    @GET("geocode?locale=ru&key=30032ecb-8a07-429d-b694-51fe8f3f0d14&reverse=true")
+    @GET("geocode?locale=ru&reverse=true")
     suspend fun getAddress(
         @Query(QUERY_PARAM_API_POINT) point: String
     ): AddressResponseDto
 
-    @GET("route?key=30032ecb-8a07-429d-b694-51fe8f3f0d14&")
+    @GET("route?")
     suspend fun getPath(
         @Query(QUERY_PARAM_API_POINTS) point1: String,
         @Query(QUERY_PARAM_API_POINTS) point2: String

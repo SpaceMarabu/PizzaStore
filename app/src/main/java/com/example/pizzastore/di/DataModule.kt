@@ -1,8 +1,8 @@
 package com.example.pizzastore.di
 
 import android.app.Application
-import com.example.pizzastore.data.localdatabase.PizzaDao
 import com.example.pizzastore.data.localdatabase.LocalDatabase
+import com.example.pizzastore.data.localdatabase.PizzaDao
 import com.example.pizzastore.data.remotedatabase.DatabaseService
 import com.example.pizzastore.data.remotedatabase.FirebaseImpl
 import com.example.pizzastore.data.repository.PizzaStoreRepositoryImpl
@@ -19,15 +19,13 @@ interface DataModule {
     fun bindRepository(impl: PizzaStoreRepositoryImpl): PizzaStoreRepository
 
 
-
     companion object {
 
-            @ApplicationScope
-            @Provides
-            fun provideFirebase() : DatabaseService {
-                return  FirebaseImpl()
-            }
-
+        @ApplicationScope
+        @Provides
+        fun provideFirebase(): DatabaseService {
+            return FirebaseImpl()
+        }
 
         @ApplicationScope
         @Provides

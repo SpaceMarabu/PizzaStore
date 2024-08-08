@@ -9,7 +9,7 @@ import com.example.pizzastore.data.mapper.LocalMapper
 import com.example.pizzastore.data.mapper.RemoteMapper
 import com.example.pizzastore.data.network.model.PathResponseDto
 import com.example.pizzastore.data.remotedatabase.DatabaseService
-import com.example.pizzastore.data.remotedatabase.entity.DBResponseOrder
+import com.example.pizzastore.data.remotedatabase.model.DBResponseOrder
 import com.example.pizzastore.domain.entity.Account
 import com.example.pizzastore.domain.entity.AddressWithPath
 import com.example.pizzastore.domain.entity.Bucket

@@ -3,7 +3,7 @@ package com.example.pizzastore.presentation.order.bucket
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.pizzastore.data.remotedatabase.entity.DBResponseOrder
+import com.example.pizzastore.data.remotedatabase.model.DBResponseOrder
 import com.example.pizzastore.domain.entity.Bucket
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
