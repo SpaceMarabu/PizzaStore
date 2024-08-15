@@ -17,6 +17,7 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,22 +33,18 @@ class DeliveryMapScreenViewModel @Inject constructor(
     val screenState
         get() = _screenState.asStateFlow()
 
-    private val _saveClickedFlow =
-        MutableStateFlow(false)
-    val saveClickedFlow
-        get() = _saveClickedFlow.asStateFlow()
+    private val _screenEvents = MutableSharedFlow<ScreenEvent>()
+    val screenEvents
+        get() = _screenEvents.asSharedFlow()
 
     private val addressChangingFlow = MutableSharedFlow<AddressPart>()
     private val tempAddressStateFlow = MutableStateFlow(AddressDetails())
 
-    private val addressPartHasCollectedMap =
-        MutableStateFlow<MutableMap<AddressPart, Boolean>>(mutableMapOf())
-
     private lateinit var currentCameraPosition: CameraPosition
 
-    private val _addressFlow = MutableStateFlow(AddressState())
-    val addressFlow
-        get() = _addressFlow.asStateFlow()
+    private val _addressByGeocodeFlow = MutableStateFlow(AddressState())
+    val addressByGeocodeFlow
+        get() = _addressByGeocodeFlow.asStateFlow()
 
     private var lastPosition = "0, 0"
 
@@ -55,45 +52,31 @@ class DeliveryMapScreenViewModel @Inject constructor(
 
     init {
         changeScreenState(DeliveryMapScreenState.Content)
-        initEmptyMapForCollectingAddressParts()
         startEmitting()
         changingTempAddressFlow()
     }
 
-    //<editor-fold desc="onLeavingScreen">
-    fun onLeavingScreen() {
-        viewModelScope.launch {
-            addressPartHasCollectedMap.collect { addressPartMap ->
-                if (addressPartMap.values.all { it }) {
-                    val deliverType = DeliveryType.DELIVERY_TO
-                    val address = tempAddressStateFlow.value
-                    val geoPoint = lastPosition
-                    val details = DeliveryDetails(
-                        type = deliverType,
-                        deliveryAddress = address,
-                        pizzaStore = null,
-                        deliveryGeoPoint = geoPoint
-                    )
-                    sendDeliveryDetailsUseCase.sendDetails(details)
-                }
-            }
-        }
-    }
-    //</editor-fold>
-
     //<editor-fold desc="saveClick">
     fun saveClick() {
-        initEmptyMapForCollectingAddressParts()
         viewModelScope.launch {
-            _saveClickedFlow.emit(true)
-            addressPartHasCollectedMap.collect { addressPartMap ->
-                if (addressPartMap.values.all { it }) {
-                    _saveClickedFlow.emit(false)
-                }
+            _screenEvents.emit(ScreenEvent.SaveClicked)
+            delay(100)
+            val deliverType = DeliveryType.DELIVERY_TO
+            val address = tempAddressStateFlow.value
+            val geoPoint = lastPosition
+            val details = DeliveryDetails(
+                type = deliverType,
+                deliveryAddress = address,
+                pizzaStore = null,
+                deliveryGeoPoint = geoPoint
+            )
+            if (!address.address.isNullOrEmpty()) {
+                sendDeliveryDetailsUseCase.sendDetails(details)
+                _screenEvents.emit(ScreenEvent.ExitScreen)
             }
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="sendAddressPart">
     fun sendAddressPart(part: AddressPart) {
@@ -101,15 +84,14 @@ class DeliveryMapScreenViewModel @Inject constructor(
             addressChangingFlow.emit(part)
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="changingTempAddressFlow">
     private fun changingTempAddressFlow() {
         viewModelScope.launch {
             addressChangingFlow.collect {
                 val currentAddressVal = tempAddressStateFlow.value
-                val changeKind = it
-                val currentAddressResult = when (changeKind) {
+                val currentAddressResult = when (val changeKind = it) {
                     is AddressPart.AddressLine -> currentAddressVal.copy(address = changeKind.address)
                     is AddressPart.Comment -> currentAddressVal.copy(comment = changeKind.comment)
                     is AddressPart.DoorCode -> currentAddressVal.copy(doorCode = changeKind.doorCode)
@@ -117,53 +99,20 @@ class DeliveryMapScreenViewModel @Inject constructor(
                     is AddressPart.Floor -> currentAddressVal.copy(floor = changeKind.floor)
                     is AddressPart.Apartment -> currentAddressVal.copy(apartment = changeKind.apartment)
                 }
-                addressPartCollected(changeKind)
                 tempAddressStateFlow.emit(currentAddressResult)
             }
         }
     }
-    //</editor-fold>
-
-    //<editor-fold desc="addressPartCollected">
-    private suspend fun addressPartCollected(part: AddressPart) {
-        //создаю объект с новым хэшем для stateFlow
-        val addressPartFlowValue = (
-                mapOf<AddressPart, Boolean>() + addressPartHasCollectedMap.value
-                ).toMutableMap()
-        val key = when (part) {
-            is AddressPart.AddressLine -> AddressPart.AddressLine()
-            is AddressPart.Apartment -> AddressPart.Apartment()
-            is AddressPart.Comment -> AddressPart.Comment()
-            is AddressPart.DoorCode -> AddressPart.DoorCode()
-            is AddressPart.Entrance -> AddressPart.Entrance()
-            is AddressPart.Floor -> AddressPart.Floor()
-        }
-        addressPartFlowValue[key] = true
-        addressPartHasCollectedMap.emit(addressPartFlowValue)
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="initEmptyMapForCollectingAddressParts">
-    private fun initEmptyMapForCollectingAddressParts() {
-        val resultMap = hashMapOf<AddressPart, Boolean>()
-        resultMap[AddressPart.AddressLine()] = false
-        resultMap[AddressPart.Comment()] = false
-        resultMap[AddressPart.DoorCode()] = false
-        resultMap[AddressPart.Entrance()] = false
-        resultMap[AddressPart.Floor()] = false
-        resultMap[AddressPart.Apartment()] = false
-        addressPartHasCollectedMap.value = resultMap
-    }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="inputTextStarted">
     fun inputTextStarted() {
         viewModelScope.launch {
-            val currentState = _addressFlow.value
-            _addressFlow.emit(currentState.copy(isInputTextStarted = true))
+            val currentState = _addressByGeocodeFlow.value
+            _addressByGeocodeFlow.emit(currentState.copy(isInputTextStarted = true))
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="startEmitting">
     private fun startEmitting() {
@@ -178,7 +127,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
             }
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="postLatLang">
     fun postLatLang(latlng: LatLng) {
@@ -187,7 +136,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
             _currentPositionHandleFlow.emit(currentPosition)
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="getCameraPosition">
     fun getCameraPosition(
@@ -200,7 +149,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
         )
         return currentCameraPosition
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="getLatLngCoords">
     private fun getLatLngCoords(coords: String): LatLng {
@@ -210,7 +159,7 @@ class DeliveryMapScreenViewModel @Inject constructor(
             splitedCoords[1].toDouble()
         )
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="requestAddress">
     private fun requestAddress(latlng: String) {
@@ -222,10 +171,10 @@ class DeliveryMapScreenViewModel @Inject constructor(
                     path = if (path != Path.EMPTY_PATH) path else null
                 ),
             )
-            _addressFlow.emit(addressState)
+            _addressByGeocodeFlow.emit(addressState)
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
     //<editor-fold desc="changeScreenState">
     private fun changeScreenState(state: DeliveryMapScreenState) {
@@ -233,6 +182,6 @@ class DeliveryMapScreenViewModel @Inject constructor(
             _screenState.emit(state)
         }
     }
-    //</editor-fold>
+//</editor-fold>
 
 }

@@ -20,13 +20,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
@@ -42,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontFamily
@@ -53,8 +57,8 @@ import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.Point
-import com.example.pizzastore.presentation.funs.CircularLoading
-import com.example.pizzastore.presentation.funs.getBitmapDescriptorFromVector
+import com.example.pizzastore.presentation.utils.CircularLoading
+import com.example.pizzastore.presentation.utils.getBitmapDescriptorFromVector
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
 import com.example.pizzastore.presentation.mapscreen.ChangeMapZoom
 import com.example.pizzastore.presentation.mapscreen.RequestPermissionsButton
@@ -105,7 +109,7 @@ fun TakeOutMapScreen(
 }
 
 //<editor-fold desc="Экран с контентом">
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TakeOutMapScreenContent(
     paddingValues: PaddingValues,
@@ -190,7 +194,12 @@ fun TakeOutMapScreenContent(
         mutableStateOf(true)
     }
 
-    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
+        bottomSheetState = SheetState(
+            skipPartiallyExpanded = true,
+            density = LocalDensity.current
+        )
+    )
     val bottomSheetState = bottomSheetScaffoldState.bottomSheetState
 
     Box {
@@ -210,10 +219,10 @@ fun TakeOutMapScreenContent(
                     }
                 )
             },
-            scaffoldState = bottomSheetScaffoldState,
+//            scaffoldState = bottomSheetScaffoldState,
             sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
             sheetPeekHeight = 200.dp,
-            sheetGesturesEnabled = true
+            sheetDragHandle = {}
         ) {
             Column(
                 modifier = Modifier
@@ -224,7 +233,7 @@ fun TakeOutMapScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(bottom = paddingValues.calculateBottomPadding())
-                        .background(MaterialTheme.colors.background)
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
                     if (permissionGranted) {
                         Box {
@@ -249,8 +258,9 @@ fun TakeOutMapScreenContent(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Center
         ) {
-
-            if (bottomSheetState.isCollapsed && !bottomSheetState.isAnimationRunning) {
+            if (bottomSheetState.currentValue != SheetValue.Expanded
+                && bottomSheetState.hasPartiallyExpandedState
+                ) {
                 RowWithIcon(id = R.drawable.ic_plus) {
                     zoomChangeState.value = ZoomDirection.Plus
                 }
@@ -368,7 +378,7 @@ fun PointCard(
             .background(Color.White)
     ) {
 
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .padding(
                     start = 180.dp,
@@ -376,8 +386,8 @@ fun PointCard(
                     end = 180.dp
                 )
                 .clip(RoundedCornerShape(10.dp)),
-            color = Color.LightGray,
-            thickness = 4.dp
+            thickness = 4.dp,
+            color = Color.LightGray
         )
         if (!fullListShowState) {
             PointContent(
@@ -402,14 +412,14 @@ fun PointCard(
                         }
                     )
                     if (counter < city.points.size) {
-                        Divider(
+                        HorizontalDivider(
                             modifier = Modifier
                                 .padding(
                                     top = 8.dp,
                                     start = 16.dp
                                 ),
-                            color = Color.LightGray,
-                            thickness = 1.dp
+                            thickness = 1.dp,
+                            color = Color.LightGray
                         )
                     }
                     counter += 1

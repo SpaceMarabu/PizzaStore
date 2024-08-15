@@ -27,10 +27,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -63,8 +64,8 @@ import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
 import com.example.pizzastore.domain.entity.Product
 import com.example.pizzastore.domain.entity.ProductType
-import com.example.pizzastore.presentation.funs.CircularLoading
-import com.example.pizzastore.presentation.funs.ClickableIconByResourceId
+import com.example.pizzastore.presentation.utils.CircularLoading
+import com.example.pizzastore.presentation.utils.ClickableIconByResourceId
 import kotlinx.coroutines.launch
 
 @Composable
@@ -452,11 +453,11 @@ fun ChoseDeliveryType(
                 }
             }
         }
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .padding(top = 16.dp, start = 16.dp, end = 16.dp),
-            color = Color.LightGray,
-            thickness = 1.dp
+            thickness = 1.dp,
+            color = Color.LightGray
         )
         Row(
             modifier = Modifier
@@ -540,7 +541,7 @@ fun ChoseCity(
                 .size(28.dp),
             imageVector = ImageVector.vectorResource(R.drawable.ic_angle_down),
             contentDescription = null,
-            tint = MaterialTheme.colors.onPrimary.copy(alpha = 0.5f)
+            tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
         )
     }
 }

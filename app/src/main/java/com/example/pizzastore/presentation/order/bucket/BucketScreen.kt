@@ -19,9 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,8 +44,9 @@ import coil.request.ImageRequest
 import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.Product
-import com.example.pizzastore.presentation.funs.CircularLoading
-import com.example.pizzastore.presentation.funs.ClickableIconByResourceId
+import com.example.pizzastore.presentation.utils.CircularLoading
+import com.example.pizzastore.presentation.utils.ClickableIconByResourceId
+import com.example.pizzastore.presentation.utils.showToastWarn
 
 @Composable
 fun BucketScreen(
@@ -56,6 +57,22 @@ fun BucketScreen(
     val component = getApplicationComponent()
     val viewModel: BucketScreenViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState by viewModel.screenState.collectAsState()
+    val currentContext = LocalContext.current
+    val failedText = stringResource(R.string.something_went_wrong)
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.screenEvents.collect {
+            when (it) {
+                ScreenEvent.ErrorRepositoryResponse -> {
+                    showToastWarn(currentContext, failedText)
+                }
+
+                ScreenEvent.ExitScreen -> {
+                    onOrderingFinish()
+                }
+            }
+        }
+    }
 
     when (screenState) {
         is BucketScreenState.Initial -> {}
@@ -67,13 +84,6 @@ fun BucketScreen(
                 listProductsFromBucket = currentScreenState.productsList,
                 paddingValues = paddingValues
             )
-        }
-
-        BucketScreenState.CompleteOrdering -> {
-            DisposableEffect(Unit) {
-                onOrderingFinish()
-                onDispose { viewModel.onLeaveScreen() }
-            }
         }
 
         BucketScreenState.Loading -> {
@@ -122,13 +132,13 @@ fun BucketScreenContent(
 //<editor-fold desc="OderButton">
 @Composable
 fun OderButton(onClick: () -> Unit) {
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Spacer(modifier = Modifier.width(8.dp))
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -190,7 +200,7 @@ fun ProductItem(
     orderedProduct: Product,
     viewModel: BucketScreenViewModel
 ) {
-    Row (
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 8.dp)
@@ -212,7 +222,7 @@ fun ProductItem(
                 contentDescription = "image_product"
             )
         }
-        Column (
+        Column(
             modifier = Modifier
                 .height(80.dp)
                 .fillMaxWidth()
@@ -223,7 +233,7 @@ fun ProductItem(
                 text = orderedProduct.name,
                 fontSize = 20.sp
             )
-            Row (
+            Row(
                 modifier = Modifier
                     .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -234,7 +244,7 @@ fun ProductItem(
                             stringResource(id = R.string.roubles_postfix),
                     fontWeight = FontWeight.Light
                 )
-                Row (
+                Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(10.dp))
                         .background(Color.LightGray.copy(alpha = 0.15f)),

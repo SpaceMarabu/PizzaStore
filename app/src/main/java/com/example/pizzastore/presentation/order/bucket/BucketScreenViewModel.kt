@@ -1,6 +1,5 @@
 package com.example.pizzastore.presentation.order.bucket
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pizzastore.data.remotedatabase.model.DBResponseOrder
@@ -14,7 +13,9 @@ import com.example.pizzastore.domain.usecases.GetBucketUseCase
 import com.example.pizzastore.domain.usecases.GetDBResponseFlowUseCase
 import com.example.pizzastore.domain.usecases.IncreaseProductInBucketUseCase
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,12 +29,13 @@ class BucketScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val screenState = MutableStateFlow<BucketScreenState>(BucketScreenState.Initial)
+    private val _screenEvents = MutableSharedFlow<ScreenEvent>()
+    val screenEvents = _screenEvents.asSharedFlow()
 
     private val listProductTypes = ProductType.allTypes
     private val scope = viewModelScope
 
     init {
-        Log.d("TEST_SCOPE", "BucketScreenViewModel: $scope")
         scope.launch {
             subscribeBucket()
         }
@@ -105,12 +107,12 @@ class BucketScreenViewModel @Inject constructor(
             .collect {
                 when (it) {
                     is DBResponseOrder.Complete -> {
-                        screenState.value = BucketScreenState.CompleteOrdering
-
+                        _screenEvents.emit(ScreenEvent.ExitScreen)
                         scope.cancel()
-
                     }
-                    DBResponseOrder.Error -> {}
+                    DBResponseOrder.Error -> {
+                        _screenEvents.emit(ScreenEvent.ErrorRepositoryResponse)
+                    }
                     DBResponseOrder.Initial -> {}
                     DBResponseOrder.Processing -> {
                         screenState.value = BucketScreenState.Loading
@@ -152,12 +154,6 @@ class BucketScreenViewModel @Inject constructor(
             currentCount = currentScreenState.bucket.order[product] ?: 0
         }
         return currentCount
-    }
-    //</editor-fold>
-
-    //<editor-fold desc="onLeaveScreen">
-    fun onLeaveScreen() {
-        screenState.value = BucketScreenState.Initial
     }
     //</editor-fold>
 }

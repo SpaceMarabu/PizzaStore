@@ -1,14 +1,18 @@
 package com.example.pizzastore.presentation.home
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -18,12 +22,12 @@ import com.example.pizzastore.navigation.AppNavGraph
 import com.example.pizzastore.navigation.NavigationItem
 import com.example.pizzastore.navigation.Screen
 import com.example.pizzastore.navigation.rememberNavigationState
-import com.example.pizzastore.presentation.order.bucket.BucketScreen
 import com.example.pizzastore.presentation.chosecity.ChoseCityScreen
 import com.example.pizzastore.presentation.contacts.ContactsScreen
 import com.example.pizzastore.presentation.mapscreen.delivery.DeliveryMapScreen
 import com.example.pizzastore.presentation.mapscreen.takeout.TakeOutMapScreen
 import com.example.pizzastore.presentation.menu.MenuScreen
+import com.example.pizzastore.presentation.order.bucket.BucketScreen
 import com.example.pizzastore.presentation.order.orderstatus.OrderStatusScreen
 
 
@@ -52,7 +56,9 @@ fun MainScreen() {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                BottomNavigation {
+                NavigationBar(
+                    modifier = Modifier.shadow(elevation = 12.dp)
+                ) {
 
                     items.forEach { item ->
 
@@ -60,7 +66,7 @@ fun MainScreen() {
                             it.route == item.screen.route
                         } ?: false
 
-                        BottomNavigationItem(
+                        NavigationBarItem(
                             selected = selected,
                             onClick = {
                                 navigationState.navigateStartDestination(item.screen.route)
@@ -68,13 +74,17 @@ fun MainScreen() {
                             icon = {
                                 Icon(
                                     modifier = Modifier
-                                        .padding(8.dp),
+                                        .padding(8.dp)
+                                        .size(40.dp),
                                     imageVector = ImageVector.vectorResource(item.icon),
                                     contentDescription = null
                                 )
                             },
-                            selectedContentColor = MaterialTheme.colors.onPrimary,
-                            unselectedContentColor = MaterialTheme.colors.onSecondary
+                            colors = NavigationBarItemDefaults.colors().copy(
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSecondary,
+                                selectedIndicatorColor = Color.Transparent
+                            )
                         )
                     }
                 }

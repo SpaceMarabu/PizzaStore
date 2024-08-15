@@ -1,4 +1,4 @@
-package com.example.pizzastore.presentation.funs
+package com.example.pizzastore.presentation.utils
 
 import android.content.Context
 import android.graphics.Bitmap

@@ -54,10 +54,10 @@ class TakeoutMapScreenViewModel @Inject constructor(
 
     //<editor-fold desc="getLatLngCoords">
     fun getLatLngCoords(coords: String): LatLng {
-        val splitedCoords = coords.split(",")
+        val splittedCoords = coords.split(",")
         return LatLng(
-            splitedCoords[0].toDouble(),
-            splitedCoords[1].toDouble()
+            splittedCoords[0].toDouble(),
+            splittedCoords[1].toDouble()
         )
     }
     //</editor-fold>

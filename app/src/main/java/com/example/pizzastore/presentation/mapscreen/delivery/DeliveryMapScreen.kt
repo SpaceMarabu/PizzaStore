@@ -25,11 +25,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -57,11 +56,12 @@ import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.AddressLineInputResult
 import com.example.pizzastore.domain.entity.AddressPart
-import com.example.pizzastore.presentation.funs.CircularLoading
-import com.example.pizzastore.presentation.funs.pxToDp
+import com.example.pizzastore.presentation.utils.CircularLoading
+import com.example.pizzastore.presentation.utils.pxToDp
 import com.example.pizzastore.presentation.mapscreen.ChangeMapPosition
 import com.example.pizzastore.presentation.mapscreen.MapConsts.BASE_LOCATION
 import com.example.pizzastore.presentation.mapscreen.RequestPermissionsButton
+import com.example.pizzastore.presentation.utils.getOutlinedColors
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity.GRANULARITY_PERMISSION_LEVEL
 import com.google.android.gms.location.LocationCallback
@@ -78,12 +78,23 @@ import com.google.maps.android.compose.rememberCameraPositionState
 
 @Composable
 fun DeliveryMapScreen(
-    onSaveClicked: () -> Unit
+    exitScreen: () -> Unit
 ) {
 
     val component = getApplicationComponent()
     val viewModel: DeliveryMapScreenViewModel = viewModel(factory = component.getViewModelFactory())
     val screenState = viewModel.screenState.collectAsState()
+
+    LaunchedEffect(key1 = Unit) {
+        viewModel.screenEvents.collect {
+            when (it) {
+                ScreenEvent.ExitScreen -> {
+                    exitScreen()
+                }
+                else -> {}
+            }
+        }
+    }
 
     when (screenState.value) {
         is DeliveryMapScreenState.Initial -> {}
@@ -92,11 +103,7 @@ fun DeliveryMapScreen(
         }
 
         is DeliveryMapScreenState.Content -> {
-            DeliveryMapScreenContent(
-                viewModel
-            ) {
-                onSaveClicked()
-            }
+            DeliveryMapScreenContent(viewModel)
         }
     }
 }
@@ -104,8 +111,7 @@ fun DeliveryMapScreen(
 //<editor-fold desc="DeliveryMapScreenContent">
 @Composable
 fun DeliveryMapScreenContent(
-    viewModel: DeliveryMapScreenViewModel,
-    onAddressChosen: () -> Unit
+    viewModel: DeliveryMapScreenViewModel
 ) {
 
     var permissionGranted by remember {
@@ -168,7 +174,7 @@ fun DeliveryMapScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         if (permissionGranted) {
             Location() {
@@ -202,14 +208,7 @@ fun DeliveryMapScreenContent(
                     isLocationClicked = true
                 }
             }
-            EnterForm(
-                viewModel
-            ) {
-                if (!it) {
-                    onAddressChosen()
-                    viewModel.onLeavingScreen()
-                }
-            }
+            EnterForm(viewModel)
         } else {
             RequestPermissionsButton {
                 needRequestPermission = true
@@ -272,8 +271,7 @@ fun MapWithPin(
 //<editor-fold desc="EnterForm">
 @Composable
 fun EnterForm(
-    viewModel: DeliveryMapScreenViewModel,
-    onSaveClicked: (Boolean) -> Unit
+    viewModel: DeliveryMapScreenViewModel
 ) {
 
     var errorState by remember {
@@ -351,7 +349,6 @@ fun EnterForm(
                     .background(colorResource(id = R.color.orange))
                     .clickable {
                         viewModel.saveClick()
-                        onSaveClicked(errorState)
                     },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -486,9 +483,15 @@ fun TextFieldDelivery(
 
     var text by remember { mutableStateOf("") }
 
-    val startSavingState by viewModel.saveClickedFlow.collectAsState()
-    if (startSavingState) {
-        onSaveClicked(text)
+    LaunchedEffect(key1 = Unit) {
+        viewModel.screenEvents.collect {
+            when (it) {
+                ScreenEvent.SaveClicked -> {
+                    onSaveClicked(text)
+                }
+                else -> {}
+            }
+        }
     }
 
     OutlinedTextField(
@@ -499,16 +502,8 @@ fun TextFieldDelivery(
             text = it
         },
         keyboardOptions = keyboardOptions,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            unfocusedBorderColor = Color.LightGray,
-            unfocusedLabelColor = Color.LightGray,
-            backgroundColor = Color.White,
-            textColor = Color.Black,
-            focusedBorderColor = Color.Black,
-            focusedLabelColor = Color.Black,
-            cursorColor = Color.Gray
-        ),
-        shape = MaterialTheme.shapes.small.copy(CornerSize(10.dp))
+        shape = MaterialTheme.shapes.small.copy(CornerSize(10.dp)),
+        colors = getOutlinedColors()
     )
 }
 //</editor-fold>
@@ -528,17 +523,22 @@ fun TextFieldAddress(
         mutableStateOf(false)
     }
 
-    val startSavingState by viewModel.saveClickedFlow.collectAsState()
-    if (startSavingState) {
-        if (text.isBlank()) {
-            isError = true
+    LaunchedEffect(key1 = Unit) {
+        viewModel.screenEvents.collect {
+            when (it) {
+                ScreenEvent.SaveClicked -> {
+                    if (text.isBlank()) {
+                        isError = true
+                    }
+                    val addressLineInputResult = AddressLineInputResult(text, isError)
+                    onSaveClicked(addressLineInputResult)
+                }
+                else -> {}
+            }
         }
-        val addressLineInputResult = AddressLineInputResult(text, isError)
-        onSaveClicked(addressLineInputResult)
     }
 
-
-    val currentAddress by viewModel.addressFlow.collectAsState()
+    val currentAddress by viewModel.addressByGeocodeFlow.collectAsState()
     if (!currentAddress.isInputTextStarted) {
         val currentAddressValue = currentAddress
         if (currentAddressValue.address?.street != null) {
@@ -563,15 +563,7 @@ fun TextFieldAddress(
             text = it
         },
         isError = isError,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            unfocusedBorderColor = Color.LightGray,
-            unfocusedLabelColor = Color.LightGray,
-            backgroundColor = Color.White,
-            textColor = Color.Black,
-            focusedBorderColor = Color.Black,
-            focusedLabelColor = Color.Black,
-            cursorColor = Color.Gray
-        ),
+        colors = getOutlinedColors(),
         shape = MaterialTheme.shapes.small.copy(CornerSize(10.dp))
     )
 }

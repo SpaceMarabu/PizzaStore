@@ -17,9 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.LocalContentColor
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -38,7 +39,7 @@ import com.example.pizzastore.R
 import com.example.pizzastore.di.getApplicationComponent
 import com.example.pizzastore.domain.entity.City
 import com.example.pizzastore.domain.entity.DeliveryType
-import com.example.pizzastore.presentation.funs.CircularLoading
+import com.example.pizzastore.presentation.utils.CircularLoading
 
 @Composable
 fun ChoseCityScreen(
@@ -104,11 +105,11 @@ fun ChoseCity(
                 text = city.name,
                 fontSize = 24.sp
             )
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .padding(start = 8.dp),
-                color = Color.Gray,
-                thickness = 1.dp
+                thickness = 1.dp,
+                color = Color.Gray
             )
 
         }
@@ -160,7 +161,7 @@ fun ChoseDeliveryType(onDeliveryClicked: (DeliveryType) -> Unit) {
             ) {
                 onDeliveryClicked(DeliveryType.DELIVERY_TO)
             }
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp)
             )
             DeliveryOption(
