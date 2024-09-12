@@ -182,6 +182,7 @@ class FirebaseImpl : DatabaseService {
     }
 
     //</editor-fold>
+
     init {
         coroutineScope.launch {
             loadStoriesUri()
@@ -280,7 +281,7 @@ class FirebaseImpl : DatabaseService {
                 }
             deferred.await()
         }
-//</editor-fold>
+    //</editor-fold>
 
     //<editor-fold desc="getCurrentOrder">
     override fun getCurrentOrder() = currentOrderFlow.asStateFlow()

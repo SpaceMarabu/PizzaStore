@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -52,39 +53,22 @@ fun ContactsScreenContent(paddingValues: PaddingValues) {
     val githubIntent = getActionIntent(stringResource(R.string.github_project))
     val mailIntent = getActionIntent(stringResource(R.string.mail_contact_developer))
 
-    Column (
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(bottom = paddingValues.calculateBottomPadding()),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column (
+        Text(
+            text = "Contact me on:",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        Row(
             modifier = Modifier
-                .weight(1f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(top = 16.dp),
         ) {
-            Text(
-                text = stringResource(R.string.its_would_be_yours_contact),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Light
-            )
-            Text(
-                modifier = Modifier
-                    .padding(top = 8.dp),
-                text = stringResource(R.string.designed_and_developed),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                modifier = Modifier
-                    .padding(top = 4.dp),
-                text = stringResource(R.string.developer_RP),
-                fontSize = 20.sp
-            )
-        }
-        Row {
             ClickableIconByResourceId(
                 resourceId = R.drawable.ic_telegram,
                 size = iconSize,
@@ -100,10 +84,10 @@ fun ContactsScreenContent(paddingValues: PaddingValues) {
                 context.startActivity(mailIntent)
             }
         }
-        Row (
+        Row(
             modifier = Modifier
-            .padding(bottom = 32.dp)
-        ){
+                .padding(bottom = 32.dp)
+        ) {
             ClickableIconByResourceId(
                 resourceId = R.drawable.ic_github,
                 size = iconSize

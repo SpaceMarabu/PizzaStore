@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -173,78 +174,35 @@ fun MenuScreenContent(
     }
 }
 
-//<editor-fold desc="LazyProductColumn">
+//<editor-fold desc="ChoseCity">
 @Composable
-fun LazyProductColumn(
-    listState: LazyListState,
-    products: List<Product>,
-    bucket: Bucket,
-    viewModel: MenuScreenViewModel
+fun ChoseCity(
+    cityName: String,
+    paddingStart: Dp,
+    paddingTop: Dp,
+    onClick: () -> Unit
 ) {
-    LazyColumn(
+    Row(
         modifier = Modifier
-            .padding(
-                start = 16.dp,
-                top = 8.dp,
-                end = 16.dp
-            ),
-        state = listState
+            .padding(start = paddingStart, top = paddingTop)
+            .clip(RoundedCornerShape(30))
+            .clickable {
+                onClick()
+            },
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        items(products) { product ->
-
-            val request = ImageRequest
-                .Builder(LocalContext.current)
-                .data(product.photo)
-                .size(coil.size.Size.ORIGINAL)
-                .build()
-
-            val painter = rememberAsyncImagePainter(
-                model = request
-            )
-            val productCount = bucket.order[product] ?: 0
-
-            Row(
-                modifier = Modifier
-                    .padding(top = 8.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .border(
-                            width = 1.dp,
-                            color = Color.Black,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                        painter = painter,
-                        contentDescription = "image_product"
-                    )
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp)
-                        .height(130.dp)
-                ) {
-                    Text(text = product.name)
-                    Text(
-                        modifier = Modifier
-                            .padding(top = 4.dp),
-                        text = product.description,
-                        fontWeight = FontWeight.Light
-                    )
-                    PriceRow(
-                        productCount = productCount,
-                        product = product,
-                        viewModel = viewModel
-                    )
-                }
-            }
-        }
+        Text(
+            text = cityName,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal
+        )
+        Icon(
+            modifier = Modifier
+                .size(28.dp),
+            imageVector = ImageVector.vectorResource(R.drawable.ic_angle_down),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
+        )
     }
 }
 //</editor-fold>
@@ -257,7 +215,8 @@ fun PriceRow(
     viewModel: MenuScreenViewModel
 ) {
     Row(
-        modifier = Modifier.padding(top = 4.dp, end = 16.dp),
+        modifier = Modifier
+            .padding(top = 4.dp, end = 16.dp),
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -514,35 +473,78 @@ fun TextButton(
 }
 //</editor-fold>
 
-//<editor-fold desc="ChoseCity">
+//<editor-fold desc="LazyProductColumn">
 @Composable
-fun ChoseCity(
-    cityName: String,
-    paddingStart: Dp,
-    paddingTop: Dp,
-    onClick: () -> Unit
+fun LazyProductColumn(
+    listState: LazyListState,
+    products: List<Product>,
+    bucket: Bucket,
+    viewModel: MenuScreenViewModel
 ) {
-    Row(
+    LazyColumn(
         modifier = Modifier
-            .padding(start = paddingStart, top = paddingTop)
-            .clip(RoundedCornerShape(30))
-            .clickable {
-                onClick()
-            },
-        verticalAlignment = Alignment.CenterVertically
+            .padding(
+                start = 16.dp,
+                top = 8.dp,
+                end = 16.dp
+            ),
+        state = listState
     ) {
-        Text(
-            text = cityName,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal
-        )
-        Icon(
-            modifier = Modifier
-                .size(28.dp),
-            imageVector = ImageVector.vectorResource(R.drawable.ic_angle_down),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f)
-        )
+        items(products) { product ->
+
+            val request = ImageRequest
+                .Builder(LocalContext.current)
+                .data(product.photo)
+                .size(coil.size.Size.ORIGINAL)
+                .build()
+
+            val painter = rememberAsyncImagePainter(
+                model = request
+            )
+            val productCount = bucket.order[product] ?: 0
+
+            Row(
+                modifier = Modifier
+                    .heightIn(min = 150.dp)
+                    .padding(top = 8.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .border(
+                            width = 1.dp,
+                            color = Color.Black,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                ) {
+                    Image(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        painter = painter,
+                        contentDescription = "image_product"
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
+                ) {
+                    Text(text = product.name)
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 4.dp),
+                        text = product.description,
+                        fontWeight = FontWeight.Light
+                    )
+                    PriceRow(
+                        productCount = productCount,
+                        product = product,
+                        viewModel = viewModel
+                    )
+                }
+            }
+        }
     }
 }
 //</editor-fold>
